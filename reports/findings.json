@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:07:43.048798+00:00"
+    "timestamp": "2026-11-14T14:21:03.075480+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:07:43.085796+00:00"
+    "timestamp": "2026-11-14T14:21:03.113155+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.531246+00:00"
+    "timestamp": "2026-11-14T14:20:44.426526+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.531588+00:00"
+    "timestamp": "2026-11-14T14:20:44.426995+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.531841+00:00"
+    "timestamp": "2026-11-14T14:20:44.427240+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 4585263.0,
+      "hands_per_second": 4885238.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.532054+00:00"
+    "timestamp": "2026-11-14T14:20:44.427447+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.599487+00:00"
+    "timestamp": "2026-11-14T14:20:44.492311+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.768018+00:00"
+    "timestamp": "2026-11-14T14:20:44.662758+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,6 +214,27 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:11:57.806652+00:00"
+    "timestamp": "2026-11-14T14:20:44.701045+00:00"
+  },
+  "V-STATS-TOOLKIT": {
+    "fid": "V-STATS-TOOLKIT",
+    "title": "From-Scratch Statistics Toolkit Numerical Verification",
+    "question": "Do the from-scratch NumPy implementations of special functions, distributions, and parameter fits match SciPy/Statsmodels within numerical tolerances?",
+    "method": "Direct comparison on grid of test points and simulated datasets against SciPy/Statsmodels",
+    "results": {
+      "max_overall_discrepancy": 9.10821853494781e-08,
+      "diff_digamma": 2.3641956170550316e-09,
+      "diff_incomplete_beta": 2.220446049250313e-16,
+      "diff_incomplete_gamma": 1.6653345369377348e-16,
+      "diff_norm_cdf": 1.0408340855860843e-17,
+      "diff_chi2_cdf": 1.1102230246251565e-16,
+      "diff_beta_mle": 9.10821853494781e-08
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:20:44.072374+00:00"
   }
 }

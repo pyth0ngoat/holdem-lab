@@ -217,6 +217,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Scaffolded repository layout, findings system, notebook skeleton, and test harness (P0) | Establish reproducible research pipeline |
 | 2026-11-14 | Direct vectorized evaluator architecture in NumPy with base-15 kicker encoding (P1) | Surpasses 1M hands/s target (~3.95M hands/s) with 100% exact treys agreement |
 | 2026-11-14 | Monte Carlo & exhaustive turn equity engine (P2) | Combines batch sampling with precision stopping and 45,540 deal exact check |
+| 2026-11-14 | From-scratch statistics toolkit in pure NumPy with automated student checkers (P3) | Complies with numpy/stdlib rule; six student-owned functions scaffolded with stubs and tests |
 
 ## 19. Progress log
 
@@ -227,7 +228,9 @@ Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P
   - 2026-11-14: Vectorized pure-NumPy 5-card and 7-card evaluators implemented in holdem_lab/cards.py with base-15 scoring. Verified against treys on 20,000 hands with 0 category and 0 ordering mismatches. Evaluator throughput measured at 3.95M hands/sec (exceeding 1M target). Exact 5-card (2,598,960) and 7-card (133,784,560) combinatorics, log-scale probability figure, and 3 textbook benchmarks verified. Notebook section 4 added; tests in tests/test_core.py passed (11/11).
 - [x] P2 Equity engine and hand classes
   - 2026-11-14: Vectorized Monte Carlo equity engine and table simulation implemented in holdem_lab/equity.py. All 169 starting hand classes mapped with combo weights summing to 1,326. Verified exchangeability identity E[equity]=1/n for n=2..9, literature benchmarks (AA ~85.3% / 49%, 72o ~34.5% / 8.6%, 32o > 72o rank reversal at n>=6), and exact exhaustive turn enumeration (45,540 deals) within 95% CI. Notebook section 5 added; tests in tests/test_core.py passed (16/16).
-- [ ] P3 Statistics toolkit and student-owned stubs with checkers
+- [x] P3 Statistics toolkit and student-owned stubs with checkers
+  - 2026-11-14: Complete statistical toolkit implemented in holdem_lab/stats.py (pure NumPy/stdlib). Special functions, distributions, fits (Beta MoM/MLE, Gamma, Geometric, NB), chi-square GOF with pooling, OLS/WLS, two-way ANOVA interaction F, rank correlations, discrete tie-aware order stats, PGF moments, and ruin probability. Verified against SciPy and Statsmodels in tests/test_stats.py (10/10, 26/26 overall). Six student-owned function stubs and automated checkers placed in holdem_lab.ipynb Section 3 with USE_STUDENT=False flag.
+- [ ] P4 G1 and G2 (goodness-of-fit Table 2)
 - [ ] P4 G1 and G2 (goodness-of-fit Table 2)
 - [ ] P5 G7 formula and rank stability
 - [ ] P6 G3 streets (Tier B)
