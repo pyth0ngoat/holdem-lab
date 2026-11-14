@@ -645,5 +645,119 @@ def test_waiting_times_and_table3():
     assert np.all(df_t3["p_value"] > 0.01)
 
 
+# =========================================================================
+# Prompt 6 Tests: G3 Streets, Martingale, Rao-Blackwell, Rule of 2 and 4
+# =========================================================================
+
+def test_exact_draw_probabilities():
+    """Verify exact combinatorial draw hit probabilities for flush and straight draws."""
+    from holdem_lab.analysis import exact_draw_probability
+
+    # Flush draw: 9 outs on flop
+    p_flush = exact_draw_probability(9, "flop")
+    # Exact: (93*9 - 81) / 2162 = 756 / 2162
+    assert abs(p_flush - 756.0 / 2162.0) < 1e-12
+    assert abs(p_flush - 0.349676) < 1e-4
+
+    # Open-ended straight draw: 8 outs on flop
+    p_straight = exact_draw_probability(8, "flop")
+    # Exact: (93*8 - 64) / 2162 = 680 / 2162
+    assert abs(p_straight - 680.0 / 2162.0) < 1e-12
+    assert abs(p_straight - 0.314524) < 1e-4
+
+    # Turn probabilities: k / 46
+    assert abs(exact_draw_probability(9, "turn") - 9.0 / 46.0) < 1e-12
+    assert abs(exact_draw_probability(8, "turn") - 8.0 / 46.0) < 1e-12
+
+
+def test_martingale_property_toy_problem():
+    """Verify martingale property E[X_{t+1}|X_t] = X_t and E[X_T] = X_0 on toy process."""
+    import numpy as np
+
+    rng = np.random.default_rng(42)
+    n_sim = 50000
+    x0 = 0.50
+
+    # Three zero-mean mean-preserving steps with conditional noise
+    # Step 1: flop noise
+    eps1 = rng.choice([-0.2, 0.2], size=n_sim)
+    x1 = x0 + eps1
+
+    # Step 2: turn noise conditional on x1
+    eps2 = rng.normal(0.0, 0.1, size=n_sim)
+    x2 = x1 + eps2
+
+    # Step 3: river noise
+    eps3 = rng.choice([-0.15, 0.15], size=n_sim)
+    x3 = x2 + eps3
+
+    # Martingale expectation conservation: E[X_t] = X_0
+    assert abs(np.mean(x1) - x0) < 0.01
+    assert abs(np.mean(x2) - x0) < 0.01
+    assert abs(np.mean(x3) - x0) < 0.01
+
+    # Orthogonality of martingale increments: Cov(d_i, d_j) = 0
+    d1 = x1 - x0
+    d2 = x2 - x1
+    d3 = x3 - x2
+    assert abs(np.cov(d1, d2)[0, 1]) < 0.005
+    assert abs(np.cov(d2, d3)[0, 1]) < 0.005
+    assert abs(np.cov(d1, d3)[0, 1]) < 0.005
+
+
+def test_variance_decomposition_adds_up():
+    """Verify that the law of total variance decomposition holds: Var(X3) = sum(Var(d_i))."""
+    import numpy as np
+
+    rng = np.random.default_rng(123)
+    n_sim = 100000
+    x0 = 0.60
+
+    # Independent increments
+    d1 = rng.normal(0, 0.10, size=n_sim)
+    d2 = rng.normal(0, 0.15, size=n_sim)
+    d3 = rng.normal(0, 0.20, size=n_sim)
+
+    x3 = x0 + d1 + d2 + d3
+
+    var_total = np.var(x3)
+    var_sum = np.var(d1) + np.var(d2) + np.var(d3)
+
+    assert abs(var_total - var_sum) / var_total < 0.01
+
+
+def test_rao_blackwell_unbiased_lower_variance():
+    """Verify Rao-Blackwell estimator is unbiased and achieves strictly lower variance."""
+    import numpy as np
+
+    rng = np.random.default_rng(999)
+    n_sim = 20000
+
+    # True parameter theta
+    theta = 0.65
+    # X is an intermediate signal (flop signal)
+    # Y is terminal binary indicator (showdown outcome) with P(Y=1|X) = X
+    # Unconditional mean of X is theta
+    X = rng.beta(theta * 10, (1 - theta) * 10, size=n_sim)
+    Y = (rng.uniform(size=n_sim) < X).astype(np.float64)
+
+    # Plain MC estimator uses Y
+    # Rao-Blackwell estimator uses conditional expectation E[Y|X] = X
+    mean_mc = np.mean(Y)
+    mean_rb = np.mean(X)
+    var_mc = np.var(Y)
+    var_rb = np.var(X)
+
+    # Both are unbiased for theta
+    assert abs(mean_mc - theta) < 0.015
+    assert abs(mean_rb - theta) < 0.015
+
+    # Rao-Blackwell variance is strictly lower than plain MC variance
+    assert var_rb < var_mc
+    vr_ratio = var_mc / var_rb
+    assert vr_ratio > 1.2
+
+
+
 
 

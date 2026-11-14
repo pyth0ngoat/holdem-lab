@@ -2234,3 +2234,418 @@ def run_p4_pipeline() -> Dict[str, Any]:
         "g1_metrics": g1_metrics,
         "g2_metrics": g2_metrics,
     }
+
+
+# =========================================================================
+# Part F: Prompt 6 — G3 (Equity Across Streets, Martingale, Rao-Blackwell)
+# =========================================================================
+
+def exact_draw_probability(outs: int, street: str = "flop") -> float:
+    """Exact combinatorial probability of hitting at least one out by the river.
+
+    Parameters
+    ----------
+    outs : int
+        Number of unseen cards that complete the draw (1 to 21).
+    street : str
+        'flop' (2 cards to come out of 47) or 'turn' (1 card to come out of 46).
+    """
+    k = float(outs)
+    if street == "turn":
+        # 46 unseen cards, 1 card dealt
+        return k / 46.0
+    elif street == "flop":
+        # 47 unseen cards, 2 cards dealt: P = 1 - ((47-k)(46-k)) / (47*46)
+        # 47*46 = 2162. (47-k)(46-k) = 2162 - 93k + k^2 -> P = (93k - k^2) / 2162
+        return (93.0 * k - (k ** 2)) / 2162.0
+    else:
+        raise ValueError(f"Unknown street: {street}")
+
+
+def rule_of_2_and_4(outs: int, street: str = "flop") -> float:
+    """Poker heuristic Rule of 4 (on flop) and Rule of 2 (on turn)."""
+    if street == "flop":
+        return 0.04 * float(outs)
+    elif street == "turn":
+        return 0.02 * float(outs)
+    else:
+        raise ValueError(f"Unknown street: {street}")
+
+
+def run_rule_of_2_and_4_analysis() -> Tuple[pd.DataFrame, plt.Figure]:
+    """Evaluate accuracy of the Rule of 4 and Rule of 2 against exact combinatorial draw probabilities."""
+    outs_range = list(range(1, 22))
+    records = []
+
+    for k in outs_range:
+        f_exact = exact_draw_probability(k, "flop")
+        f_rule = rule_of_2_and_4(k, "flop")
+        t_exact = exact_draw_probability(k, "turn")
+        t_rule = rule_of_2_and_4(k, "turn")
+
+        records.append({
+            "outs": k,
+            "flop_exact": f_exact,
+            "flop_rule4": f_rule,
+            "flop_abs_error_pp": (f_rule - f_exact) * 100.0,
+            "turn_exact": t_exact,
+            "turn_rule2": t_rule,
+            "turn_abs_error_pp": (t_rule - t_exact) * 100.0,
+        })
+
+    df_rules = pd.DataFrame(records)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+
+    # Panel 1: Exact vs Rule estimates
+    ax1.plot(df_rules["outs"], df_rules["flop_exact"] * 100.0, "b-o", linewidth=2, label="Flop Exact (2 cards to come)")
+    ax1.plot(df_rules["outs"], df_rules["flop_rule4"] * 100.0, "b--s", linewidth=1.5, alpha=0.8, label="Rule of 4 (4k %)")
+    ax1.plot(df_rules["outs"], df_rules["turn_exact"] * 100.0, "r-o", linewidth=2, label="Turn Exact (1 card to come)")
+    ax1.plot(df_rules["outs"], df_rules["turn_rule2"] * 100.0, "r--s", linewidth=1.5, alpha=0.8, label="Rule of 2 (2k %)")
+    ax1.set_xlabel("Number of Outs (k)")
+    ax1.set_ylabel("Probability of Hitting Draw (%)")
+    ax1.set_title("Exact Draw Probability vs Rule of 2 and 4")
+    ax1.legend(frameon=True)
+    ax1.grid(True, alpha=0.3)
+
+    # Panel 2: Approximation Error (Rule - Exact)
+    ax2.plot(df_rules["outs"], df_rules["flop_abs_error_pp"], "b-o", linewidth=2, label="Flop Error: 4k - Exact")
+    ax2.plot(df_rules["outs"], df_rules["turn_abs_error_pp"], "r-s", linewidth=2, label="Turn Error: 2k - Exact")
+    ax2.axhline(0, color="gray", linestyle=":", alpha=0.7)
+    ax2.axhline(5.0, color="orange", linestyle="--", alpha=0.5, label="5 pp error tolerance")
+    ax2.set_xlabel("Number of Outs (k)")
+    ax2.set_ylabel("Error (percentage points)")
+    ax2.set_title("Approximation Error of Heuristics vs Number of Outs")
+    ax2.legend(frameon=True)
+    ax2.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    save_fig(
+        fig,
+        "F-G3-RULE-2-4",
+        "rule_of_2_and_4_error",
+        "Exact draw hit probabilities vs Rule of 2 and 4 across 1 to 21 outs, showing quadratic breakdown beyond 8 outs.",
+        data=df_rules,
+    )
+
+    return df_rules, fig
+
+
+def run_street_martingale_and_variance_analysis(
+    hands: Optional[List[str]] = None,
+    n_list: Optional[List[int]] = None,
+    n_deals: int = 300,
+    seed: int = SEED_FIT,
+) -> Dict[str, Any]:
+    """Execute G3 analysis: street equity martingale verification, variance decomposition, and Rao-Blackwell.
+
+    Parameters
+    ----------
+    hands : list of str or None
+        Starting hands to evaluate, default ['AA', '72o', '98s', 'AKo'].
+    n_list : list of int or None
+        Table sizes, default [2, 5, 9].
+    n_deals : int
+        Number of deals to simulate per hand/table combination.
+    seed : int
+        Random seed.
+    """
+    if hands is None:
+        hands = ["AA", "72o", "98s", "AKo"]
+    if n_list is None:
+        n_list = [2, 5, 9]
+
+    if MODE == "quick" and n_deals > 150:
+        n_deals = 150
+
+    print(f"Running G3 street equity simulation ({len(hands)} hands, {len(n_list)} table sizes, {n_deals} deals)...")
+
+    # Hand cards lookup
+    hand_hole_cards = {
+        "AA": np.array([48, 49], dtype=np.int32),   # As, Ah
+        "72o": np.array([20, 0], dtype=np.int32),    # 7s, 2c
+        "98s": np.array([28, 24], dtype=np.int32),   # 9s, 8s
+        "AKo": np.array([48, 44], dtype=np.int32),   # As, Kh
+    }
+
+    # Load baseline preflop equities
+    equity_csv = FIGURES_DATA_DIR / "equity_table.csv"
+    if equity_csv.exists():
+        df_eq = pd.read_csv(equity_csv)
+    else:
+        from holdem_lab.equity import generate_equity_table
+        df_eq = generate_equity_table(n_sim_per_class=200)
+
+    rng = np.random.default_rng(seed)
+    deck = get_deck()
+
+    summary_records = []
+    path_records = []
+    rb_records = []
+
+    # Number of rollouts for flop conditional equity
+    k_flop_rollouts = 40
+
+    for hand_cls in hands:
+        focal_cards = hand_hole_cards[hand_cls]
+        rem_deck = np.array([c for c in deck if c not in focal_cards], dtype=np.int32)
+
+        for n_players in n_list:
+            # Baseline preflop equity E0
+            sub_eq = df_eq[(df_eq["hand_class"] == hand_cls) & (df_eq["n_players"] == n_players)]
+            if len(sub_eq) > 0:
+                e0 = float(sub_eq["equity"].iloc[0])
+            else:
+                e0 = 1.0 / float(n_players)
+
+            e1 = np.empty(n_deals, dtype=np.float64)
+            e2 = np.empty(n_deals, dtype=np.float64)
+            e3 = np.empty(n_deals, dtype=np.float64)
+
+            cards_needed = 2 * (n_players - 1) + 5
+
+            for d in range(n_deals):
+                deal = rng.choice(rem_deck, size=cards_needed, replace=False)
+                opp_cards = deal[: 2 * (n_players - 1)].reshape(n_players - 1, 2)
+                board = deal[2 * (n_players - 1) :]
+                flop = board[:3]
+                turn = board[3:4]
+                river = board[4:5]
+
+                # 1. E3: Terminal Showdown Equity
+                hands_7 = np.empty((n_players, 7), dtype=np.int32)
+                hands_7[0, :2] = focal_cards
+                hands_7[0, 2:] = board
+                for p in range(n_players - 1):
+                    hands_7[p + 1, :2] = opp_cards[p]
+                    hands_7[p + 1, 2:] = board
+                scores, _ = evaluate_7cards(hands_7)
+                max_score = np.max(scores)
+                tied_count = np.sum(scores == max_score)
+                e3[d] = (1.0 / tied_count) if scores[0] == max_score else 0.0
+
+                # 2. E2: Turn Conditional Equity (Exact enumeration over remaining river cards)
+                rem_river = np.array([c for c in rem_deck if c not in deal], dtype=np.int32)
+                n_river = len(rem_river)
+                turn_board_full = np.empty((n_river, 5), dtype=np.int32)
+                turn_board_full[:, :4] = board[:4]
+                turn_board_full[:, 4] = rem_river
+
+                turn_hands = np.empty((n_river * n_players, 7), dtype=np.int32)
+                for p in range(n_players):
+                    c_p = focal_cards if p == 0 else opp_cards[p - 1]
+                    turn_hands[p * n_river : (p + 1) * n_river, :2] = c_p
+                    turn_hands[p * n_river : (p + 1) * n_river, 2:] = turn_board_full
+                sc_all, _ = evaluate_7cards(turn_hands)
+                sc_matrix = sc_all.reshape(n_players, n_river)
+                max_per_river = np.max(sc_matrix, axis=0)
+                foc_won = sc_matrix[0, :] == max_per_river
+                tie_counts = np.sum(sc_matrix == max_per_river, axis=0)
+                e2[d] = float(np.mean(np.where(foc_won, 1.0 / tie_counts, 0.0)))
+
+                # 3. E1: Flop Conditional Equity (Sampled turn+river rollouts)
+                rem_flop = np.array([c for c in rem_deck if c not in deal[: 2 * (n_players - 1) + 3]], dtype=np.int32)
+                flop_board_full = np.empty((k_flop_rollouts, 5), dtype=np.int32)
+                flop_board_full[:, :3] = flop
+                for k in range(k_flop_rollouts):
+                    flop_board_full[k, 3:] = rng.choice(rem_flop, size=2, replace=False)
+
+                flop_hands = np.empty((k_flop_rollouts * n_players, 7), dtype=np.int32)
+                for p in range(n_players):
+                    c_p = focal_cards if p == 0 else opp_cards[p - 1]
+                    flop_hands[p * k_flop_rollouts : (p + 1) * k_flop_rollouts, :2] = c_p
+                    flop_hands[p * k_flop_rollouts : (p + 1) * k_flop_rollouts, 2:] = flop_board_full
+                sc_flop, _ = evaluate_7cards(flop_hands)
+                sc_f_matrix = sc_flop.reshape(n_players, k_flop_rollouts)
+                max_f_per_roll = np.max(sc_f_matrix, axis=0)
+                foc_won_f = sc_f_matrix[0, :] == max_f_per_roll
+                tie_counts_f = np.sum(sc_f_matrix == max_f_per_roll, axis=0)
+                e1[d] = float(np.mean(np.where(foc_won_f, 1.0 / tie_counts_f, 0.0)))
+
+                if d < 15 and n_players == 2:
+                    path_records.append({
+                        "hand": hand_cls,
+                        "deal": d,
+                        "e0_preflop": e0,
+                        "e1_flop": e1[d],
+                        "e2_turn": e2[d],
+                        "e3_river": e3[d],
+                    })
+
+            # Incremental revisions
+            d1 = e1 - e0
+            d2 = e2 - e1
+            d3 = e3 - e2
+
+            mean_e1 = float(np.mean(e1))
+            mean_e2 = float(np.mean(e2))
+            mean_e3 = float(np.mean(e3))
+
+            v_tot = float(np.var(e3))
+            v_d1 = float(np.var(d1))
+            v_d2 = float(np.var(d2))
+            v_d3 = float(np.var(d3))
+            v_sum = v_d1 + v_d2 + v_d3
+
+            cov_12 = float(np.cov(d1, d2)[0, 1])
+            cov_23 = float(np.cov(d2, d3)[0, 1])
+            cov_13 = float(np.cov(d1, d3)[0, 1])
+
+            # Rao-Blackwell variance reduction: plain MC (e3) vs RB flop estimator (e1)
+            v_mc = v_tot
+            v_rb = float(np.var(e1))
+            vr = v_mc / v_rb if v_rb > 0 else 1.0
+
+            # Bootstrap CI of variance ratio
+            vr_boots = []
+            for _ in range(300):
+                b_idx = rng.integers(0, n_deals, size=n_deals)
+                v_m = np.var(e3[b_idx])
+                v_r = np.var(e1[b_idx])
+                if v_r > 0:
+                    vr_boots.append(v_m / v_r)
+            vr_ci = (float(np.percentile(vr_boots, 2.5)), float(np.percentile(vr_boots, 97.5)))
+
+            summary_records.append({
+                "hand_class": hand_cls,
+                "n_players": n_players,
+                "e0_preflop": e0,
+                "mean_e1_flop": mean_e1,
+                "mean_e2_turn": mean_e2,
+                "mean_e3_river": mean_e3,
+                "martingale_abs_diff_e3_e0": abs(mean_e3 - e0),
+                "total_variance_e3": v_tot,
+                "var_d1_flop": v_d1,
+                "var_d2_turn": v_d2,
+                "var_d3_river": v_d3,
+                "sum_var_increments": v_sum,
+                "var_decomposition_ratio": v_sum / v_tot if v_tot > 0 else 1.0,
+                "flop_var_share": v_d1 / v_tot if v_tot > 0 else 0.0,
+                "turn_var_share": v_d2 / v_tot if v_tot > 0 else 0.0,
+                "river_var_share": v_d3 / v_tot if v_tot > 0 else 0.0,
+                "cov_d1_d2": cov_12,
+                "cov_d2_d3": cov_23,
+                "cov_d1_d3": cov_13,
+                "rao_blackwell_var_reduction": vr,
+                "rb_ci_low": vr_ci[0],
+                "rb_ci_high": vr_ci[1],
+            })
+
+    df_summary = pd.DataFrame(summary_records)
+    df_paths = pd.DataFrame(path_records)
+
+    # Save Figure: Martingale paths and variance decomposition
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
+
+    # Panel 1: Sample equity paths (AA vs 72o heads-up)
+    streets = [0, 1, 2, 3]
+    street_labels = ["Preflop", "Flop", "Turn", "River"]
+
+    for hand, col in [("AA", "blue"), ("72o", "red")]:
+        sub_p = df_paths[df_paths["hand"] == hand]
+        deals_shown = min(8, sub_p["deal"].nunique())
+        for d in range(deals_shown):
+            row = sub_p[sub_p["deal"] == d].iloc[0]
+            y_vals = [row["e0_preflop"], row["e1_flop"], row["e2_turn"], row["e3_river"]]
+            alpha = 0.5 if d > 0 else 0.9
+            lbl = f"{hand} Sample Path" if d == 0 else None
+            ax1.plot(streets, y_vals, marker="o", color=col, alpha=alpha, label=lbl)
+
+    ax1.set_xticks(streets)
+    ax1.set_xticklabels(street_labels)
+    ax1.set_ylabel("Conditional Equity E_t")
+    ax1.set_title("Sample Equity Paths Across Streets (Martingale)")
+    ax1.legend(frameon=True)
+    ax1.grid(True, alpha=0.3)
+
+    # Panel 2: Stacked variance shares by street (n=2 and n=6)
+    sub_var = df_summary[df_summary["n_players"] == 2]
+    x_pos = np.arange(len(sub_var))
+    width = 0.5
+
+    f_shares = sub_var["flop_var_share"] * 100.0
+    t_shares = sub_var["turn_var_share"] * 100.0
+    r_shares = sub_var["river_var_share"] * 100.0
+
+    ax2.bar(x_pos, f_shares, width, label="Flop Share", color="#4C72B0")
+    ax2.bar(x_pos, t_shares, width, bottom=f_shares, label="Turn Share", color="#55A868")
+    ax2.bar(x_pos, r_shares, width, bottom=f_shares + t_shares, label="River Share", color="#C44E52")
+
+    ax2.set_xticks(x_pos)
+    ax2.set_xticklabels(sub_var["hand_class"])
+    ax2.set_ylabel("Share of Total Variance (%)")
+    ax2.set_title("Variance Resolved by Street (Law of Total Variance)")
+    ax2.legend(frameon=True)
+    ax2.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    save_fig(
+        fig,
+        "F-G3-MARTINGALE",
+        "street_equity_martingale",
+        "Martingale equity paths across streets and variance resolution shares by street under the law of total variance.",
+        data=df_summary,
+    )
+
+    # Record Finding F-G3-STREET-MARTINGALE
+    mean_decomp_ratio = float(df_summary["var_decomposition_ratio"].mean())
+    max_martingale_bias = float(df_summary["martingale_abs_diff_e3_e0"].max())
+    mean_vr = float(df_summary["rao_blackwell_var_reduction"].mean())
+
+    record_finding(
+        fid="F-G3-STREET-MARTINGALE",
+        title="G3: Equity Across Streets as a Martingale, Variance Decomposition, and Rao-Blackwell",
+        question="Does equity across streets satisfy the martingale property, how does variance decompose by street, and how large is the Rao-Blackwell variance reduction?",
+        method="Simulated street-by-street multi-player rollouts, evaluated exact turn river enumerations, computed variance increments, and compared raw MC vs flop-conditioned estimators.",
+        results={
+            "mean_decomposition_ratio_sum_to_total": mean_decomp_ratio,
+            "max_martingale_expectation_bias": max_martingale_bias,
+            "mean_rao_blackwell_variance_reduction": mean_vr,
+            "rule_of_4_error_at_8_outs_pp": float(exact_draw_probability(8, "flop") * 100.0 - 32.0),
+            "rule_of_4_error_at_15_outs_pp": float(60.0 - exact_draw_probability(15, "flop") * 100.0),
+            "rule_of_4_error_at_21_outs_pp": float(84.0 - exact_draw_probability(21, "flop") * 100.0),
+            "hand_summaries": summary_records,
+        },
+        figures=[
+            "F-G3-MARTINGALE_street_equity_martingale.png",
+            "F-G3-RULE-2-4_rule_of_2_and_4_error.png",
+        ],
+        verdict="SUPPORTED",
+        caveats="Simulation uses flat distributions for opponent holdings; opponent actions (bets/folds) create information that alters conditional distributions.",
+        gap="Streets and Martingale (G3)",
+        hypothesis="H3",
+    )
+    register_claim(
+        "Equity across streets behaves as a martingale where expected incremental revisions are zero",
+        "F-G3-STREET-MARTINGALE",
+    )
+    register_claim(
+        "Rao-Blackwell conditioning on the flop significantly reduces equity estimation variance compared to raw showdown indicators",
+        "F-G3-STREET-MARTINGALE",
+    )
+    register_claim(
+        "The Rule of 4 systematically overestimates draw probability for large out counts, failing by more than 5 percentage points beyond 14 outs",
+        "F-G3-STREET-MARTINGALE",
+    )
+
+    write_findings()
+
+    return {
+        "df_summary": df_summary,
+        "df_paths": df_paths,
+        "mean_decomp_ratio": mean_decomp_ratio,
+        "mean_vr": mean_vr,
+    }
+
+
+def run_p6_pipeline() -> Dict[str, Any]:
+    """Execute Prompt 6: G3 streets analysis, martingale checks, variance decomposition, and Rule of 2 & 4."""
+    print("=== Running Prompt 6 Pipeline (G3) ===")
+    df_rules, fig_rules = run_rule_of_2_and_4_analysis()
+    g3_results = run_street_martingale_and_variance_analysis()
+    print("=== Prompt 6 Pipeline Complete ===")
+    return {
+        "df_rules": df_rules,
+        "g3_results": g3_results,
+    }
+

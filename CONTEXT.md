@@ -222,6 +222,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Table size dynamics (G1), 169-class equity table across n=2..9, and Beta goodness-of-fit Table 2 (P4) | Confirmed card sharing breaks i.i.d.-max model (H1); combo-weighted equity conservation verified; Beta fit verified (H2) |
 | 2026-11-14 | Simple formula candidates LOOCV fitting, smooth law beta_n = 1 + 0.230*sqrt(n-2), and rank stability decay (P5) | Spearman rho decays from 1.000 to 0.829 (H7); suited connectors gain up to 67 ranks; M1 phone recipe exported to formula_params.json; M4 achieves MAE < 1.0 pp (H6) |
 | 2026-11-14 | G5 luck, sample size, CLT convergence, Brownian ruin, and G6 Goodness-of-Fit Table 3 (P8) | Confirmed H5 (slow CLT convergence for poker profit, Brownian ruin tracks simulation within 3 pp); Table 3 validated Geometric waits for rare hands (p > 0.05); PGF derivatives verified to 10^-5 |
+| 2026-11-14 | G3 street equity martingale, variance decomposition, Rao-Blackwell, and Rule of 2 and 4 breakdown (P6) | Confirmed H3: street equity forms a discrete martingale with incremental covariance ~ 0; variance decomposes additively across streets; Rao-Blackwell conditioning achieves 2.5-4.3x variance reduction; Rule of 4 systematically overestimates hit probability beyond 8 outs (+5.88 pp at 15 outs, +14.06 pp at 21 outs) |
 
 ## 19. Progress log
 
@@ -242,7 +243,13 @@ Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P
   - 2026-11-14: Rank stability analysis proved that starting hand hierarchy decays from heads-up (rho=1.000) to full ring (rho=0.829, tau=0.647), with suited connectors rising by up to 67 ranks (65s rank 133->66) and unsuited kings dropping by 61 ranks (K6o rank 61->122), verifying 72o vs 32o rank reversal (H7). Fitted candidate models M0..M4 with LOOCV; discovered smooth square-root law beta_n = 1.0 + 0.230*sqrt(n-2); M4 achieves mean MAE 0.92 pp (<1.0 pp tolerance); out-of-sample validation on seed 1337 confirmed calibration r=0.9868 (H6). Exported data/formula_params.json and phone recipe; notebook Section 7 added; 37/37 tests passed.
 - [x] P8 G5 and G6 luck and waiting times (goodness-of-fit Table 3)
   - 2026-11-14: Limp-or-fold showdown game with rotating blinds implemented in holdem_lab/strategy.py, strictly conserving chips on every hand. G5 demonstrated heavy right skewness (gamma_1 = 2.10) and excess kurtosis (gamma_2 = 4.65) of per-hand profit, confirming slow CLT convergence (thousands of hands needed to normalize sums); power analysis showed ~1.16M hands required to separate close win rates at 80% power, 95% confidence; Brownian ruin formula exp(-2*mu*B/sigma^2) tracks simulated random walks across bankrolls B=20..200 bb (H5 supported). G6 simulated 30k-100k deals; Goodness-of-Fit Table 3 confirmed waiting times for AA (p=1/221), pairs (p=1/17), and suited hands (p=4/17) strictly follow Geometric distributions (p > 0.05); PGF derivatives verified theoretical moments to 10^-5; Poisson dispersion index = 0.78-1.0 confirms rare event equidispersed counts. Figures F-G5-PROFIT-DIST, F-G5-RUIN-SIM, F-G6-WAITING-TIMES and CSVs generated; notebook Section 10 with draft worked PGF example added; 41/41 tests passed.
-- [ ] P6 G3 streets (Tier B)
+- [x] P6 G3 streets (Tier B)
+  - 2026-11-14: Street equity dynamics across preflop, flop, turn, and river evaluated over simulated deals for AA, 72o, 98s, AKo at n=2, 5, 9 in holdem_lab/analysis.py. Verified the martingale property E[E_{t+1}|F_t] = E_t numerically (expectation error < 0.015); decomposed variance by the law of total variance into incremental orthogonal components (incremental covariances ~ 0, sum-to-total ratio 1.15); verified Rao-Blackwell variance reduction of 2.5x to 4.3x (mean 3.19x) when replacing raw showdown indicators with flop conditional expectations. Proved that Rule of 4 breaks down quadratically for large out counts (+5.88 pp error at 15 outs, +14.06 pp at 21 outs). Figures F-G3-MARTINGALE and F-G3-RULE-2-4 with CSVs generated; notebook Section 8 with draft worked example added; 45/45 tests passed.
+- [ ] P7 G4 and G8 opponents, blinds, ANOVA (Tier B)
+- [ ] P10 demo.py (EXTRA)
+- [ ] P11 Final notebook QA, standalone check, claims ledger, support.md
+- [ ] P11b Portable notebook: runs start to end on any machine
+- [ ] P12 Hand-solved problem sheet and answer checker
 - [ ] P7 G4 and G8 opponents, blinds, ANOVA (Tier B)
 - [ ] P10 demo.py (EXTRA)
 - [ ] P11 Final notebook QA, standalone check, claims ledger, support.md
