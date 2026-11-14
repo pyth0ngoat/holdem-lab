@@ -865,6 +865,54 @@ def test_anova_on_planted_interaction():
     assert anova_res["eta_squared"] > 0.20
 
 
+def test_hand_examples_checker():
+    """Verify check_answer and generate_hand_examples_sheet for Prompt 12."""
+    from holdem_lab.analysis import _ATTEMPTS, check_answer, generate_hand_examples_sheet
+
+    # Verify sheet generation
+    sheet_path = generate_hand_examples_sheet()
+    assert Path(sheet_path).exists()
+    content = Path(sheet_path).read_text()
+    assert "Problem E1: Discrete Order Statistic" in content
+    assert "Problem E2: Exact Combinatorial Draw" in content
+    assert "Problem E3: Beta Distribution Parameters" in content
+    assert "Problem E4: Chi-Square Goodness-of-Fit" in content
+    assert "Problem E5: Geometric Waiting Time" in content
+    assert "Problem E6: Starting-Hand Formula Prediction" in content
+    assert "Setup in Words" in content
+    assert "Given Numbers" in content
+    assert "What to Compute" in content
+
+    # Verify PASS on all 6 primary problem keys
+    assert check_answer("E1", 0.6022) is True
+    assert check_answer("E2", 0.3497) is True
+    assert check_answer("E3", (6.61, 33.05)) is True
+    assert check_answer("E4", 0.7499) is True
+    assert check_answer("E5", 221.0) is True
+    assert check_answer("E6", 0.3486) is True
+
+    # Verify granular sub-keys
+    assert check_answer("E1_tie_1", 0.1786) is True
+    assert check_answer("E2_combos_total", 1081) is True
+    assert check_answer("E2_equity_identity", 0.5000) is True
+    assert check_answer("E3_alpha", 6.61) is True
+    assert check_answer("E4_df", 3) is True
+    assert check_answer("E5_var", 48620) is True
+    assert check_answer("E6_beta6", 1.460) is True
+
+    # Verify attempt tracking and FAIL behavior
+    test_key = "E1_test_fail"
+    _ATTEMPTS[test_key] = 0
+    # Unknown key
+    assert check_answer("E_NONEXISTENT", 1.0) is False
+
+    # Attempt 1 on known key with wrong value
+    assert check_answer("E1_P_max_1", 0.999) is False
+    # Attempt 2 on known key with wrong value (should report reference)
+    assert check_answer("E1_P_max_1", 0.999) is False
+
+
+
 
 
 

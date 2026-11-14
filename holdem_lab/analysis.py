@@ -3011,3 +3011,311 @@ def run_p7_pipeline() -> Dict[str, Any]:
     }
 
 
+# =====================================================================
+# HAND-SOLVED PROBLEM SHEET AND ANSWER CHECKER (PROMPT 12 / SECTION 2A)
+# =====================================================================
+
+_HAND_ANSWERS: Dict[str, Dict[str, Any]] = {
+    # Problem E1: Discrete Order Statistic of Maximum
+    "E1": {"truth": 0.6022, "tol": 0.005, "desc": "P(M = 1) winning category One Pair"},
+    "E1_P_max_1": {"truth": 0.6022, "tol": 0.005, "desc": "P(M = 1)"},
+    "E1_tie_1": {"truth": 0.1786, "tol": 0.005, "desc": "P(tie at 1)"},
+    "E1_F_1": {"truth": 0.9238, "tol": 0.005, "desc": "F(1)"},
+
+    # Problem E2: Exact Combinatorial Draw & 1/n Identity
+    "E2": {"truth": 0.3497, "tol": 0.005, "desc": "P(flush hit by river)"},
+    "E2_flush_prob": {"truth": 0.3497, "tol": 0.005, "desc": "P(flush hit by river)"},
+    "E2_combos_total": {"truth": 1081.0, "tol": 1.0, "desc": "C(47, 2) total unseen combos"},
+    "E2_combos_miss": {"truth": 703.0, "tol": 1.0, "desc": "C(38, 2) combos with 0 spades"},
+    "E2_equity_identity": {"truth": 0.5000, "tol": 0.005, "desc": "Player 1 equity E2 (1/n identity)"},
+
+    # Problem E3: Beta MoM Parameter Estimates
+    "E3": {"truth": (6.61, 33.05), "tol": (0.05, 0.25), "desc": "(alpha, beta)"},
+    "E3_alpha": {"truth": 6.61, "tol": 0.05, "desc": "alpha_mom"},
+    "E3_beta": {"truth": 33.05, "tol": 0.25, "desc": "beta_mom"},
+
+    # Problem E4: Chi-Square Goodness-of-Fit Test
+    "E4": {"truth": 0.7499, "tol": 0.02, "desc": "Pearson chi-square test statistic"},
+    "E4_chi2": {"truth": 0.7499, "tol": 0.02, "desc": "Pearson chi-square test statistic"},
+    "E4_df": {"truth": 3.0, "tol": 0.1, "desc": "Degrees of freedom"},
+
+    # Problem E5: Geometric Waiting Time via PGF
+    "E5": {"truth": 221.0, "tol": 1.0, "desc": "E[X] mean waiting time"},
+    "E5_mean": {"truth": 221.0, "tol": 1.0, "desc": "E[X] mean waiting time"},
+    "E5_var": {"truth": 48620.0, "tol": 200.0, "desc": "Var(X)"},
+    "E5_std": {"truth": 220.50, "tol": 1.0, "desc": "Std(X)"},
+
+    # Problem E6: Formula Equity Prediction vs Empirical
+    "E6": {"truth": 0.3486, "tol": 0.01, "desc": "E_hat_6 formula prediction"},
+    "E6_pred": {"truth": 0.3486, "tol": 0.01, "desc": "E_hat_6 formula prediction"},
+    "E6_beta6": {"truth": 1.460, "tol": 0.01, "desc": "beta_6 power law exponent"},
+    "E6_error": {"truth": 0.0793, "tol": 0.01, "desc": "Absolute error (|E_hat - E_empirical|)"},
+}
+
+_ATTEMPTS: Dict[str, int] = {}
+
+
+def check_answer(example_id: str, value: Any) -> bool:
+    """Compare student hand-solved answer against reference truth within stated tolerance.
+
+    Only prints PASS or FAIL. Only after a PASS or a second failed attempt it prints
+    the reference final value. It never prints worked steps or derivations.
+    """
+    if example_id not in _HAND_ANSWERS:
+        print(f"[UNKNOWN] Unknown example ID: '{example_id}'. Available: {sorted(list(_HAND_ANSWERS.keys()))}")
+        return False
+
+    entry = _HAND_ANSWERS[example_id]
+    truth = entry["truth"]
+    tol = entry["tol"]
+    desc = entry["desc"]
+
+    is_match = False
+    if isinstance(truth, (tuple, list)) and isinstance(value, (tuple, list)) and len(truth) == len(value):
+        is_match = all(abs(float(v) - float(t)) <= float(tl) for v, t, tl in zip(value, truth, tol))
+    else:
+        try:
+            val_f = float(value)
+            t_f = float(truth)
+            tol_f = float(tol)
+            is_match = abs(val_f - t_f) <= tol_f
+        except (ValueError, TypeError):
+            is_match = False
+
+    if is_match:
+        print(f"PASS: {example_id} ({desc}) is correct! Final value: {truth}")
+        return True
+    else:
+        _ATTEMPTS[example_id] = _ATTEMPTS.get(example_id, 0) + 1
+        count = _ATTEMPTS[example_id]
+        if count >= 2:
+            print(f"FAIL: {example_id} did not match after {count} attempts. Reference value: {truth}")
+        else:
+            print(f"FAIL: {example_id} is incorrect. Please re-check your calculation and try again.")
+        return False
+
+
+def generate_hand_examples_sheet() -> str:
+    """Dynamically generate reports/hand_examples_sheet.md from real project data.
+
+    Follows CONTEXT.md Section 2A: includes setup in words, given numbers, what to compute,
+    and no solutions or worked steps.
+    """
+    counts_df = pd.read_csv(FIGURES_DATA_DIR / "V-CARD-COUNTS_exact_probabilities.csv")
+    equity_df = pd.read_csv(FIGURES_DATA_DIR / "equity_table.csv")
+    gof1_df = pd.read_csv(FIGURES_DATA_DIR / "V-UCI-EVAL_table1_gof.csv")
+    gof2_df = pd.read_csv(FIGURES_DATA_DIR / "F-G2-EQUITY-TABLE_table2_beta_gof.csv")
+
+    with open(DATA_DIR / "formula_params.json") as f:
+        formula_params = json.load(f)
+
+    # E1 numbers
+    p0 = float(counts_df.loc[counts_df["Category ID"] == 0, "5-Card Probability"].values[0])
+    p1 = float(counts_df.loc[counts_df["Category ID"] == 1, "5-Card Probability"].values[0])
+    p2 = 1.0 - p0 - p1
+
+    # E3 numbers
+    row_n6 = gof2_df[gof2_df["n_players"] == 6].iloc[0]
+    mean_n6 = float(row_n6["target_mean_1_over_n"])
+    alpha_n6 = float(row_n6["alpha_mom"])
+    beta_n6 = float(row_n6["beta_mom"])
+    var_n6 = float((mean_n6 * (1.0 - mean_n6)) / (alpha_n6 + beta_n6 + 1.0))
+
+    # E4 numbers
+    cats_e4 = gof1_df[gof1_df["class_id"].isin([4, 5, 6, 7])]
+    e4_table = []
+    for _, r in cats_e4.iterrows():
+        e4_table.append((str(r["class_name"]), int(r["train_observed"]), float(r["train_expected"])))
+
+    # E6 numbers
+    kk_n2 = equity_df[(equity_df["hand_class"] == "KK") & (equity_df["n_players"] == 2)].iloc[0]
+    kk_n6 = equity_df[(equity_df["hand_class"] == "KK") & (equity_df["n_players"] == 6)].iloc[0]
+    b_law = float(formula_params["smooth_law"]["b"])
+    beta_6 = 1.0 + b_law * np.sqrt(6 - 2)
+    p2_kk = float(kk_n2["equity"])
+    e6_kk = float(kk_n6["equity"])
+
+    raw = """# Hand-Solved Problems Sheet — Hold'em Lab
+## Applied Probability Distributions (THM6242)
+
+> **Instructions for the Student Author (CONTEXT.md Section 2A):**
+> Solve each of the six problems below by hand on paper using the given real project numbers.
+> Each problem corresponds to one of the course units and reinforces a core mathematical concept from the project.
+> When you have completed your calculations, check your numerical results using `check_answer(example_id, value)` in Section 13 of `holdem_lab.ipynb`.
+> **Do not write solution steps into the repository** — your handwritten solutions belong in your personal coursework folder and report appendix.
+
+---
+
+## Problem E1: Discrete Order Statistic of Maximum (Tie-Aware)
+**Topic:** Unit 4 (Order Statistics) & Unit 2 (Discrete Distributions)
+
+### Setup in Words
+In Texas Hold'em showdowns, determining the winning hand requires finding the maximum among multiple players. Consider a simplified discrete hand-ranking model where hands are grouped into three mutually exclusive, ordered categories:
+- Category 0: High Card ($x = 0$)
+- Category 1: One Pair ($x = 1$)
+- Category 2: Two Pair or Better ($x = 2$)
+
+Suppose two players ($n = 2$) each hold a hand drawn independently from this distribution, denoted $X_1, X_2 \\sim P(X)$ (i.i.d.). Let $M = \\max(X_1, X_2)$ denote the category of the winning hand.
+
+### Given Numbers
+The marginal category probabilities from the project's exact 5-card enumeration (`figures/data/V-CARD-COUNTS_exact_probabilities.csv`) are:
+- $P(X = 0) = __P0__$
+- $P(X = 1) = __P1__$
+- $P(X = 2) = __P2__$
+*(Note: __P0__ + __P1__ + __P2__ = 1.0000)*
+
+### What to Compute
+1. Compute the cumulative distribution values $F(0) = P(X \\le 0)$ and $F(1) = P(X \\le 1)$.
+2. Compute $P(M = 1)$, the probability that the winning category is exactly One Pair, using the discrete order-statistic formula:
+   $$P(M = 1) = F(1)^2 - F(0)^2$$
+3. Compute the tie probability at One Pair, $P(X_1 = 1 \\text{ and } X_2 = 1) = [P(X = 1)]^2$.
+
+---
+
+## Problem E2: Exact Combinatorial Draw Probability & $1/n$ Exchangeability Identity
+**Topic:** Unit 2 (Combinatorics) & Unit 1 (Expectation and Exchangeability)
+
+### Setup in Words
+- **Part A (Draw Probability by Counting):** A player holds a four-card flush draw on the flop (four spades seen between their two hole cards and the three flop community cards). Two community cards remain to be dealt (the turn and the river). Find the exact probability of hitting at least one additional spade to complete the flush by the river.
+- **Part B (Exchangeability Identity):** To verify the fundamental identity $E[\\text{equity}] = 1/n$ from first principles, consider a miniature deck of four cards: $A\\spadesuit, A\\heartsuit, K\\spadesuit, K\\heartsuit$. Two players ($n = 2$) are each dealt two cards from this shuffled four-card deck. Any hand with two Aces beats two Kings; split pots divide the pot equally ($0.5$ share).
+
+### Given Numbers
+- **Part A:**
+  - Standard deck size: $N = 52$ cards (13 of each suit).
+  - Cards seen on flop: 5 (4 spades, 1 non-spade).
+  - Unseen cards remaining: $52 - 5 = 47$ cards.
+  - Spades remaining in unseen cards: $13 - 4 = 9$ spades.
+  - Non-spades remaining in unseen cards: $47 - 9 = 38$ non-spades.
+  - Draw size: 2 cards (turn and river).
+- **Part B:**
+  - Mini-deck: 4 cards ($A\\spadesuit, A\\heartsuit, K\\spadesuit, K\\heartsuit$).
+  - Number of players: $n = 2$, each dealt 2 cards.
+
+### What to Compute
+1. **(Part A)** Total number of distinct 2-card combinations for turn and river from the 47 unseen cards: $\\binom{47}{2}$.
+2. **(Part A)** Number of 2-card combinations containing zero spades from the 38 non-spades: $\\binom{38}{2}$.
+3. **(Part A)** Exact probability of hitting at least one spade by the river:
+   $$P(\\text{flush hit}) = 1 - \\frac{\\binom{38}{2}}{\\binom{47}{2}}$$
+4. **(Part B)** Total number of 2-card hands Player 1 can receive out of 4 cards: $\\binom{4}{2}$.
+5. **(Part B)** Player 1's equity $E_2 = P(\\text{P1 wins}) + 0.5 \\times P(\\text{tie})$, verifying $E_2 = 1/2$.
+
+---
+
+## Problem E3: Beta Distribution Parameters by Method of Moments
+**Topic:** Unit 2 (Beta Distribution) & Unit 1 (Method of Moments)
+
+### Setup in Words
+In Section 6 (G2) of Hold'em Lab, the distribution of starting-hand equities across the 169 canonical hand classes is modelled as a continuous random variable on $[0, 1]$ following a $\\text{Beta}(\\alpha, \\ beta)$ distribution. At table size $n = 6$, estimate the shape parameters $\\hat{\\alpha}$ and $\\hat{\\beta}$ using the Method of Moments (MoM) from the combo-weighted sample mean and sample variance of equity.
+
+### Given Numbers
+From the project's simulated 169-class equity table at $n = 6$ (`figures/data/F-G2-EQUITY-TABLE_table2_beta_gof.csv`):
+- Combo-weighted equity mean: $\\bar{x} = \\frac{1}{6} \\approx __MEAN_N6__$
+- Combo-weighted equity variance: $s^2 = __VAR_N6__$
+
+### What to Compute
+1. The method-of-moments parameter estimate:
+   $$\\hat{\\alpha} = \\bar{x} \\left( \\frac{\\bar{x}(1 - \\bar{x})}{s^2} - 1 \\right)$$
+2. The method-of-moments parameter estimate:
+   $$\\hat{\\beta} = (1 - \\bar{x}) \\left( \\frac{\\bar{x}(1 - \\bar{x})}{s^2} - 1 \\right)$$
+3. The parameter ratio $\\hat{\\beta} / \\hat{\\alpha}$, verifying that it equals $\\frac{1 - \\bar{x}}{\\bar{x}} = n - 1 = 5$.
+
+---
+
+## Problem E4: Chi-Square Goodness-of-Fit Test
+**Topic:** Unit 3 (Sampling Distributions: Chi-Square Goodness of Fit)
+
+### Setup in Words
+In Section 2 (UCI Poker Hand verification), we test whether observed 5-card hand frequencies in the training split agree with the theoretical multinomial probabilities of standard poker. Consider a sub-table consisting of four intermediate hand categories: Straight, Flush, Full House, and Four of a Kind. We evaluate the Pearson chi-square goodness-of-fit statistic:
+$$\\chi^2 = \\sum_{i=1}^k \\frac{(O_i - E_i)^2}{E_i}$$
+
+### Given Numbers
+Observed counts ($O_i$) and expected counts ($E_i$) from the UCI training split (25,010 hands total, `figures/data/V-UCI-EVAL_table1_gof.csv`):
+| Category | Observed ($O_i$) | Theoretical Expected ($E_i$) |
+|---|---|---|
+| Straight | __STRAIGHT_OBS__ | __STRAIGHT_EXP__ |
+| Flush | __FLUSH_OBS__ | __FLUSH_EXP__ |
+| Full House | __FH_OBS__ | __FH_EXP__ |
+| Four of a Kind | __QUADS_OBS__ | __QUADS_EXP__ |
+
+### What to Compute
+1. The individual squared standardized residuals $r_i = \\frac{(O_i - E_i)^2}{E_i}$ for each of the four categories.
+2. The overall Pearson chi-square test statistic $\\chi^2 = \\sum_{i=1}^4 r_i$.
+3. The degrees of freedom $\\nu$ for this goodness-of-fit sub-table with $k = 4$ categories and fixed theoretical probabilities.
+
+---
+
+## Problem E5: Geometric Waiting Time via Probability Generating Function
+**Topic:** Unit 4 (Power Series / PGFs) & Unit 2 (Geometric Distribution)
+
+### Setup in Words
+In Section 10 (G6), we analyze the waiting time (number of deals) until a player receives Pocket Aces (AA). Let $X$ denote the number of independent starting hands dealt to a player up to and including the deal where they first receive Pocket Aces. Here $X$ follows a Geometric distribution on {1, 2, 3, ...} with success parameter $p$.
+The Probability Generating Function (PGF) of $X$ is defined as:
+$$G(s) = E[s^X] = \\sum_{k=1}^\\infty s^k (1-p)^{k-1} p = \\frac{ps}{1 - (1-p)s}$$
+
+### Given Numbers
+- Out of $\\binom{52}{2} = 1,326$ possible starting hands, exactly $\\binom{4}{2} = 6$ combinations are Pocket Aces ($A\\spadesuit A\\heartsuit, A\\spadesuit A\\diamondsuit, A\\spadesuit A\\clubsuit, A\\heartsuit A\\diamondsuit, A\\heartsuit A\\clubsuit, A\\diamondsuit A\\clubsuit$).
+- Probability per deal:
+  $$p = \\frac{6}{1326} = \\frac{1}{221} \\approx 0.00452489$$
+
+### What to Compute
+1. Differentiate $G(s)$ to obtain $G'(s)$, and evaluate at $s = 1$ to find the mean waiting time $E[X] = G'(1) = \\frac{1}{p}$.
+2. Differentiate again to find $G''(s)$, and evaluate at $s = 1$ to find the second factorial moment $E[X(X-1)] = G''(1) = \\frac{2(1-p)}{p^2}$.
+3. Using the factorial moment formula $\\text{Var}(X) = G''(1) + G'(1) - [G'(1)]^2$, compute the theoretical variance $\\text{Var}(X) = \\frac{1-p}{p^2}$ and the standard deviation $\\sigma = \\sqrt{\\text{Var}(X)}$.
+
+---
+
+## Problem E6: Starting-Hand Formula Prediction vs Empirical Simulation
+**Topic:** Unit 1 (Mathematical Modelling) & Section 8 (Formula Specification)
+
+### Setup in Words
+In Section 7 (G7), Hold'em Lab develops a simple closed-form formula (Model M1) to estimate starting-hand win probability and equity share at an $n$-player table using only heads-up equity $p_2$ and table size $n$.
+The formula is:
+$$\\hat{E}_n = \\frac{1}{n} (2 \\times p_2)^{\\beta_n}$$
+where the power-law exponent follows the smooth empirical law:
+$$\\beta_n = 1.0 + 0.230 \\sqrt{n - 2}$$
+Calculate the formula equity prediction for Pocket Kings (KK) at a 6-player table ($n = 6$) and evaluate its prediction error relative to the empirical simulation table.
+
+### Given Numbers
+From the project's data files (`figures/data/equity_table.csv` and `data/formula_params.json`):
+- Hand: Pocket Kings (KK)
+- Heads-up equity ($n = 2$): $p_2 = __P2_KK__$ (or __P2_KK_PCT__%)
+- Table size: $n = 6$ players
+- Smooth law scaling constant: $b = __B_LAW__$
+- Empirical equity at $n = 6$: $E_6 = __E6_KK__$ (or __E6_KK_PCT__%)
+
+### What to Compute
+1. The exponent $\\beta_6 = 1.0 + __B_LAW__ \\sqrt{6 - 2}$.
+2. The base term $x = 2 \\times p_2$.
+3. The formula prediction $\\hat{E}_6 = \\frac{1}{6} x^{\\beta_6}$.
+4. The absolute error $|\\hat{E}_6 - E_6|$ in percentage points (pp).
+"""
+    replacements = {
+        "__P0__": f"{p0:.4f}",
+        "__P1__": f"{p1:.4f}",
+        "__P2__": f"{p2:.4f}",
+        "__MEAN_N6__": f"{mean_n6:.6f}",
+        "__VAR_N6__": f"{var_n6:.8f}",
+        "__STRAIGHT_OBS__": str(e4_table[0][1]),
+        "__STRAIGHT_EXP__": f"{e4_table[0][2]:.2f}",
+        "__FLUSH_OBS__": str(e4_table[1][1]),
+        "__FLUSH_EXP__": f"{e4_table[1][2]:.2f}",
+        "__FH_OBS__": str(e4_table[2][1]),
+        "__FH_EXP__": f"{e4_table[2][2]:.2f}",
+        "__QUADS_OBS__": str(e4_table[3][1]),
+        "__QUADS_EXP__": f"{e4_table[3][2]:.2f}",
+        "__P2_KK__": f"{p2_kk:.4f}",
+        "__P2_KK_PCT__": f"{p2_kk * 100.0:.2f}",
+        "__B_LAW__": f"{b_law:.3f}",
+        "__E6_KK__": f"{e6_kk:.4f}",
+        "__E6_KK_PCT__": f"{e6_kk * 100.0:.2f}",
+    }
+    for k, v in replacements.items():
+        raw = raw.replace(k, v)
+
+    output_path = REPORTS_DIR / "hand_examples_sheet.md"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text(raw)
+    return str(output_path)
+
+
+
