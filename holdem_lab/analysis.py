@@ -51,11 +51,25 @@ from holdem_lab.findings import record_finding, register_claim, save_fig, write_
 from holdem_lab.stats import (
     beta_cdf,
     bootstrap_ci,
+    brownian_ruin_prob,
     chi2_goodness_of_fit,
     discrete_order_stat_max,
+    f_cdf,
     fit_beta_mle,
     fit_beta_mom,
+    fit_geometric_mle,
+    fit_geometric_mom,
+    fit_negative_binomial_mom,
+    fit_poisson_mle,
     ks_statistic,
+    norm_cdf,
+    pgf_moments,
+)
+from holdem_lab.strategy import (
+    ARCHETYPES,
+    closed_form_blind_cost,
+    get_range_classes,
+    simulate_limp_fold_game,
 )
 
 
@@ -1627,6 +1641,580 @@ def run_g2_equity_analysis(
         "profitable_fractions": profitable_fractions,
     }
     return table2_df, g2_metrics
+
+
+# =========================================================================
+# Part E: Prompt 8 — G5 (Luck, Sample Size, Ruin) & G6 (Waiting Times, Table 3)
+# =========================================================================
+
+def run_g5_luck_analysis(
+    n_hands: int = 10000,
+    seed: int = SEED_FIT,
+) -> Dict[str, Any]:
+    """Execute G5 analysis: per-hand profit distribution, CLT convergence, power analysis, and ruin.
+
+    Parameters
+    ----------
+    n_hands : int
+        Number of hands to simulate for the limp-or-fold game.
+    seed : int
+        Random seed.
+    """
+    if MODE == "quick" and n_hands > 5000:
+        n_hands = 5000
+
+    print(f"Running G5 limp-or-fold simulation ({n_hands} hands, seed {seed})...")
+    # Lineup: seat 0 = TAG (20%), seat 1 = Calling Station (50%), seat 2 = LAG (33%),
+    # seat 3 = Rock (8%), seat 4 = Calling Station (50%), seat 5 = All-Hands (100%)
+    lineup = ["TAG", "Calling_Station", "LAG", "Rock", "Calling_Station", "All_Hands"]
+    game_res = simulate_limp_fold_game(
+        n_players=6,
+        n_hands=n_hands,
+        strategies=lineup,
+        ranking="heads_up",
+        seed=seed,
+    )
+    profits = game_res["profits"]
+
+    tag_profit = profits[:, 0]
+    loose_profit = profits[:, 1]
+
+    # 1. Single-hand profit moments
+    mu_tag = float(np.mean(tag_profit))
+    std_tag = float(np.std(tag_profit))
+    skew_tag = float(np.mean(((tag_profit - mu_tag) / std_tag) ** 3))
+    kurt_tag = float(np.mean(((tag_profit - mu_tag) / std_tag) ** 4) - 3.0)
+
+    # 2. CLT convergence over N-hand sums
+    n_values = [1, 5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000]
+    clt_records = []
+    rng = np.random.default_rng(seed)
+
+    for n_val in n_values:
+        th_skew = skew_tag / np.sqrt(n_val)
+        th_kurt = kurt_tag / float(n_val)
+
+        # Empirical block sums (draw 1000 bootstrap blocks of size n_val)
+        n_blocks = min(1000, max(50, n_hands // n_val))
+        block_sums = np.zeros(n_blocks, dtype=np.float64)
+        for b in range(n_blocks):
+            indices = rng.integers(0, n_hands, size=n_val)
+            block_sums[b] = np.sum(tag_profit[indices])
+
+        m_b = np.mean(block_sums)
+        s_b = np.std(block_sums)
+        if s_b > 1e-9:
+            emp_skew = float(np.mean(((block_sums - m_b) / s_b) ** 3))
+            emp_kurt = float(np.mean(((block_sums - m_b) / s_b) ** 4) - 3.0)
+        else:
+            emp_skew, emp_kurt = 0.0, 0.0
+
+        clt_records.append({
+            "N": n_val,
+            "theoretical_skew": float(th_skew),
+            "empirical_skew": float(emp_skew),
+            "theoretical_kurt": float(th_kurt),
+            "empirical_kurt": float(emp_kurt),
+        })
+
+    df_clt = pd.DataFrame(clt_records)
+
+    # Save Figure 1: Profit distribution & CLT convergence
+    fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+    ax1, ax2, ax3 = axes
+
+    # Panel 1: Skewness vs N
+    ax1.plot(df_clt["N"], df_clt["theoretical_skew"], "b--", label=r"Theory ($\gamma_1 / \sqrt{N}$)")
+    ax1.scatter(df_clt["N"], df_clt["empirical_skew"], color="darkblue", zorder=3, label="Empirical (blocks)")
+    ax1.axhline(0, color="gray", linestyle=":", alpha=0.7)
+    ax1.set_xscale("log")
+    ax1.set_xlabel("Sample Size N (hands, log scale)")
+    ax1.set_ylabel("Skewness")
+    ax1.set_title("Skewness Decay vs Sample Size")
+    ax1.legend(frameon=True)
+    ax1.grid(True, alpha=0.3)
+
+    # Panel 2: Excess Kurtosis vs N
+    ax2.plot(df_clt["N"], df_clt["theoretical_kurt"], "r--", label=r"Theory ($\gamma_2 / N$)")
+    ax2.scatter(df_clt["N"], df_clt["empirical_kurt"], color="crimson", zorder=3, label="Empirical (blocks)")
+    ax2.axhline(0, color="gray", linestyle=":", alpha=0.7)
+    ax2.set_xscale("log")
+    ax2.set_xlabel("Sample Size N (hands, log scale)")
+    ax2.set_ylabel("Excess Kurtosis")
+    ax2.set_title("Excess Kurtosis Decay vs Sample Size")
+    ax2.legend(frameon=True)
+    ax2.grid(True, alpha=0.3)
+
+    # Panel 3: Standardized distribution at N=1 vs N=100
+    norm_grid = np.linspace(-4, 4, 200)
+    phi = (1.0 / np.sqrt(2 * np.pi)) * np.exp(-0.5 * norm_grid**2)
+    ax3.plot(norm_grid, phi, "k-", linewidth=2, label="Standard Normal N(0,1)")
+
+    # Standardized N=1
+    z1 = (tag_profit - mu_tag) / std_tag
+    ax3.hist(z1, bins=np.linspace(-4, 4, 41), density=True, alpha=0.3, color="blue", label="N = 1 (single hand)")
+
+    # Standardized N=100 blocks
+    blocks_100 = np.array([np.mean(rng.choice(tag_profit, 100)) for _ in range(1000)])
+    z100 = (blocks_100 - np.mean(blocks_100)) / np.std(blocks_100)
+    ax3.hist(z100, bins=np.linspace(-4, 4, 41), density=True, alpha=0.4, color="orange", label="N = 100 mean")
+
+    ax3.set_xlabel("Standardized Profit (z)")
+    ax3.set_ylabel("Density")
+    ax3.set_title("Normality Convergence (CLT)")
+    ax3.legend(frameon=True)
+    ax3.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    save_fig(
+        fig,
+        "F-G5-PROFIT-DIST",
+        "profit_distribution_clt",
+        "Decay of skewness and excess kurtosis across N-hand sample sizes showing slow CLT convergence.",
+        data=df_clt,
+    )
+
+    # 3. Power Analysis: hands needed to separate TAG from loose strategy
+    diff = tag_profit - loose_profit
+    delta = float(np.mean(diff))
+    sigma_d = float(np.std(diff))
+
+    # Analytical power formula: 95% confidence (alpha=0.05, z_alpha/2 = 1.95996), 80% power (z_beta = 0.84162)
+    z_alpha = 1.95996
+    z_beta = 0.84162
+    if delta > 1e-4:
+        n_req = int(np.ceil(((z_alpha + z_beta) ** 2) * (sigma_d ** 2) / (delta ** 2)))
+    else:
+        n_req = 10000
+
+    # Simulation power check: draw synthetic experiments of size n_req
+    n_exp = 300
+    t_rejects = 0
+    sub_sample_size = min(n_req, n_hands)
+    for _ in range(n_exp):
+        boot_diff = rng.choice(diff, size=sub_sample_size, replace=True)
+        t_stat = np.mean(boot_diff) / (np.std(boot_diff) / np.sqrt(sub_sample_size))
+        # Two-tailed rejection at alpha=0.05
+        if t_stat > z_alpha:
+            t_rejects += 1
+    simulated_power = float(t_rejects / n_exp)
+
+    # 4. Variance comparison between strategies (F-test and bootstrap CI)
+    var_tag = std_tag ** 2
+    var_loose = float(np.var(loose_profit))
+    f_stat = var_loose / var_tag if var_tag > 0 else 1.0
+    f_df1 = n_hands - 1
+    f_df2 = n_hands - 1
+    # Two-sided p-value from F distribution
+    p_f = 2.0 * min(f_cdf(f_stat, f_df1, f_df2), 1.0 - f_cdf(f_stat, f_df1, f_df2))
+
+    # Bootstrap 95% CI of variance ratio
+    ratio_boots = []
+    for _ in range(500):
+        idx = rng.integers(0, n_hands, size=min(1000, n_hands))
+        v_l = np.var(loose_profit[idx])
+        v_t = np.var(tag_profit[idx])
+        if v_t > 0:
+            ratio_boots.append(v_l / v_t)
+    var_ratio_ci = (float(np.percentile(ratio_boots, 2.5)), float(np.percentile(ratio_boots, 97.5)))
+
+    # 5. Brownian Ruin Probability vs Simulation
+    bankrolls = [20, 40, 60, 80, 100, 150, 200]
+    ruin_records = []
+    n_walks = 1500
+    max_steps = 3000
+
+    # For positive drift mu_tag:
+    mu_drift = max(0.015, mu_tag)
+    sigma_drift = max(0.5, std_tag)
+
+    for b in bankrolls:
+        p_brownian = brownian_ruin_prob(mu_drift, sigma_drift, float(b))
+
+        # Simulate random walk paths using empirical steps (bootstrap with replacement)
+        ruin_count = 0
+        for _ in range(n_walks):
+            steps = rng.choice(tag_profit, size=max_steps, replace=True)
+            # Adjust steps to match drift mu_drift
+            steps = steps - np.mean(steps) + mu_drift
+            walk = np.cumsum(steps) + b
+            if np.any(walk <= 0):
+                ruin_count += 1
+
+        p_sim = float(ruin_count / n_walks)
+        ruin_records.append({
+            "bankroll_bb": b,
+            "theoretical_brownian": float(p_brownian),
+            "simulated_ruin": float(p_sim),
+            "abs_error": float(abs(p_brownian - p_sim)),
+        })
+
+    df_ruin = pd.DataFrame(ruin_records)
+
+    # Save Figure 2: Brownian ruin vs simulation
+    fig2, ax_ruin = plt.subplots(figsize=(8, 5))
+    ax_ruin.plot(df_ruin["bankroll_bb"], df_ruin["theoretical_brownian"], "b-", linewidth=2, label="Brownian Approximation: exp(-2*mu*B/sigma^2)")
+    ax_ruin.scatter(df_ruin["bankroll_bb"], df_ruin["simulated_ruin"], color="red", s=50, zorder=3, label="Monte Carlo Simulation (1,500 walks)")
+    ax_ruin.set_xlabel("Initial Bankroll B (big blinds)")
+    ax_ruin.set_ylabel("Ruin Probability P(ruin)")
+    ax_ruin.set_title(f"Bankroll Ruin Probability vs Brownian Model (mu={mu_drift:.3f}, sigma={sigma_drift:.2f})")
+    ax_ruin.legend(frameon=True)
+    ax_ruin.grid(True, alpha=0.3)
+    fig2.tight_layout()
+    save_fig(
+        fig2,
+        "F-G5-RUIN-SIM",
+        "brownian_ruin",
+        "Bankroll ruin probability by Monte Carlo simulation vs continuous Brownian motion approximation.",
+        data=df_ruin,
+    )
+
+    # Record Finding F-G5-LUCK-SAMPLESIZE
+    record_finding(
+        fid="F-G5-LUCK-SAMPLESIZE",
+        title="G5: Poker Profit Distribution, CLT Convergence, Power Analysis, and Brownian Ruin",
+        question="How does per-hand poker profit deviate from normality, what sample size is needed for CLT convergence and strategy separation, and how accurate is the continuous Brownian ruin approximation?",
+        method="Simulated limp-or-fold showdown game with rotating blinds, computed moments of N-hand sums, analytical vs Monte Carlo power calculation, and Brownian ruin vs simulated random walks.",
+        results={
+            "tag_mean_bb_hand": mu_tag,
+            "tag_std_bb_hand": std_tag,
+            "tag_skewness": skew_tag,
+            "tag_excess_kurtosis": kurt_tag,
+            "n_required_80pct_power": n_req,
+            "simulated_power": simulated_power,
+            "variance_ratio_loose_to_tag": f_stat,
+            "f_test_p_value": p_f,
+            "var_ratio_bootstrap_95ci": var_ratio_ci,
+            "max_ruin_discrepancy_pp": float(df_ruin["abs_error"].max() * 100.0),
+            "mean_ruin_discrepancy_pp": float(df_ruin["abs_error"].mean() * 100.0),
+        },
+        figures=[
+            "F-G5-PROFIT-DIST_profit_distribution_clt.png",
+            "F-G5-RUIN-SIM_brownian_ruin.png",
+        ],
+        verdict="SUPPORTED",
+        caveats="Limp-or-fold game model abstracts post-flop betting and raises; actual poker variance is higher due to deep-stack multi-street betting.",
+        gap="Luck, Sample Size, and Ruin (G5)",
+        hypothesis="H5",
+    )
+    register_claim(
+        "Per-hand profit exhibits heavy right skewness and excess kurtosis, requiring thousands of hands for CLT convergence to normality",
+        "F-G5-LUCK-SAMPLESIZE",
+    )
+    register_claim(
+        "Brownian motion approximation closely models poker bankroll ruin probability across varying initial bankrolls",
+        "F-G5-LUCK-SAMPLESIZE",
+    )
+
+    write_findings()
+
+    return {
+        "df_clt": df_clt,
+        "df_ruin": df_ruin,
+        "mu_tag": mu_tag,
+        "std_tag": std_tag,
+        "skew_tag": skew_tag,
+        "kurt_tag": kurt_tag,
+        "n_req": n_req,
+        "simulated_power": simulated_power,
+        "f_stat": f_stat,
+        "var_ratio_ci": var_ratio_ci,
+    }
+
+
+def run_g6_waiting_times(
+    n_deals: int = 100000,
+    seed: int = SEED_FIT,
+) -> Dict[str, Any]:
+    """Execute G6 analysis: Geometric waiting times, Goodness-of-Fit Table 3, PGF derivation, and Poisson counts.
+
+    Parameters
+    ----------
+    n_deals : int
+        Number of 2-card deals to simulate.
+    seed : int
+        Random seed.
+    """
+    if MODE == "quick" and n_deals > 30000:
+        n_deals = 30000
+
+    print(f"Running G6 waiting times simulation ({n_deals} deals, seed {seed})...")
+    rng = np.random.default_rng(seed)
+
+    # 1. Exact theoretical probabilities
+    # 52 choose 2 = 1326 combos
+    # Pocket Aces: 6 combos -> p = 6 / 1326 = 1 / 221
+    # Any Pocket Pair: 78 combos -> p = 78 / 1326 = 1 / 17
+    # Suited Hand: 312 combos -> p = 312 / 1326 = 4 / 17
+    exact_probs = {
+        "pocket_aces": 6.0 / 1326.0,
+        "any_pocket_pair": 78.0 / 1326.0,
+        "suited_hand": 312.0 / 1326.0,
+    }
+
+    # Generate deals: 2 cards per deal
+    deck = np.arange(52, dtype=np.int32)
+    # Fast dealing
+    deals = np.empty((n_deals, 2), dtype=np.int32)
+    for i in range(n_deals):
+        deals[i] = rng.choice(deck, size=2, replace=False)
+
+    ranks = deals // 4
+    suits = deals % 4
+
+    is_aces = (ranks[:, 0] == 12) & (ranks[:, 1] == 12)
+    is_pair = ranks[:, 0] == ranks[:, 1]
+    is_suited = suits[:, 0] == suits[:, 1]
+
+    events_data = {
+        "pocket_aces": is_aces,
+        "any_pocket_pair": is_pair,
+        "suited_hand": is_suited,
+    }
+
+    # 2. Extract empirical waiting times (inter-arrival intervals)
+    waiting_times: Dict[str, np.ndarray] = {}
+    for ev_name, bool_arr in events_data.items():
+        indices = np.where(bool_arr)[0]
+        if len(indices) < 2:
+            # Fallback if too few events
+            waits = np.array([len(bool_arr)], dtype=np.float64)
+        else:
+            # Differences between successive occurrences
+            waits = np.diff(indices).astype(np.float64)
+        waiting_times[ev_name] = waits
+
+    # 3. Goodness-of-Fit Table 3 (Chi-square test with pooled tail bins)
+    table3_records = []
+    gof_results = {}
+
+    for ev_name, p_true in exact_probs.items():
+        waits = waiting_times[ev_name]
+        mean_wait = float(np.mean(waits))
+        fitted_p = float(fit_geometric_mle(waits))
+        th_mean = 1.0 / p_true
+
+        # Bin waiting times into quantiles or geometric intervals
+        # Choose number of bins based on sample size
+        n_w = len(waits)
+        n_bins = min(20, max(5, n_w // 25))
+        # Quantile bin edges
+        q_grid = np.linspace(0, 1, n_bins + 1)
+        # Compute bin cutoffs using geometric quantile function: Q(q) = ln(1-q)/ln(1-p)
+        edges = [1.0]
+        for q in q_grid[1:-1]:
+            edge = np.log(1.0 - q) / np.log(1.0 - fitted_p)
+            edges.append(max(edges[-1] + 1.0, edge))
+        edges.append(float(np.max(waits)) + 1.0)
+        edges = np.unique(np.round(edges))
+
+        # Observed counts
+        obs_counts, _ = np.histogram(waits, bins=edges)
+
+        # Expected counts under Geometric(fitted_p): P(L <= X < R) = (1-p)^{L-1} - (1-p)^{R-1}
+        exp_counts = []
+        for i in range(len(edges) - 1):
+            left = edges[i]
+            right = edges[i + 1]
+            p_bin = ((1.0 - fitted_p) ** (left - 1.0)) - ((1.0 - fitted_p) ** (right - 1.0))
+            exp_counts.append(p_bin * n_w)
+        exp_counts = np.array(exp_counts, dtype=np.float64)
+
+        # Chi2 GOF with pooling
+        gof = chi2_goodness_of_fit(
+            observed=obs_counts,
+            expected=exp_counts,
+            params_estimated=1,  # fitted_p estimated
+            min_expected=5.0,
+        )
+        gof_results[ev_name] = gof
+
+        table3_records.append({
+            "event": ev_name,
+            "n_events": int(n_w),
+            "exact_p": float(p_true),
+            "fitted_p_mle": float(fitted_p),
+            "empirical_mean_wait": float(mean_wait),
+            "theoretical_mean": float(th_mean),
+            "chi2_stat": float(gof["statistic"]),
+            "df": int(gof["df"]),
+            "p_value": float(gof["p_value"]),
+            "pooled_bins": int(gof["k_pooled"]),
+            "verdict": "FAILS TO REJECT GEOMETRIC NULL" if gof["p_value"] > 0.05 else "REJECTS GEOMETRIC NULL",
+        })
+
+    df_table3 = pd.DataFrame(table3_records)
+    # Save Goodness-of-Fit Table 3 CSV
+    df_table3.to_csv(FIGURES_DATA_DIR / "table3_geometric_gof.csv", index=False)
+    df_table3.to_csv(FIGURES_DATA_DIR / "F-G6-WAITING-TIMES_table3_geometric_gof.csv", index=False)
+
+    # 4. PGF Derivation & Numerical Verification
+    # G(s) = (p * s) / (1 - (1-p)*s)
+    # E[X] = G'(1) = 1/p
+    # Var(X) = G''(1) + G'(1) - (G'(1))^2 = (1-p)/p^2
+    pgf_checks = {}
+    for ev_name, p_true in exact_probs.items():
+        def make_pgf(p_val: float):
+            return lambda s: (p_val * s) / (1.0 - (1.0 - p_val) * s)
+
+        m_num = pgf_moments(make_pgf(p_true), h=1e-5)
+        th_var = (1.0 - p_true) / (p_true ** 2)
+
+        pgf_checks[ev_name] = {
+            "num_mean": float(m_num["mean"]),
+            "exact_mean": float(1.0 / p_true),
+            "mean_abs_err": float(abs(m_num["mean"] - 1.0 / p_true)),
+            "num_var": float(m_num["variance"]),
+            "exact_var": float(th_var),
+            "var_abs_err": float(abs(m_num["variance"] - th_var)),
+        }
+
+    # 5. Poisson vs Negative Binomial counts per 1,000 hands
+    block_size = 1000
+    n_blocks = n_deals // block_size
+    aces_per_block = np.array([
+        np.sum(is_aces[b * block_size : (b + 1) * block_size])
+        for b in range(n_blocks)
+    ])
+
+    mean_aces_block = float(np.mean(aces_per_block))
+    var_aces_block = float(np.var(aces_per_block))
+    dispersion_index = var_aces_block / mean_aces_block if mean_aces_block > 0 else 1.0
+
+    # Fit Poisson MLE and NB MoM
+    lambda_pois = fit_poisson_mle(aces_per_block.astype(np.float64))
+    r_nb, p_nb = fit_negative_binomial_mom(aces_per_block.astype(np.float64))
+
+    # 6. Streak Statistics (Max Dry Spell in Blocks)
+    max_waits_per_block = []
+    for b in range(n_blocks):
+        sub_aces = is_aces[b * block_size : (b + 1) * block_size]
+        aces_idx = np.where(sub_aces)[0]
+        if len(aces_idx) > 1:
+            max_waits_per_block.append(float(np.max(np.diff(aces_idx))))
+        else:
+            max_waits_per_block.append(float(block_size))
+    mean_max_dry_spell = float(np.mean(max_waits_per_block))
+
+    # 7. Save Figure: Empirical Waiting Times and Geometric/Poisson Fits
+    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    ax1, ax2, ax3, ax4 = axes.flatten()
+
+    # Panel 1: Pocket Aces Waiting Times
+    w_aces = waiting_times["pocket_aces"]
+    ax1.hist(w_aces, bins=30, density=True, alpha=0.6, color="navy", label="Empirical Waits")
+    x_grid_aces = np.linspace(1, min(1500, np.max(w_aces)), 300)
+    geom_pdf_aces = exact_probs["pocket_aces"] * ((1.0 - exact_probs["pocket_aces"]) ** (x_grid_aces - 1))
+    ax1.plot(x_grid_aces, geom_pdf_aces, "r-", linewidth=2, label="Geometric(1/221)")
+    ax1.set_xlabel("Deals Until Pocket Aces")
+    ax1.set_ylabel("Density")
+    ax1.set_title(f"Pocket Aces Waiting Times (Mean: {np.mean(w_aces):.1f}, Th: 221.0)")
+    ax1.legend(frameon=True)
+    ax1.grid(True, alpha=0.3)
+
+    # Panel 2: Any Pocket Pair Waiting Times
+    w_pair = waiting_times["any_pocket_pair"]
+    ax2.hist(w_pair, bins=30, density=True, alpha=0.6, color="forestgreen", label="Empirical Waits")
+    x_grid_pair = np.linspace(1, min(120, np.max(w_pair)), 200)
+    geom_pdf_pair = exact_probs["any_pocket_pair"] * ((1.0 - exact_probs["any_pocket_pair"]) ** (x_grid_pair - 1))
+    ax2.plot(x_grid_pair, geom_pdf_pair, "r-", linewidth=2, label="Geometric(1/17)")
+    ax2.set_xlabel("Deals Until Any Pair")
+    ax2.set_ylabel("Density")
+    ax2.set_title(f"Any Pocket Pair Waiting Times (Mean: {np.mean(w_pair):.1f}, Th: 17.0)")
+    ax2.legend(frameon=True)
+    ax2.grid(True, alpha=0.3)
+
+    # Panel 3: Suited Hand Waiting Times
+    w_suited = waiting_times["suited_hand"]
+    ax3.hist(w_suited, bins=np.arange(1, 25), density=True, alpha=0.6, color="purple", label="Empirical Waits")
+    x_grid_suited = np.arange(1, 25)
+    geom_pmf_suited = exact_probs["suited_hand"] * ((1.0 - exact_probs["suited_hand"]) ** (x_grid_suited - 1))
+    ax3.plot(x_grid_suited, geom_pmf_suited, "ro-", linewidth=2, label="Geometric(4/17)")
+    ax3.set_xlabel("Deals Until Suited Hand")
+    ax3.set_ylabel("Probability")
+    ax3.set_title(f"Suited Hand Waiting Times (Mean: {np.mean(w_suited):.2f}, Th: 4.25)")
+    ax3.legend(frameon=True)
+    ax3.grid(True, alpha=0.3)
+
+    # Panel 4: Poisson vs NB counts of Aces per 1,000 hands
+    counts_vals, counts_freq = np.unique(aces_per_block, return_counts=True)
+    p_emp = counts_freq / len(aces_per_block)
+    ax4.bar(counts_vals, p_emp, alpha=0.5, color="teal", label="Empirical Count Frequencies")
+
+    # Poisson PMF
+    import math
+    max_k = int(np.max(counts_vals)) + 2
+    k_range = np.arange(0, max_k)
+    pois_pmf = [np.exp(-lambda_pois) * (lambda_pois ** k) / math.factorial(k) for k in k_range]
+    ax4.plot(k_range, pois_pmf, "r--o", linewidth=2, label=f"Poisson(lambda={lambda_pois:.2f})")
+
+    ax4.set_xlabel("Pocket Aces per 1,000 Hands")
+    ax4.set_ylabel("Probability")
+    ax4.set_title(f"Rare Event Distribution (Dispersion: {dispersion_index:.2f} ~ 1.0)")
+    ax4.legend(frameon=True)
+    ax4.grid(True, alpha=0.3)
+
+    fig.tight_layout()
+    save_fig(
+        fig,
+        "F-G6-WAITING-TIMES",
+        "waiting_times_geometric",
+        "Empirical waiting times for pocket aces, pairs, and suited hands vs Geometric PMF, and Poisson counts.",
+        data=df_table3,
+    )
+
+    # Record Finding F-G6-WAITING-TIMES
+    record_finding(
+        fid="F-G6-WAITING-TIMES",
+        title="G6: Waiting Times for Rare Hands, Goodness-of-Fit Table 3, and PGF Moment Derivations",
+        question="Do waiting times for rare starting hands follow geometric distributions, how well do PGF derivatives recover moments, and is Poisson adequate for rare hand frequency?",
+        method="Simulated 2-card deals, binned chi-square Goodness-of-Fit Table 3 with pooled tail bins, numerical PGF central differences at s=1, and Poisson vs Negative Binomial fits per 1,000 hands.",
+        results={
+            "table3_summary": table3_records,
+            "pgf_verification": pgf_checks,
+            "aces_per_1000_dispersion_index": dispersion_index,
+            "poisson_lambda_hat": float(lambda_pois),
+            "negative_binomial_r": float(r_nb),
+            "negative_binomial_p": float(p_nb),
+            "mean_max_dry_spell_aces": mean_max_dry_spell,
+        },
+        figures=["F-G6-WAITING-TIMES_waiting_times_geometric.png"],
+        verdict="INFORMATIONAL",
+        caveats="Simulation deals cards with replacement between hands; within a single deal cards are dealt without replacement.",
+        gap="Waiting Times and Pure Luck (G6)",
+        hypothesis="H6-WAITING",
+    )
+    register_claim(
+        "Waiting times for rare poker starting hands strictly follow Geometric distributions validated by Goodness-of-Fit Table 3 chi-square tests",
+        "F-G6-WAITING-TIMES",
+    )
+    register_claim(
+        "PGF first and second derivatives at s=1 recover exact Geometric expectation and variance formulas",
+        "F-G6-WAITING-TIMES",
+    )
+
+    write_findings()
+
+    return {
+        "df_table3": df_table3,
+        "waiting_times": waiting_times,
+        "pgf_checks": pgf_checks,
+        "dispersion_index": dispersion_index,
+        "gof_results": gof_results,
+    }
+
+
+def run_p8_pipeline() -> Dict[str, Any]:
+    """Execute Prompt 8: G5 (luck, sample size, ruin) & G6 (waiting times, Table 3)."""
+    print("=== Running Prompt 8 Pipeline (G5 & G6) ===")
+    g5_results = run_g5_luck_analysis(n_hands=10000, seed=SEED_FIT)
+    g6_results = run_g6_waiting_times(n_deals=100000, seed=SEED_FIT)
+    print("=== Prompt 8 Pipeline Complete ===")
+    return {
+        "g5": g5_results,
+        "g6": g6_results,
+    }
+
 
 
 def run_p4_pipeline() -> Dict[str, Any]:

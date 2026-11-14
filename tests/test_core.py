@@ -117,13 +117,16 @@ def test_findings_record_and_save_fig(tmp_path):
 
 
 def test_write_findings_idempotency():
-    """Verify that write_findings generates reports/findings.md and is idempotent."""
+    """Verify that write_findings generates reports/findings.md and is idempotent (ignoring timestamp)."""
     md1 = write_findings()
     findings_md_file = REPORTS_DIR / "findings.md"
     assert findings_md_file.exists()
 
     md2 = write_findings()
-    assert md1 == md2
+    # Strip the generation timestamp line for exact idempotency comparison
+    lines1 = [line for line in md1.splitlines() if not line.startswith("*Auto-generated on:")]
+    lines2 = [line for line in md2.splitlines() if not line.startswith("*Auto-generated on:")]
+    assert lines1 == lines2
 
 
 def test_claims_ledger_verification():
@@ -557,6 +560,90 @@ def test_formula_held_out_tolerance():
     assert "smooth_law" in params
     assert "table_params" in params
     assert "6" in params["table_params"]
+
+
+# =========================================================================
+# Prompt 8 Tests: Luck, Sample Size, Waiting Times, Table 3
+# =========================================================================
+
+def test_pgf_moments_closed_form():
+    """Verify that numerical PGF derivatives recover exact closed-form mean and variance."""
+    from holdem_lab.stats import pgf_moments
+
+    # Test on Geometric(p) for pocket aces (p = 1/221) and any pair (p = 1/17)
+    test_cases = [1.0 / 221.0, 1.0 / 17.0, 4.0 / 17.0]
+    for p in test_cases:
+        pgf = lambda s, p_val=p: (p_val * s) / (1.0 - (1.0 - p_val) * s)
+        m = pgf_moments(pgf, h=1e-5)
+        exact_mean = 1.0 / p
+        exact_var = (1.0 - p) / (p ** 2)
+
+        assert abs(m["mean"] - exact_mean) < 0.05
+        # Relative error in variance < 0.1%
+        assert abs(m["variance"] - exact_var) / exact_var < 0.001
+
+
+def test_power_calculation_vs_simulation():
+    """Verify that power calculation formula matches empirical rejection rates."""
+    import numpy as np
+
+    delta = 0.15
+    sigma = 1.0
+    z_alpha = 1.95996  # 5% two-sided
+    z_beta = 0.84162   # 80% power
+
+    # Sample size formula for one-sample/paired t-test
+    n_req = int(np.ceil(((z_alpha + z_beta) ** 2) * (sigma ** 2) / (delta ** 2)))
+
+    # Monte Carlo simulation of 400 experiments
+    rng = np.random.default_rng(1234)
+    n_exp = 400
+    rejects = 0
+    for _ in range(n_exp):
+        sample = rng.normal(loc=delta, scale=sigma, size=n_req)
+        t_stat = np.mean(sample) / (np.std(sample, ddof=1) / np.sqrt(n_req))
+        if t_stat > z_alpha:
+            rejects += 1
+
+    emp_power = rejects / n_exp
+    # Empirical power should be within ~6 pp of 0.80
+    assert abs(emp_power - 0.80) < 0.06
+
+
+def test_ruin_approximation_sanity():
+    """Sanity check Brownian ruin probability formula on random walk with known drift."""
+    import numpy as np
+    from holdem_lab.stats import brownian_ruin_prob
+
+    mu = 0.05
+    sigma = 1.0
+    bankroll = 20.0
+
+    p_th = brownian_ruin_prob(mu, sigma, bankroll)
+    assert abs(p_th - np.exp(-2.0 * mu * bankroll / (sigma ** 2))) < 1e-12
+
+    # Simulate 1,500 random walks of length 2,500
+    rng = np.random.default_rng(42)
+    steps = rng.normal(loc=mu, scale=sigma, size=(1500, 2500))
+    walks = np.cumsum(steps, axis=1) + bankroll
+    ruin_sim = float(np.mean(np.any(walks <= 0, axis=1)))
+
+    # Simulated ruin should track theoretical within 3 pp
+    assert abs(p_th - ruin_sim) < 0.03
+
+
+def test_waiting_times_and_table3():
+    """Verify that G6 produces Table 3 with all 3 events and valid chi-square results."""
+    from holdem_lab.analysis import run_g6_waiting_times
+
+    res = run_g6_waiting_times(n_deals=10000, seed=42)
+    df_t3 = res["df_table3"]
+
+    assert len(df_t3) == 3
+    assert set(df_t3["event"]) == {"pocket_aces", "any_pocket_pair", "suited_hand"}
+    assert np.all(df_t3["df"] >= 1)
+    assert np.all(df_t3["p_value"] > 0.01)
+
 
 
 

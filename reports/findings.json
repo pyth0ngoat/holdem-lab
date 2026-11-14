@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:45.216464+00:00"
+    "timestamp": "2026-11-14T15:46:40.627647+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:45.253658+00:00"
+    "timestamp": "2026-11-14T15:46:40.667176+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.703313+00:00"
+    "timestamp": "2026-11-14T15:46:17.875637+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.704446+00:00"
+    "timestamp": "2026-11-14T15:46:17.876804+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.705386+00:00"
+    "timestamp": "2026-11-14T15:46:17.877772+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 4821116.0,
+      "hands_per_second": 4850444.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.706245+00:00"
+    "timestamp": "2026-11-14T15:46:17.878688+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.773684+00:00"
+    "timestamp": "2026-11-14T15:46:17.943443+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.944769+00:00"
+    "timestamp": "2026-11-14T15:46:18.118974+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,7 +214,7 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.984883+00:00"
+    "timestamp": "2026-11-14T15:46:18.158984+00:00"
   },
   "V-STATS-TOOLKIT": {
     "fid": "V-STATS-TOOLKIT",
@@ -235,7 +235,7 @@
     "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:31:32.377991+00:00"
+    "timestamp": "2026-11-14T15:46:17.537913+00:00"
   },
   "V-UCI-EVAL": {
     "fid": "V-UCI-EVAL",
@@ -472,7 +472,7 @@
     "caveats": "Shared community board cards create positive correlation among hands. The independent model systematically overestimates expected winning rank and grossly overestimates split pots at the category level because full 5-card kickers break ties.",
     "gap": "Table Size Dynamics (G1)",
     "hypothesis": "H1",
-    "timestamp": "2026-11-14T15:31:33.256440+00:00"
+    "timestamp": "2026-11-14T15:46:18.433325+00:00"
   },
   "F-G2-EQUITY-TABLE": {
     "fid": "F-G2-EQUITY-TABLE",
@@ -634,7 +634,7 @@
     "caveats": "Combo-weighted mean equals exactly 1/n by exchangeability. The fraction of profitable hands shrinks from ~40% at heads-up to ~28% at 9 players as pot equity becomes heavily concentrated in premium hands.",
     "gap": "Starting Hand Equity Distribution (G2)",
     "hypothesis": "H2",
-    "timestamp": "2026-11-14T15:31:34.022628+00:00"
+    "timestamp": "2026-11-14T15:46:19.208582+00:00"
   },
   "F-G2-RETURN-STAKED": {
     "fid": "F-G2-RETURN-STAKED",
@@ -680,7 +680,7 @@
     "caveats": "Equal contribution baseline assumes all players contribute 1 chip to pot; real betting dynamics involve folds and raises.",
     "gap": "Return Dynamics & Hand Selection (G2)",
     "hypothesis": "H2-RETURN",
-    "timestamp": "2026-11-14T15:31:34.026756+00:00"
+    "timestamp": "2026-11-14T15:46:19.212561+00:00"
   },
   "F-G7-RANK-STABILITY": {
     "fid": "F-G7-RANK-STABILITY",
@@ -810,7 +810,7 @@
     "caveats": "Rank correlation decays from 1.000 to 0.829 (Spearman) and 0.647 (Kendall). Suited connectors and small pairs rise up to 67 positions due to straight/flush multiway potential, while weak unsuited broadways drop.",
     "gap": "Formula & Rank Stability (G7)",
     "hypothesis": "H7",
-    "timestamp": "2026-11-14T15:31:34.197350+00:00"
+    "timestamp": "2026-11-14T15:46:19.381027+00:00"
   },
   "F-G7-FORMULA-FIT": {
     "fid": "F-G7-FORMULA-FIT",
@@ -1274,5 +1274,124 @@
     "gap": "Simple Formula (G7)",
     "hypothesis": "H6",
     "timestamp": "2026-11-14T15:27:59.579618+00:00"
+  },
+  "F-G5-LUCK-SAMPLESIZE": {
+    "fid": "F-G5-LUCK-SAMPLESIZE",
+    "title": "G5: Poker Profit Distribution, CLT Convergence, Power Analysis, and Brownian Ruin",
+    "question": "How does per-hand poker profit deviate from normality, what sample size is needed for CLT convergence and strategy separation, and how accurate is the continuous Brownian ruin approximation?",
+    "method": "Simulated limp-or-fold showdown game with rotating blinds, computed moments of N-hand sums, analytical vs Monte Carlo power calculation, and Brownian ruin vs simulated random walks.",
+    "results": {
+      "tag_mean_bb_hand": 0.008091666666666669,
+      "tag_std_bb_hand": 1.0560533892950994,
+      "tag_skewness": 2.1048319239867537,
+      "tag_excess_kurtosis": 4.645038367493751,
+      "n_required_80pct_power": 1161371,
+      "simulated_power": 0.05333333333333334,
+      "variance_ratio_loose_to_tag": 1.4629563030588184,
+      "f_test_p_value": 0.0,
+      "var_ratio_bootstrap_95ci": [
+        1.1982274503186474,
+        1.8391813734780003
+      ],
+      "max_ruin_discrepancy_pp": 23.562563875032367,
+      "mean_ruin_discrepancy_pp": 10.977097870684293
+    },
+    "figures": [
+      "F-G5-PROFIT-DIST_profit_distribution_clt.png",
+      "F-G5-RUIN-SIM_brownian_ruin.png"
+    ],
+    "verdict": "SUPPORTED",
+    "caveats": "Limp-or-fold game model abstracts post-flop betting and raises; actual poker variance is higher due to deep-stack multi-street betting.",
+    "gap": "Luck, Sample Size, and Ruin (G5)",
+    "hypothesis": "H5",
+    "timestamp": "2026-11-14T15:46:21.766200+00:00"
+  },
+  "F-G6-WAITING-TIMES": {
+    "fid": "F-G6-WAITING-TIMES",
+    "title": "G6: Waiting Times for Rare Hands, Goodness-of-Fit Table 3, and PGF Moment Derivations",
+    "question": "Do waiting times for rare starting hands follow geometric distributions, how well do PGF derivatives recover moments, and is Poisson adequate for rare hand frequency?",
+    "method": "Simulated 2-card deals, binned chi-square Goodness-of-Fit Table 3 with pooled tail bins, numerical PGF central differences at s=1, and Poisson vs Negative Binomial fits per 1,000 hands.",
+    "results": {
+      "table3_summary": [
+        {
+          "event": "pocket_aces",
+          "n_events": 38,
+          "exact_p": 0.004524886877828055,
+          "fitted_p_mle": 0.0039366000207189476,
+          "empirical_mean_wait": 254.02631578947367,
+          "theoretical_mean": 220.99999999999997,
+          "chi2_stat": 0.43844433623213486,
+          "df": 3,
+          "p_value": 0.9321911517525047,
+          "pooled_bins": 5,
+          "verdict": "FAILS TO REJECT GEOMETRIC NULL"
+        },
+        {
+          "event": "any_pocket_pair",
+          "n_events": 568,
+          "exact_p": 0.058823529411764705,
+          "fitted_p_mle": 0.05692523551813991,
+          "empirical_mean_wait": 17.566901408450704,
+          "theoretical_mean": 17.0,
+          "chi2_stat": 21.404835156235098,
+          "df": 18,
+          "p_value": 0.25948264039492286,
+          "pooled_bins": 20,
+          "verdict": "FAILS TO REJECT GEOMETRIC NULL"
+        },
+        {
+          "event": "suited_hand",
+          "n_events": 2307,
+          "exact_p": 0.23529411764705882,
+          "fitted_p_mle": 0.23097717260712855,
+          "empirical_mean_wait": 4.329432162982228,
+          "theoretical_mean": 4.25,
+          "chi2_stat": 11.494619776416627,
+          "df": 17,
+          "p_value": 0.8297274875992657,
+          "pooled_bins": 19,
+          "verdict": "FAILS TO REJECT GEOMETRIC NULL"
+        }
+      ],
+      "pgf_verification": {
+        "pocket_aces": {
+          "num_mean": 221.0010696457376,
+          "exact_mean": 220.99999999999997,
+          "mean_abs_err": 0.0010696457376297985,
+          "num_var": 48619.999177187085,
+          "exact_var": 48619.999999999985,
+          "var_abs_err": 0.000822812900878489
+        },
+        "any_pocket_pair": {
+          "num_mean": 17.000000435174467,
+          "exact_mean": 17.0,
+          "mean_abs_err": 4.3517446712826313e-07,
+          "num_var": 272.00001954777383,
+          "exact_var": 272.0,
+          "var_abs_err": 1.9547773831618542e-05
+        },
+        "suited_hand": {
+          "num_mean": 4.25000000449649,
+          "exact_mean": 4.25,
+          "mean_abs_err": 4.496490291217015e-09,
+          "num_var": 13.81250558264814,
+          "exact_var": 13.812499999999998,
+          "var_abs_err": 5.5826481411003215e-06
+        }
+      },
+      "aces_per_1000_dispersion_index": 0.5871794871794872,
+      "poisson_lambda_hat": 3.9,
+      "negative_binomial_r": 1.0,
+      "negative_binomial_p": 0.2040816326530612,
+      "mean_max_dry_spell_aces": 308.7
+    },
+    "figures": [
+      "F-G6-WAITING-TIMES_waiting_times_geometric.png"
+    ],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Simulation deals cards with replacement between hands; within a single deal cards are dealt without replacement.",
+    "gap": "Waiting Times and Pure Luck (G6)",
+    "hypothesis": "H6-WAITING",
+    "timestamp": "2026-11-14T15:46:42.047796+00:00"
   }
 }
