@@ -5,10 +5,11 @@ Educational probability demonstration for Texas Hold'em:
 - Single self-contained file (server, game engine, bots, mobile and host UI).
 - Educational framing: play chips only, no gambling advice, visible banner.
 - Max 9 seats; overflow joiners become spectators; empty seats filled by bots.
+- Community board (Flop, Turn, River) rendered in real time on mobile phones and host.
 - Hole cards sent strictly to owning seat WebSocket.
 - Unaided guess slider logged first, then simulation aid and formula recipe revealed.
-- Dynamic table-size n recomputation on folds.
-- Postflop outs counter, Rule of 2 and 4 estimate vs exact equity.
+- Dynamic table-size n recomputation on folds with real-time equity updates.
+- Postflop outs counter, Rule of 2 and 4 estimate vs exact live board equity.
 - Host projector view: QR code join, board, equity lines, chip and calibration leaderboards.
 - Pre-flight checklist: python demo.py --selftest
 """
@@ -99,7 +100,6 @@ def get_empirical_equity(hand_class: str, n_players: int) -> dict[str, float]:
     key = (hand_class, n_clamped)
     if key in _EQUITY_CACHE:
         return _EQUITY_CACHE[key]
-    # Fallback formulaic approximation if not cached
     base_eq = 1.0 / n_clamped
     return {
         "equity": base_eq,
@@ -112,7 +112,6 @@ def get_empirical_equity(hand_class: str, n_players: int) -> dict[str, float]:
 def compute_formula_estimate(hand_class: str, n_players: int) -> dict[str, Any]:
     """Calculate Model M1 closed-form formula prediction and by-hand recipe."""
     n_clamped = max(2, min(9, n_players))
-    # Retrieve heads-up p_win from table
     hu_row = get_empirical_equity(hand_class, 2)
     p2 = hu_row["p_win"]
     b_law = _FORMULA_PARAMS.get("smooth_law", {}).get("b", 0.2301)
@@ -121,9 +120,9 @@ def compute_formula_estimate(hand_class: str, n_players: int) -> dict[str, Any]:
     pred_equity = (1.0 / n_clamped) * (two_p2 ** beta_n)
 
     recipe = (
-        f"1. Heads-up win rate p2 = {p2:.3f} -> 2*p2 = {two_p2:.3f}\n"
-        f"2. Table exponent beta_{n_clamped} = 1.0 + {b_law:.3f}*sqrt({n_clamped}-2) = {beta_n:.3f}\n"
-        f"3. Estimate = (1/{n_clamped}) * ({two_p2:.3f})^{beta_n:.3f} = {pred_equity*100:.1f}%"
+        f"1. Heads-up win rate p2 = {p2*100:.1f}% -> 2*p2 = {two_p2:.3f}\n"
+        f"2. Exponent beta_{n_clamped} = 1.0 + {b_law:.3f}*sqrt({n_clamped}-2) = {beta_n:.3f}\n"
+        f"3. Formula = (1/{n_clamped}) * ({two_p2:.3f})^{beta_n:.3f} = {pred_equity*100:.1f}%"
     )
 
     return {
@@ -139,7 +138,7 @@ def get_chart_coordinates(hand_class: str) -> tuple[int, int]:
     r_map = {r: 12 - i for i, r in enumerate("AKQJT98765432")}
     c1, c2 = hand_class[0], hand_class[1]
     i1, i2 = r_map[c1], r_map[c2]
-    if len(hand_class) == 2:  # Pair: on the diagonal
+    if len(hand_class) == 2:  # Pair: diagonal
         return (i1, i1)
     elif hand_class[2] == "s":  # Suited: upper triangle
         return (min(i1, i2), max(i1, i2))
@@ -149,13 +148,110 @@ def get_chart_coordinates(hand_class: str) -> tuple[int, int]:
 
 def describe_hand(hand_class: str) -> str:
     """Return friendly one-line pedagogical explanation of starting hand."""
+    if not hand_class:
+        return ""
     c1, c2 = hand_class[0], hand_class[1]
     if len(hand_class) == 2:
         return f"Pocket Pair ({c1}{c1}) — strong preflop showdown value, sets on flop 11.8%."
     elif hand_class[2] == "s":
-        return f"Suited Hand ({hand_class}) — multiway potential with flush and straight draws."
+        return f"Suited Hand ({hand_class}) — high multiway potential with flush and straight draws."
     else:
         return f"Offsuit Hand ({hand_class}) — high card value, but weaker multiway drawing power."
+
+
+def analyze_postflop_hand(
+    hero_cards: list[int], board_cards: list[int], n_opponents: int
+) -> dict[str, Any]:
+    """Compute outs, Rule of 2 and 4 estimate, and live Monte Carlo board equity."""
+    if len(board_cards) < 3 or len(hero_cards) < 2:
+        return {}
+
+    used = set(hero_cards + board_cards)
+    deck = [c for c in range(52) if c not in used]
+    k = len(board_cards)
+
+    # 1. Flush Draw Check
+    suits = [c % 4 for c in hero_cards + board_cards]
+    flush_outs = 0
+    draw_notes: list[str] = []
+    suit_names = ["♣", "♦", "♥", "♠"]
+    for s in range(4):
+        if suits.count(s) == 4:
+            flush_outs = 9
+            draw_notes.append(f"Flush Draw ({suit_names[s]}, 9 outs)")
+            break
+        elif suits.count(s) >= 5:
+            draw_notes.append(f"Made Flush ({suit_names[s]}!)")
+
+    # 2. Straight Draw Check
+    ranks_present = set(c // 4 for c in hero_cards + board_cards)
+    straight_outs = 0
+    # Check possible 5-high straight (A,2,3,4,5) to ace-high straight (T,J,Q,K,A)
+    for low in range(-1, 9):
+        needed = set(12 if x == -1 else x for x in range(low, low + 5))
+        missing = needed - ranks_present
+        if len(missing) == 1:
+            missing_rank = list(missing)[0]
+            # count unseen cards of that rank
+            seen_of_rank = sum(1 for c in (hero_cards + board_cards) if c // 4 == missing_rank)
+            unseen_rank_cards = max(0, 4 - seen_of_rank)
+            straight_outs += unseen_rank_cards
+    if straight_outs >= 8:
+        draw_notes.append(f"Open-Ended Straight Draw ({straight_outs} outs)")
+    elif straight_outs > 0:
+        draw_notes.append(f"Gutshot Straight Draw ({straight_outs} outs)")
+
+    # 3. Overcards Check
+    board_ranks = [c // 4 for c in board_cards]
+    hero_ranks = [c // 4 for c in hero_cards]
+    max_b = max(board_ranks)
+    overcards = [r for r in hero_ranks if r > max_b]
+    over_outs = 0
+    if overcards and not flush_outs and not straight_outs:
+        over_outs = len(overcards) * 3
+        draw_notes.append(f"{len(overcards)} Overcard(s) to Board ({over_outs} outs)")
+
+    total_outs = flush_outs + min(8, straight_outs) + over_outs
+    if not draw_notes:
+        draw_notes.append("Made hand / showdown value")
+
+    # Rule of 2 and 4
+    if k == 3:
+        rule_pct = round(min(100.0, total_outs * 4.0), 1)
+        rule_desc = f"Rule of 4: {total_outs} outs × 4% = {rule_pct}%"
+    elif k == 4:
+        rule_pct = round(min(100.0, total_outs * 2.0), 1)
+        rule_desc = f"Rule of 2: {total_outs} outs × 2% = {rule_pct}%"
+    else:
+        rule_pct = None
+        rule_desc = "River reached (Showdown evaluation)"
+
+    # Fast Monte Carlo Live Equity (250 iterations)
+    rng = np.random.default_rng(2026 + k)
+    wins = 0.0
+    n_sim = 250
+    cards_needed = 5 - k
+    active_opps = max(1, min(8, n_opponents))
+
+    for _ in range(n_sim):
+        sub = rng.permutation(deck)
+        full_b = board_cards + list(sub[:cards_needed])
+        opps = [list(sub[cards_needed + 2 * i : cards_needed + 2 * i + 2]) + full_b for i in range(active_opps)]
+        all_7 = np.array([hero_cards + full_b] + opps, dtype=np.int8)
+        sc, _ = evaluate_7cards(all_7)
+        max_sc = np.max(sc)
+        if sc[0] == max_sc:
+            wins += 1.0 / np.sum(sc == max_sc)
+
+    live_equity = wins / n_sim
+
+    return {
+        "draw_notes": draw_notes,
+        "total_outs": total_outs,
+        "rule_desc": rule_desc,
+        "rule_pct": rule_pct,
+        "live_equity": round(float(live_equity), 3),
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -213,7 +309,6 @@ class Seat:
         self.occupied: bool = False
         self.player_id: str = ""
         self.nickname: str = f"Seat {seat_idx+1}"
-        self.reconnect_token: str = ""
         self.is_bot: bool = False
         self.bot_archetype: str = "TAG"
         self.chips: int = 100
@@ -254,7 +349,6 @@ class GameRoom:
         self.seed: int = seed
         self.rng = np.random.default_rng(seed)
         self.seats: list[Seat] = [Seat(i) for i in range(9)]
-        self.spectators: dict[str, dict[str, Any]] = {}  # pid -> info
         self.bots_enabled: bool = True
         self.phase: str = "waiting"  # waiting, preflop, flop, turn, river, showdown
         self.community_cards: list[int] = []
@@ -264,6 +358,12 @@ class GameRoom:
         self.audit_log: list[dict[str, Any]] = []
         self.record_log: list[dict[str, Any]] = []
         self.log_file: Optional[Path] = None
+        self.last_winners: list[dict[str, Any]] = []
+
+        # Central WebSocket Connections
+        self.host_sockets: set[WebSocket] = set()
+        self.player_sockets: dict[int, WebSocket] = {}
+        self.spectator_sockets: set[WebSocket] = set()
 
         # Fill default bots
         archetypes = ["Rock", "TAG", "LAG", "Calling_Station", "Wild", "TAG"]
@@ -285,13 +385,14 @@ class GameRoom:
         self.community_cards = []
         self.pot = 0
         self.phase = "preflop"
+        self.last_winners = []
 
-        # Shuffle standard 52-card deck
+        # Shuffle 52-card deck
         deck = np.arange(52, dtype=np.int32)
         self.rng.shuffle(deck)
         self.deck = deck.tolist()
 
-        # Blind/Ante: 1 chip per active player
+        # Deal 2 cards and 1-chip ante from each active player
         for s in self.seats:
             if s.occupied and s.chips > 0:
                 s.active = True
@@ -360,7 +461,7 @@ class GameRoom:
         if self.phase == "preflop":
             self.apply_bot_decisions()
 
-        # If streets were not dealt, deal board to 5 cards
+        # Complete board to 5 cards if needed
         while len(self.community_cards) < 5 and len(self.deck) > 0:
             self.community_cards.append(self.deck.pop(0))
 
@@ -371,10 +472,7 @@ class GameRoom:
             return {"winners": [], "payout": 0}
 
         board = self.community_cards
-        eval_hands = []
-        for s in active_seats:
-            eval_hands.append(np.array(s.cards + board, dtype=np.int8))
-
+        eval_hands = [np.array(s.cards + board, dtype=np.int8) for s in active_seats]
         scores, cats = evaluate_7cards(np.array(eval_hands, dtype=np.int8))
         max_score = int(np.max(scores))
         winning_indices = [i for i, sc in enumerate(scores) if sc == max_score]
@@ -391,6 +489,8 @@ class GameRoom:
             ws.chips += payout
             winners.append({"nickname": ws.nickname, "seat_idx": ws.seat_idx, "payout": payout})
 
+        self.last_winners = winners
+
         # Calibration scoring & G9 Logging
         active_n_start = sum(1 for s in self.seats if s.active)
         for s in self.seats:
@@ -402,7 +502,6 @@ class GameRoom:
                     s.brier_score_sum += brier
                     s.rounds_guessed += 1
 
-                # Record log line
                 log_entry = {
                     "round_id": self.round_id,
                     "seat_idx": s.seat_idx,
@@ -434,6 +533,112 @@ class GameRoom:
             "data": data,
         })
 
+    def build_player_payload(
+        self, seat: Seat, active_n: int, board_strs: list[str]
+    ) -> dict[str, Any]:
+        """Construct the personalized private payload for a seated player."""
+        emp = (
+            get_empirical_equity(seat.hand_class, active_n)
+            if (seat.active and seat.hand_class)
+            else {"equity": 0.0, "p_win": 0.0, "p_tie": 0.0, "equity_se": 0.0}
+        )
+        form = (
+            compute_formula_estimate(seat.hand_class, active_n)
+            if (seat.active and seat.hand_class)
+            else {"pred_equity": 0.0, "beta_n": 1.0, "p2": 0.5, "recipe": ""}
+        )
+        chart_coord = (
+            get_chart_coordinates(seat.hand_class)
+            if (seat.active and seat.hand_class)
+            else [0, 0]
+        )
+
+        postflop = None
+        if seat.active and seat.cards and len(self.community_cards) >= 3:
+            postflop = analyze_postflop_hand(
+                seat.cards, self.community_cards, max(1, active_n - 1)
+            )
+
+        return {
+            "type": "update",
+            "role": "player",
+            "seat_idx": seat.seat_idx,
+            "nickname": seat.nickname,
+            "chips": seat.chips,
+            "round_id": self.round_id,
+            "phase": self.phase,
+            "pot": self.pot,
+            "active_n": active_n,
+            "board": board_strs,
+            "active": seat.active,
+            "folded": seat.folded,
+            "cards": [card_to_str(c) for c in seat.cards] if seat.active else [],
+            "hand_class": seat.hand_class if seat.active else "",
+            "hand_desc": describe_hand(seat.hand_class) if seat.active else "",
+            "chart_coord": chart_coord,
+            "emp_equity": emp["equity"],
+            "emp_se": emp["equity_se"],
+            "emp_p_win": emp["p_win"],
+            "emp_p_tie": emp["p_tie"],
+            "form_equity": form["pred_equity"],
+            "form_beta_n": form["beta_n"],
+            "form_recipe": form["recipe"],
+            "unaided_guess": seat.unaided_guess,
+            "aided_guess": seat.aided_guess,
+            "aid_revealed": seat.aid_revealed,
+            "postflop": postflop,
+            "winners": self.last_winners,
+        }
+
+    async def broadcast_state(self) -> None:
+        """Broadcast live game updates to host, player phones, and spectators."""
+        active_n = self.get_active_count()
+        board_strs = [card_to_str(c) for c in self.community_cards]
+
+        # 1. State for Host Projector View
+        host_payload = {
+            "type": "state",
+            "round_id": self.round_id,
+            "phase": self.phase,
+            "pot": self.pot,
+            "active_n": active_n,
+            "board": board_strs,
+            "seats": [s.to_dict(is_self=False) for s in self.seats],
+            "winners": self.last_winners,
+        }
+        for ws in list(self.host_sockets):
+            try:
+                await ws.send_json(host_payload)
+            except Exception:
+                self.host_sockets.discard(ws)
+
+        # 2. State for Spectator Devices
+        spec_payload = {
+            "type": "update",
+            "role": "spectator",
+            "round_id": self.round_id,
+            "phase": self.phase,
+            "pot": self.pot,
+            "active_n": active_n,
+            "board": board_strs,
+            "seats": [s.to_dict(is_self=False) for s in self.seats],
+            "winners": self.last_winners,
+        }
+        for ws in list(self.spectator_sockets):
+            try:
+                await ws.send_json(spec_payload)
+            except Exception:
+                self.spectator_sockets.discard(ws)
+
+        # 3. Personalized Real-Time Payload for Each Phone Seat
+        for seat_idx, ws in list(self.player_sockets.items()):
+            seat = self.seats[seat_idx]
+            player_payload = self.build_player_payload(seat, active_n, board_strs)
+            try:
+                await ws.send_json(player_payload)
+            except Exception:
+                self.player_sockets.pop(seat_idx, None)
+
 
 # Global in-memory rooms registry
 ROOMS: dict[str, GameRoom] = {}
@@ -458,49 +663,51 @@ HOST_HTML = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     :root {
-      --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
-      --accent: #38bdf8; --border: #334155; --spade: #111; --heart: #e11d48;
-      --diamond: #2563eb; --club: #16a34a;
+      --bg: #0b1329; --panel: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
+      --accent: #38bdf8; --border: #334155; --spade: #0f172a; --heart: #e11d48;
+      --diamond: #0284c7; --club: #16a34a;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
     body { background: var(--bg); color: var(--text); padding: 20px; }
     header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--border); padding-bottom: 15px; margin-bottom: 20px; }
-    .banner { background: #0369a1; color: white; text-align: center; padding: 6px; font-weight: bold; font-size: 0.9rem; border-radius: 4px; margin-bottom: 15px; }
+    .banner { background: #0369a1; color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 0.95rem; border-radius: 6px; margin-bottom: 16px; letter-spacing: 0.5px; }
     .grid { display: grid; grid-template-columns: 280px 1fr 340px; gap: 20px; }
-    .card-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 15px; }
+    .card-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
     h2 { font-size: 1.2rem; color: var(--accent); margin-bottom: 12px; }
-    .qr-container { text-align: center; margin: 10px 0; }
-    .qr-container img { width: 180px; height: 180px; border-radius: 8px; border: 4px solid white; }
-    .board-cards { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-    .poker-card { width: 55px; height: 80px; background: white; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .qr-container { text-align: center; margin: 12px 0; }
+    .qr-container img { width: 190px; height: 190px; border-radius: 8px; border: 4px solid white; }
+    .board-cards { display: flex; gap: 12px; justify-content: center; margin: 20px 0; }
+    .poker-card { width: 64px; height: 92px; background: white; border-radius: 8px; display: flex; flex-direction: column; justify-content: space-between; padding: 6px 8px; font-weight: bold; font-size: 1.3rem; box-shadow: 0 4px 8px rgba(0,0,0,0.4); }
     .poker-card.suit-s { color: var(--spade); }
     .poker-card.suit-h { color: var(--heart); }
     .poker-card.suit-d { color: var(--diamond); }
     .poker-card.suit-c { color: var(--club); }
-    .seats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-    .seat-card { background: #0b1329; border: 1px solid var(--border); border-radius: 6px; padding: 10px; font-size: 0.85rem; }
-    .seat-card.active { border-color: var(--accent); }
+    .card-label { font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 4px; font-weight: normal; }
+    .seats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
+    .seat-card { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 0.9rem; text-align: left; }
+    .seat-card.active { border-color: var(--accent); box-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
     .seat-card.folded { opacity: 0.4; }
-    .btn { background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.9rem; margin: 4px; }
+    .btn { background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; margin: 4px; transition: background 0.2s; }
     .btn:hover { background: #0369a1; }
-    .leaderboard table { width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-top: 10px; }
-    .leaderboard th, .leaderboard td { padding: 6px; text-align: left; border-bottom: 1px solid var(--border); }
-    .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; background: #334155; }
-    .crowd-stat { font-size: 1.1rem; font-weight: bold; color: #34d399; margin-top: 10px; }
+    .leaderboard table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
+    .leaderboard th, .leaderboard td { padding: 8px 6px; text-align: left; border-bottom: 1px solid var(--border); }
+    .badge { padding: 3px 8px; border-radius: 4px; font-size: 0.8rem; background: #334155; }
+    .crowd-stat { font-size: 1.2rem; font-weight: bold; color: #34d399; margin-top: 8px; }
+    .winner-banner { background: #15803d; color: white; padding: 10px; border-radius: 6px; font-weight: bold; text-align: center; margin-top: 15px; font-size: 1.1rem; }
   </style>
 </head>
 <body>
-  <div class="banner">EDUCATIONAL PROBABILITY DEMO — PLAY CHIPS ONLY — NO GAMBLING</div>
+  <div class="banner">EDUCATIONAL PROBABILITY DEMO — PLAY CHIPS ONLY — NO REAL MONEY</div>
   <header>
     <div>
       <h1>Hold'em Lab Demo <span class="badge" id="roomBadge">ROOM: ...</span></h1>
-      <p style="color:var(--text-muted); font-size:0.9rem;">MSc Applied Probability Distributions (THM6242)</p>
+      <p style="color:var(--text-muted); font-size:0.95rem;">MSc Applied Probability Distributions (THM6242)</p>
     </div>
     <div id="controls">
       <button class="btn" onclick="sendAction('start')">Deal Preflop</button>
-      <button class="btn" onclick="sendAction('flop')">Flop</button>
-      <button class="btn" onclick="sendAction('turn')">Turn</button>
-      <button class="btn" onclick="sendAction('river')">River</button>
+      <button class="btn" onclick="sendAction('flop')">Flop (3 Cards)</button>
+      <button class="btn" onclick="sendAction('turn')">Turn (4th Card)</button>
+      <button class="btn" onclick="sendAction('river')">River (5th Card)</button>
       <button class="btn" onclick="sendAction('showdown')">Showdown</button>
     </div>
   </header>
@@ -508,33 +715,29 @@ HOST_HTML = """<!DOCTYPE html>
   <div class="grid">
     <!-- QR & Join Panel -->
     <div class="card-panel">
-      <h2>Mobile Join</h2>
+      <h2>Mobile QR Join</h2>
       <div class="qr-container">
         <img id="qrImg" src="" alt="QR Code">
       </div>
-      <p style="text-align:center; font-size:0.85rem; color:var(--text-muted); margin-bottom:10px;">
-        Scan or connect to:<br><strong id="joinUrl" style="color:var(--accent);">http://...</strong>
+      <p style="text-align:center; font-size:0.9rem; color:var(--text-muted); margin-bottom:12px;">
+        Scan or connect via phone browser:<br><strong id="joinUrl" style="color:var(--accent); word-break:break-all;">http://...</strong>
       </p>
-      <div style="font-size:0.8rem; color:var(--text-muted); border-top:1px solid var(--border); padding-top:10px;">
-        <strong>Hotspot Note:</strong> If campus Wi-Fi isolates devices, host should connect player phones via a mobile or laptop hotspot.
+      <div style="font-size:0.85rem; color:var(--text-muted); border-top:1px solid var(--border); padding-top:10px;">
+        <strong>Campus Wi-Fi Tip:</strong> Many university networks isolate devices. Use a laptop or mobile hotspot so all phones connect to the same subnet.
       </div>
     </div>
 
-    <!-- Main Table & Board -->
+    <!-- Main Table & Community Board -->
     <div class="card-panel" style="text-align:center;">
-      <h2 style="text-align:left;">Table View (Round #<span id="roundId">1</span> — Phase: <span id="phase">waiting</span>)</h2>
-      <div style="font-size:1.2rem; font-weight:bold; margin-bottom:10px;">
-        Pot: <span id="pot" style="color:#f59e0b;">0</span> chips | Active: <span id="activeN">0</span> seats
+      <h2 style="text-align:left;">Community Board (Round #<span id="roundId">1</span> — Phase: <span id="phase" style="text-transform:uppercase; color:#38bdf8;">WAITING</span>)</h2>
+      <div style="font-size:1.3rem; font-weight:bold; margin-bottom:12px;">
+        Pot: <span id="pot" style="color:#f59e0b;">0</span> chips | Active In-Hand: <span id="activeN" style="color:#34d399;">0</span> seats
       </div>
 
-      <div class="board-cards" id="boardCards">
-        <div class="poker-card" style="opacity:0.2;"></div>
-        <div class="poker-card" style="opacity:0.2;"></div>
-        <div class="poker-card" style="opacity:0.2;"></div>
-        <div class="poker-card" style="opacity:0.2;"></div>
-        <div class="poker-card" style="opacity:0.2;"></div>
-      </div>
+      <div class="board-cards" id="boardCards"></div>
+      <div id="winnerBanner" class="winner-banner" style="display:none;"></div>
 
+      <h2 style="text-align:left; margin-top:20px;">Seats at Table (Max 9)</h2>
       <div class="seats-grid" id="seatsGrid"></div>
     </div>
 
@@ -544,16 +747,16 @@ HOST_HTML = """<!DOCTYPE html>
       <div class="leaderboard">
         <table>
           <thead>
-            <tr><th>Seat</th><th>Chips</th><th>Calibration (Brier)</th></tr>
+            <tr><th>Seat</th><th>Chips</th><th>Calibration</th></tr>
           </thead>
           <tbody id="leaderboardBody"></tbody>
         </table>
       </div>
 
-      <h2 style="margin-top:20px;">Wisdom of Crowds</h2>
-      <div id="crowdStats" style="font-size:0.9rem;">
+      <h2 style="margin-top:24px;">Wisdom of Crowds</h2>
+      <div id="crowdStats">
         <div>Crowd Avg Guess: <span id="crowdAvg" class="crowd-stat">--</span></div>
-        <div style="color:var(--text-muted); font-size:0.8rem; margin-top:4px;">Average of unaided probability guesses across all seats.</div>
+        <div style="color:var(--text-muted); font-size:0.85rem; margin-top:6px;">Average unaided player guess across seats compared against combinatorial truth.</div>
       </div>
     </div>
   </div>
@@ -580,7 +783,9 @@ HOST_HTML = """<!DOCTYPE html>
     }
 
     function renderCard(cardStr) {
-      if (!cardStr) return `<div class="poker-card" style="opacity:0.2;"></div>`;
+      if (!cardStr) {
+        return `<div class="poker-card" style="opacity:0.25; border:2px dashed #94a3b8; background:transparent;"></div>`;
+      }
       const rank = cardStr[0];
       const suit = cardStr[1];
       const suitSym = suit === "s" ? "♠" : suit === "h" ? "♥" : suit === "d" ? "♦" : "♣";
@@ -593,20 +798,33 @@ HOST_HTML = """<!DOCTYPE html>
       document.getElementById("pot").textContent = state.pot;
       document.getElementById("activeN").textContent = state.active_n;
 
-      // Board
-      const bHtml = (state.board && state.board.length > 0)
-        ? state.board.map(renderCard).join("")
-        : `<div class="poker-card" style="opacity:0.2;"></div>`.repeat(5);
+      // Board with labels
+      const board = state.board || [];
+      const labels = ["Flop", "Flop", "Flop", "Turn", "River"];
+      let bHtml = "";
+      for (let i = 0; i < 5; i++) {
+        bHtml += `<div>${renderCard(board[i])}<div class="card-label">${labels[i]}</div></div>`;
+      }
       document.getElementById("boardCards").innerHTML = bHtml;
+
+      // Winners Banner
+      const winBanner = document.getElementById("winnerBanner");
+      if (state.phase === "showdown" && state.winners && state.winners.length > 0) {
+        const winNames = state.winners.map(w => `${w.nickname} (+${w.payout} chips)`).join(", ");
+        winBanner.textContent = `🎉 Showdown Winner(s): ${winNames}`;
+        winBanner.style.display = "block";
+      } else {
+        winBanner.style.display = "none";
+      }
 
       // Seats Grid
       const sGrid = document.getElementById("seatsGrid");
       sGrid.innerHTML = state.seats.map(s => `
         <div class="seat-card ${s.active ? 'active' : ''} ${s.folded ? 'folded' : ''}">
           <div style="font-weight:bold; color:var(--accent);">${s.nickname}</div>
-          <div>Chips: ${s.chips} | ${s.is_bot ? 'Bot' : 'Human'}</div>
-          <div>Status: ${s.folded ? 'Folded' : (s.active ? 'Playing' : 'Empty')}</div>
-          ${s.aided_guess !== null ? `<div style="font-size:0.75rem; color:#34d399;">Guess: ${(s.aided_guess*100).toFixed(0)}%</div>` : ''}
+          <div>Chips: <strong>${s.chips}</strong> | ${s.is_bot ? 'Bot' : 'Phone'}</div>
+          <div>Status: <span style="font-weight:bold; color:${s.folded ? '#ef4444' : (s.active ? '#22c55e' : '#94a3b8')};">${s.folded ? 'Folded' : (s.active ? 'Playing' : 'Empty')}</span></div>
+          ${s.aided_guess !== null ? `<div style="font-size:0.8rem; color:#34d399; margin-top:2px;">Guess: ${(s.aided_guess*100).toFixed(0)}%</div>` : ''}
         </div>
       `).join("");
 
@@ -617,7 +835,7 @@ HOST_HTML = """<!DOCTYPE html>
         <tr>
           <td>${s.nickname}</td>
           <td><strong>${s.chips}</strong></td>
-          <td>${s.calib_score > 0 ? s.calib_score.toFixed(4) : '--'}</td>
+          <td>${s.calib_score > 0 ? (s.calib_score*100).toFixed(1) + '%' : '--'}</td>
         </tr>
       `).join("");
 
@@ -651,74 +869,126 @@ PHONE_HTML = """<!DOCTYPE html>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <style>
     :root {
-      --bg: #0f172a; --panel: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
-      --accent: #38bdf8; --border: #334155; --spade: #111; --heart: #e11d48;
-      --diamond: #2563eb; --club: #16a34a;
+      --bg: #0b1329; --panel: #1e293b; --text: #f8fafc; --text-muted: #94a3b8;
+      --accent: #38bdf8; --border: #334155; --spade: #0f172a; --heart: #e11d48;
+      --diamond: #0284c7; --club: #16a34a; --success: #22c55e; --warning: #f59e0b;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background: var(--bg); color: var(--text); padding: 12px; }
+    body { background: var(--bg); color: var(--text); padding: 12px; font-size: 14px; }
     .banner { background: #0369a1; color: white; text-align: center; padding: 6px; font-weight: bold; font-size: 0.75rem; border-radius: 4px; margin-bottom: 10px; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-    .card-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 12px; }
-    .cards-row { display: flex; gap: 8px; justify-content: center; margin: 10px 0; }
-    .poker-card { width: 55px; height: 80px; background: white; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px; font-weight: bold; font-size: 1.1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+    .status-bar { display: flex; justify-content: space-between; align-items: center; background: #0f172a; border: 1px solid var(--border); border-radius: 6px; padding: 8px 12px; margin-bottom: 10px; font-size: 0.85rem; }
+    .card-panel { background: var(--panel); border: 1px solid var(--border); border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+    .cards-row { display: flex; gap: 8px; justify-content: center; margin: 8px 0; }
+    .poker-card { width: 54px; height: 78px; background: white; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; padding: 4px 6px; font-weight: bold; font-size: 1.15rem; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
     .poker-card.suit-s { color: var(--spade); }
     .poker-card.suit-h { color: var(--heart); }
     .poker-card.suit-d { color: var(--diamond); }
     .poker-card.suit-c { color: var(--club); }
-    .btn { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 1rem; width: 100%; cursor: pointer; margin-top: 8px; }
+    .card-slot { text-align: center; }
+    .slot-label { font-size: 0.7rem; color: var(--text-muted); margin-top: 2px; }
+    .btn { background: #0284c7; color: white; border: none; padding: 12px; border-radius: 6px; font-weight: bold; font-size: 0.95rem; width: 100%; cursor: pointer; transition: opacity 0.2s; }
+    .btn:active { opacity: 0.8; }
     .btn-fold { background: #e11d48; }
     .btn-play { background: #16a34a; }
-    .slider { width: 100%; margin: 15px 0; }
-    .aid-box { background: #0b1329; border: 1px solid var(--accent); border-radius: 6px; padding: 10px; font-size: 0.85rem; margin-top: 10px; }
-    .recipe { background: #1e293b; padding: 6px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; margin-top: 6px; white-space: pre-wrap; }
+    .btn-disabled { opacity: 0.5; pointer-events: none; }
+    .slider { width: 100%; margin: 12px 0; accent-color: var(--accent); }
+    .aid-box { background: #071026; border: 1px solid var(--accent); border-radius: 6px; padding: 10px; font-size: 0.85rem; margin-top: 10px; }
+    .recipe { background: #1e293b; padding: 8px; border-radius: 4px; font-family: monospace; font-size: 0.75rem; margin-top: 6px; white-space: pre-wrap; color: #38bdf8; border: 1px solid #334155; }
+    .badge { padding: 2px 6px; border-radius: 4px; font-size: 0.75rem; background: #334155; }
+    .fold-overlay { background: rgba(225, 29, 72, 0.15); border: 1px solid #e11d48; color: #fca5a5; padding: 8px; border-radius: 6px; text-align: center; font-weight: bold; margin-bottom: 8px; }
+    .quick-host-bar { background: #111e38; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin-top: 12px; text-align: center; font-size: 0.8rem; }
   </style>
 </head>
 <body>
-  <div class="banner">EDUCATIONAL DEMO — PLAY CHIPS ONLY</div>
-  <div class="header">
-    <div style="font-weight:bold; color:var(--accent);" id="seatLabel">Seat: Joining...</div>
+  <div class="banner">EDUCATIONAL DEMO — PLAY CHIPS ONLY — NO REAL MONEY</div>
+
+  <div class="status-bar">
+    <div><strong id="seatLabel" style="color:var(--accent);">Joining...</strong></div>
+    <div>Phase: <strong id="phaseLabel" style="color:var(--warning); text-transform:uppercase;">WAITING</strong></div>
     <div>Chips: <strong id="chipCount" style="color:#f59e0b;">100</strong></div>
   </div>
 
+  <div id="foldedNotice" class="fold-overlay" style="display:none;">
+    ⚠️ YOU FOLDED — Spectating remainder of this hand
+  </div>
+
+  <!-- Join Screen -->
   <div id="joinSection" class="card-panel">
-    <h3>Join Room</h3>
-    <input type="text" id="nicknameInput" placeholder="Your Nickname" style="width:100%; padding:10px; margin:10px 0; border-radius:4px; border:1px solid var(--border); background:#0f172a; color:white;">
+    <h3 style="color:var(--accent); margin-bottom:8px;">Take Your Seat</h3>
+    <input type="text" id="nicknameInput" placeholder="Enter Nickname" style="width:100%; padding:10px; margin:10px 0; border-radius:6px; border:1px solid var(--border); background:#0f172a; color:white; font-size:1rem;">
     <button class="btn" onclick="joinRoom()">Join Game</button>
   </div>
 
+  <!-- Game Table Screen -->
   <div id="gameSection" style="display:none;">
-    <!-- Hole Cards -->
-    <div class="card-panel" style="text-align:center;">
-      <div style="font-size:0.85rem; color:var(--text-muted);">Your Private Hole Cards</div>
-      <div class="cards-row" id="holeCards"></div>
-      <div style="font-weight:bold; font-size:1.1rem; color:var(--accent);" id="handClass">--</div>
-      <div style="font-size:0.8rem; color:var(--text-muted); margin-top:4px;" id="handDesc">--</div>
+    <!-- 1. Community Board -->
+    <div class="card-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+        <span style="font-weight:bold; color:var(--accent); font-size:0.9rem;">Community Board</span>
+        <span style="font-size:0.8rem; color:var(--text-muted);">Pot: <strong id="potLabel" style="color:#f59e0b;">0</strong> chips</span>
+      </div>
+      <div class="cards-row" id="boardCardsRow"></div>
     </div>
 
-    <!-- Probability Guess Slider -->
-    <div class="card-panel">
-      <h3>Step 1: Unaided Probability Guess</h3>
-      <div style="font-size:0.85rem; color:var(--text-muted); margin-top:2px;">What is your equity (win/split probability) against <span id="nOpponents">N</span> opponents?</div>
-      <input type="range" min="1" max="99" value="35" class="slider" id="guessSlider" oninput="updateGuessLabel(this.value)">
-      <div style="text-align:center; font-size:1.2rem; font-weight:bold; color:var(--accent);"><span id="guessVal">35</span>%</div>
-      <button class="btn" id="lockGuessBtn" onclick="lockGuess()">Lock Guess & Reveal Simulation Aid</button>
+    <!-- 2. Private Hole Cards -->
+    <div class="card-panel" style="text-align:center;">
+      <div style="font-size:0.8rem; color:var(--text-muted);">Your Private Hole Cards</div>
+      <div class="cards-row" id="holeCardsRow"></div>
+      <div style="font-weight:bold; font-size:1.1rem; color:var(--accent);" id="handClassLabel">--</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;" id="handDescLabel">Waiting for deal...</div>
+    </div>
 
-      <!-- Simulation Aid (Initially Hidden) -->
+    <!-- 3. Postflop Outs & Live Equity (Revealed on Flop/Turn/River) -->
+    <div id="postflopPanel" class="card-panel" style="display:none; background:#071026; border-color:#22c55e;">
+      <div style="font-weight:bold; color:#22c55e; font-size:0.9rem; margin-bottom:6px;">Postflop Board Analysis</div>
+      <div id="drawNotes" style="font-size:0.85rem; font-weight:bold; color:#f8fafc;">--</div>
+      <div style="display:flex; justify-content:space-between; margin-top:6px; font-size:0.85rem;">
+        <div>Outs Counter: <strong id="outsCount" style="color:#38bdf8;">0</strong></div>
+        <div>Live Board Equity: <strong id="liveEquity" style="color:#34d399;">--</strong></div>
+      </div>
+      <div id="ruleDesc" style="font-size:0.8rem; color:#94a3b8; margin-top:4px; font-style:italic;">--</div>
+    </div>
+
+    <!-- 4. Intuition vs Science: Probability Guess Slider & Aid -->
+    <div class="card-panel">
+      <div style="font-weight:bold; font-size:0.9rem; color:var(--accent);">Intuition vs Science</div>
+      <div style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;">Guess your win probability against <span id="nOpponents">N</span> opponents:</div>
+      <input type="range" min="1" max="99" value="35" class="slider" id="guessSlider" oninput="updateGuessLabel(this.value)">
+      <div style="text-align:center; font-size:1.3rem; font-weight:bold; color:var(--accent); margin:4px 0;"><span id="guessVal">35</span>%</div>
+      
+      <button class="btn" id="lockGuessBtn" onclick="lockGuess()">🔒 Lock Guess & Reveal Simulation Aid</button>
+      <div id="guessLockedBadge" style="display:none; text-align:center; font-size:0.85rem; font-weight:bold; color:#22c55e; margin:6px 0;">
+        ✅ Guess Locked: <span id="lockedVal">35%</span>
+      </div>
+
+      <!-- Simulation Aid Box -->
       <div id="aidBox" class="aid-box" style="display:none;">
-        <div style="font-weight:bold; color:#34d399;">Simulation & Formula Aid</div>
+        <div style="font-weight:bold; color:#34d399; margin-bottom:4px;">📘 Simulation & Formula Aid</div>
         <div>Empirical Table Equity: <strong id="empEquity">--</strong> ± <span id="empSE">--</span></div>
         <div>Model M1 Formula Estimate: <strong id="formEquity">--</strong></div>
         <div class="recipe" id="formRecipe">--</div>
+        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:4px;">13×13 Preflop Chart Coordinate: <span id="chartCoord">--</span></div>
       </div>
     </div>
 
-    <!-- Decision Controls -->
+    <!-- 5. Decision Buttons -->
     <div class="card-panel">
-      <h3>Step 2: Preflop Decision</h3>
-      <div style="display:flex; gap:10px; margin-top:10px;">
-        <button class="btn btn-fold" onclick="makeDecision('fold')">Fold</button>
-        <button class="btn btn-play" onclick="makeDecision('play')">Play Hand</button>
+      <div style="font-weight:bold; font-size:0.9rem; margin-bottom:8px;">Preflop Decision</div>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-fold" id="btnFold" onclick="makeDecision('fold')">✋ Fold Hand</button>
+        <button class="btn btn-play" id="btnPlay" onclick="makeDecision('play')">⚔️ Play Hand</button>
+      </div>
+    </div>
+
+    <!-- 6. Mobile Quick Host Controls (Convenience for Single-Device Testing) -->
+    <div class="quick-host-bar">
+      <div style="font-weight:bold; color:var(--text-muted); margin-bottom:4px;">Host Quick Advance (Demo Testing)</div>
+      <div style="display:flex; gap:4px; justify-content:center; flex-wrap:wrap;">
+        <button class="badge" style="border:none; cursor:pointer;" onclick="sendHostAction('start')">Deal</button>
+        <button class="badge" style="border:none; cursor:pointer;" onclick="sendHostAction('flop')">Flop</button>
+        <button class="badge" style="border:none; cursor:pointer;" onclick="sendHostAction('turn')">Turn</button>
+        <button class="badge" style="border:none; cursor:pointer;" onclick="sendHostAction('river')">River</button>
+        <button class="badge" style="border:none; cursor:pointer;" onclick="sendHostAction('showdown')">Showdown</button>
       </div>
     </div>
   </div>
@@ -727,16 +997,26 @@ PHONE_HTML = """<!DOCTYPE html>
     const room = new URLSearchParams(window.location.search).get("room") || "DEMO";
     let ws;
     let mySeatIdx = null;
+    let isFolded = false;
 
     function updateGuessLabel(val) {
       document.getElementById("guessVal").textContent = val;
     }
 
-    function joinRoom() {
-      const name = document.getElementById("nicknameInput").value || "Student";
+    function renderCard(cardStr) {
+      if (!cardStr) {
+        return `<div class="poker-card" style="opacity:0.25; border:2px dashed #94a3b8; background:transparent;"></div>`;
+      }
+      const rank = cardStr[0];
+      const suit = cardStr[1];
+      const suitSym = suit === "s" ? "♠" : suit === "h" ? "♥" : suit === "d" ? "♦" : "♣";
+      return `<div class="poker-card suit-${suit}"><div>${rank}</div><div style="align-self:flex-end;">${suitSym}</div></div>`;
+    }
+
+    function initWS() {
       const loc = window.location;
       const proto = loc.protocol === "https:" ? "wss:" : "ws:";
-      ws = new WebSocket(`${proto}//${loc.host}/ws?room=${room}&role=player&nickname=${encodeURIComponent(name)}`);
+      ws = new WebSocket(`${proto}//${loc.host}/ws?room=${room}&role=player&nickname=${encodeURIComponent(document.getElementById("nicknameInput").value || "Player")}`);
 
       ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -745,51 +1025,118 @@ PHONE_HTML = """<!DOCTYPE html>
           document.getElementById("seatLabel").textContent = `${data.nickname} (Seat ${data.seat_idx+1})`;
           document.getElementById("joinSection").style.display = "none";
           document.getElementById("gameSection").style.display = "block";
-        } else if (data.type === "seat_payload") {
-          handleSeatPayload(data);
-        } else if (data.type === "state") {
-          document.getElementById("chipCount").textContent = data.seats[mySeatIdx]?.chips ?? 100;
+        } else if (data.type === "update") {
+          handleUpdate(data);
         }
+      };
+
+      ws.onclose = () => {
+        document.getElementById("seatLabel").textContent = "Reconnecting...";
+        setTimeout(initWS, 2000);
       };
     }
 
-    function renderCard(cardStr) {
-      if (!cardStr) return `<div class="poker-card" style="opacity:0.2;"></div>`;
-      const rank = cardStr[0];
-      const suit = cardStr[1];
-      const suitSym = suit === "s" ? "♠" : suit === "h" ? "♥" : suit === "d" ? "♦" : "♣";
-      return `<div class="poker-card suit-${suit}"><div>${rank}</div><div style="align-self:flex-end;">${suitSym}</div></div>`;
+    function joinRoom() {
+      initWS();
     }
 
-    function handleSeatPayload(payload) {
-      document.getElementById("holeCards").innerHTML = payload.cards.map(renderCard).join("");
-      document.getElementById("handClass").textContent = payload.hand_class;
-      document.getElementById("handDesc").textContent = payload.hand_desc;
-      document.getElementById("nOpponents").textContent = payload.active_n - 1;
+    function handleUpdate(data) {
+      document.getElementById("phaseLabel").textContent = data.phase;
+      document.getElementById("potLabel").textContent = data.pot;
+      document.getElementById("chipCount").textContent = data.chips;
+      document.getElementById("nOpponents").textContent = Math.max(1, data.active_n - 1);
 
-      // Aid values
-      document.getElementById("empEquity").textContent = (payload.emp_equity * 100).toFixed(1) + "%";
-      document.getElementById("empSE").textContent = (payload.emp_se * 100).toFixed(2) + "%";
-      document.getElementById("formEquity").textContent = (payload.form_equity * 100).toFixed(1) + "%";
-      document.getElementById("formRecipe").textContent = payload.form_recipe;
+      // 1. Community Board
+      const bRow = document.getElementById("boardCardsRow");
+      const board = data.board || [];
+      const labels = ["Flop", "Flop", "Flop", "Turn", "River"];
+      let bHtml = "";
+      for (let i = 0; i < 5; i++) {
+        bHtml += `<div class="card-slot">${renderCard(board[i])}<div class="slot-label">${labels[i]}</div></div>`;
+      }
+      bRow.innerHTML = bHtml;
 
-      // Reset guess view
-      document.getElementById("aidBox").style.display = "none";
-      document.getElementById("lockGuessBtn").style.display = "block";
+      // 2. Hole Cards
+      const hRow = document.getElementById("holeCardsRow");
+      const cards = data.cards || [];
+      if (cards.length > 0) {
+        hRow.innerHTML = cards.map(c => `<div class="card-slot">${renderCard(c)}</div>`).join("");
+        document.getElementById("handClassLabel").textContent = data.hand_class;
+        document.getElementById("handDescLabel").textContent = data.hand_desc;
+      } else {
+        hRow.innerHTML = `<div class="card-slot">${renderCard(null)}</div><div class="card-slot">${renderCard(null)}</div>`;
+        document.getElementById("handClassLabel").textContent = "--";
+        document.getElementById("handDescLabel").textContent = "Waiting for next deal...";
+      }
+
+      // 3. Fold state
+      isFolded = data.folded;
+      document.getElementById("foldedNotice").style.display = isFolded ? "block" : "none";
+      if (isFolded) {
+        document.getElementById("btnFold").classList.add("btn-disabled");
+        document.getElementById("btnPlay").classList.add("btn-disabled");
+        hRow.style.opacity = "0.35";
+      } else {
+        document.getElementById("btnFold").classList.remove("btn-disabled");
+        document.getElementById("btnPlay").classList.remove("btn-disabled");
+        hRow.style.opacity = "1.0";
+      }
+
+      // 4. Preflop Aid Data
+      document.getElementById("empEquity").textContent = (data.emp_equity * 100).toFixed(1) + "%";
+      document.getElementById("empSE").textContent = (data.emp_se * 100).toFixed(2) + "%";
+      document.getElementById("formEquity").textContent = (data.form_equity * 100).toFixed(1) + "%";
+      document.getElementById("formRecipe").textContent = data.form_recipe || "--";
+      if (data.chart_coord) {
+        document.getElementById("chartCoord").textContent = `Row ${data.chart_coord[0]}, Col ${data.chart_coord[1]}`;
+      }
+
+      // 5. Postflop Analysis
+      const pf = data.postflop;
+      const pfPanel = document.getElementById("postflopPanel");
+      if (pf && Object.keys(pf).length > 0 && !isFolded) {
+        pfPanel.style.display = "block";
+        document.getElementById("drawNotes").textContent = pf.draw_notes.join(" + ");
+        document.getElementById("outsCount").textContent = pf.total_outs;
+        document.getElementById("liveEquity").textContent = (pf.live_equity * 100).toFixed(1) + "%";
+        document.getElementById("ruleDesc").textContent = pf.rule_desc;
+      } else {
+        pfPanel.style.display = "none";
+      }
+
+      // 6. Reset or preserve lock button state
+      if (data.phase === "preflop" && !data.aid_revealed && !data.unaided_guess) {
+        document.getElementById("aidBox").style.display = "none";
+        document.getElementById("lockGuessBtn").style.display = "block";
+        document.getElementById("guessLockedBadge").style.display = "none";
+      }
     }
 
     function lockGuess() {
       const g = parseFloat(document.getElementById("guessSlider").value) / 100.0;
-      if (ws) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({type: "guess_unaided", guess: g}));
       }
       document.getElementById("aidBox").style.display = "block";
       document.getElementById("lockGuessBtn").style.display = "none";
+      document.getElementById("lockedVal").textContent = (g * 100).toFixed(0) + "%";
+      document.getElementById("guessLockedBadge").style.display = "block";
     }
 
     function makeDecision(action) {
-      if (ws) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({type: "decision", action: action}));
+        if (action === "fold") {
+          document.getElementById("foldedNotice").style.display = "block";
+          document.getElementById("btnFold").classList.add("btn-disabled");
+          document.getElementById("btnPlay").classList.add("btn-disabled");
+        }
+      }
+    }
+
+    function sendHostAction(action) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({type: "host_action", action: action}));
       }
     }
   </script>
@@ -834,6 +1181,7 @@ async def websocket_endpoint(
     join_url = f"http://{lan_ip}:{port}/join?room={room}"
 
     if role == "host":
+        game.host_sockets.add(websocket)
         qr_url = generate_qr_data_url(join_url)
         await websocket.send_json({
             "type": "init",
@@ -841,23 +1189,7 @@ async def websocket_endpoint(
             "qr_url": qr_url,
             "room": room,
         })
-
-        async def broadcast_state():
-            st = {
-                "type": "state",
-                "round_id": game.round_id,
-                "phase": game.phase,
-                "pot": game.pot,
-                "active_n": game.get_active_count(),
-                "board": [card_to_str(c) for c in game.community_cards],
-                "seats": [s.to_dict(is_self=False) for s in game.seats],
-            }
-            try:
-                await websocket.send_json(st)
-            except Exception:
-                pass
-
-        await broadcast_state()
+        await game.broadcast_state()
 
         try:
             while True:
@@ -873,37 +1205,41 @@ async def websocket_endpoint(
                     game.deal_river()
                 elif action == "showdown":
                     game.showdown()
-                await broadcast_state()
+                await game.broadcast_state()
         except WebSocketDisconnect:
-            pass
+            game.host_sockets.discard(websocket)
 
     else:
         # Player or Spectator
-        # Find first unoccupied seat
         sanitized = sanitize_nickname(nickname)
         assigned_seat: Optional[Seat] = None
+
+        # Find first available seat
         for s in game.seats:
-            if not s.occupied or (s.is_bot and not any(True for o in game.seats if not o.is_bot and o.seat_idx == s.seat_idx)):
+            if not s.occupied or s.is_bot:
                 assigned_seat = s
                 break
 
         if assigned_seat is None:
-            # Spectator mode
+            # Spectator mode when all 9 seats occupied by humans
+            game.spectator_sockets.add(websocket)
             await websocket.send_json({
                 "type": "spectator",
                 "message": "Room seats full (9/9). Connected as Spectator.",
             })
+            await game.broadcast_state()
             try:
                 while True:
                     await websocket.receive_text()
             except WebSocketDisconnect:
-                pass
+                game.spectator_sockets.discard(websocket)
             return
 
         assigned_seat.occupied = True
         assigned_seat.is_bot = False
         assigned_seat.nickname = sanitized
         assigned_seat.player_id = f"user_{assigned_seat.seat_idx}"
+        game.player_sockets[assigned_seat.seat_idx] = websocket
 
         await websocket.send_json({
             "type": "joined",
@@ -911,23 +1247,8 @@ async def websocket_endpoint(
             "nickname": sanitized,
         })
 
-        async def send_seat_payload():
-            if assigned_seat.active and assigned_seat.cards:
-                active_n = game.get_active_count()
-                emp = get_empirical_equity(assigned_seat.hand_class, active_n)
-                form = compute_formula_estimate(assigned_seat.hand_class, active_n)
-                payload = {
-                    "type": "seat_payload",
-                    "cards": [card_to_str(c) for c in assigned_seat.cards],
-                    "hand_class": assigned_seat.hand_class,
-                    "hand_desc": describe_hand(assigned_seat.hand_class),
-                    "active_n": active_n,
-                    "emp_equity": emp["equity"],
-                    "emp_se": emp["equity_se"],
-                    "form_equity": form["pred_equity"],
-                    "form_recipe": form["recipe"],
-                }
-                await websocket.send_json(payload)
+        # Immediately broadcast updated room state to all
+        await game.broadcast_state()
 
         try:
             while True:
@@ -935,16 +1256,32 @@ async def websocket_endpoint(
                 m_type = data.get("type")
                 if m_type == "guess_unaided":
                     assigned_seat.unaided_guess = float(data.get("guess", 0.5))
+                    assigned_seat.aid_revealed = True
                 elif m_type == "guess_aided":
                     assigned_seat.aided_guess = float(data.get("guess", 0.5))
                 elif m_type == "decision":
                     if data.get("action") == "fold":
                         assigned_seat.folded = True
-                await send_seat_payload()
+                elif m_type == "host_action":
+                    # Allow host actions triggered from mobile quick drawer
+                    action = data.get("action")
+                    if action == "start":
+                        game.start_round()
+                    elif action == "flop":
+                        game.deal_flop()
+                    elif action == "turn":
+                        game.deal_turn()
+                    elif action == "river":
+                        game.deal_river()
+                    elif action == "showdown":
+                        game.showdown()
+                await game.broadcast_state()
         except WebSocketDisconnect:
+            game.player_sockets.pop(assigned_seat.seat_idx, None)
             assigned_seat.occupied = False
             assigned_seat.is_bot = True
             assigned_seat.nickname = f"Bot-TAG-{assigned_seat.seat_idx+1}"
+            await game.broadcast_state()
 
 
 # ---------------------------------------------------------------------------

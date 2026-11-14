@@ -144,3 +144,53 @@ def test_fastapi_endpoints():
     r_health = client.get("/api/health")
     assert r_health.status_code == 200
     assert r_health.json()["status"] == "ok"
+
+
+def test_websocket_realtime_board_and_actions():
+    """Verify full real-time WebSocket synchronization for community board, guesses, and folding."""
+    client = TestClient(app)
+    with client.websocket_connect("/ws?room=WS_TEST&role=host") as ws_host:
+        _ = ws_host.receive_json()  # init
+        _ = ws_host.receive_json()  # initial state
+
+        with client.websocket_connect("/ws?room=WS_TEST&role=player&nickname=Bob") as ws_player:
+            _ = ws_player.receive_json()  # joined
+            _ = ws_player.receive_json()  # initial update
+            _ = ws_host.receive_json()    # host receives Bob join update
+
+            # 1. Host deals preflop
+            ws_host.send_json({"action": "start"})
+            host_preflop = ws_host.receive_json()
+            assert host_preflop["phase"] == "preflop"
+
+            p_preflop = ws_player.receive_json()
+            assert p_preflop["phase"] == "preflop"
+            assert len(p_preflop["cards"]) == 2
+            assert p_preflop["emp_equity"] > 0
+            assert p_preflop["form_equity"] > 0
+
+            # 2. Player locks guess
+            ws_player.send_json({"type": "guess_unaided", "guess": 0.38})
+            _ = ws_host.receive_json()
+            p_guess = ws_player.receive_json()
+            assert p_guess["unaided_guess"] == 0.38
+            assert p_guess["aid_revealed"] is True
+
+            # 3. Host deals flop -> Phone receives 3 community board cards + postflop analysis
+            ws_host.send_json({"action": "flop"})
+            h_flop = ws_host.receive_json()
+            assert h_flop["phase"] == "flop"
+            assert len(h_flop["board"]) == 3
+
+            p_flop = ws_player.receive_json()
+            assert p_flop["phase"] == "flop"
+            assert len(p_flop["board"]) == 3
+            assert "postflop" in p_flop
+            assert p_flop["postflop"]["live_equity"] >= 0
+
+            # 4. Player folds -> Confirmed on phone and broadcasted to host
+            ws_player.send_json({"type": "decision", "action": "fold"})
+            _ = ws_host.receive_json()
+            p_fold = ws_player.receive_json()
+            assert p_fold["folded"] is True
+

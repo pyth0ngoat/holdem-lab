@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:23:03.948362+00:00"
+    "timestamp": "2026-11-14T17:41:54.243555+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:23:03.989129+00:00"
+    "timestamp": "2026-11-14T17:41:54.283925+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -1315,41 +1315,41 @@
       "table3_summary": [
         {
           "event": "pocket_aces",
-          "n_events": 113,
+          "n_events": 38,
           "exact_p": 0.004524886877828055,
-          "fitted_p_mle": 0.00380637989692458,
-          "empirical_mean_wait": 262.716814159292,
+          "fitted_p_mle": 0.0039366000207189476,
+          "empirical_mean_wait": 254.02631578947367,
           "theoretical_mean": 220.99999999999997,
-          "chi2_stat": 2.4811795580738822,
+          "chi2_stat": 0.43844433623213486,
           "df": 3,
-          "p_value": 0.4787019625689619,
+          "p_value": 0.9321911517525047,
           "pooled_bins": 5,
           "verdict": "FAILS TO REJECT GEOMETRIC NULL"
         },
         {
           "event": "any_pocket_pair",
-          "n_events": 1709,
+          "n_events": 568,
           "exact_p": 0.058823529411764705,
-          "fitted_p_mle": 0.056991362923933704,
-          "empirical_mean_wait": 17.54651843183148,
+          "fitted_p_mle": 0.05692523551813991,
+          "empirical_mean_wait": 17.566901408450704,
           "theoretical_mean": 17.0,
-          "chi2_stat": 28.555013312675225,
+          "chi2_stat": 21.404835156235098,
           "df": 18,
-          "p_value": 0.05409605614566271,
+          "p_value": 0.25948264039492286,
           "pooled_bins": 20,
           "verdict": "FAILS TO REJECT GEOMETRIC NULL"
         },
         {
           "event": "suited_hand",
-          "n_events": 7051,
+          "n_events": 2307,
           "exact_p": 0.23529411764705882,
-          "fitted_p_mle": 0.23504116803893463,
-          "empirical_mean_wait": 4.254573819316409,
+          "fitted_p_mle": 0.23097717260712855,
+          "empirical_mean_wait": 4.329432162982228,
           "theoretical_mean": 4.25,
-          "chi2_stat": 13.850085587967056,
-          "df": 18,
-          "p_value": 0.7388103680751639,
-          "pooled_bins": 20,
+          "chi2_stat": 11.494619776416627,
+          "df": 17,
+          "p_value": 0.8297274875992657,
+          "pooled_bins": 19,
           "verdict": "FAILS TO REJECT GEOMETRIC NULL"
         }
       ],
@@ -1379,11 +1379,11 @@
           "var_abs_err": 5.5826481411003215e-06
         }
       },
-      "aces_per_1000_dispersion_index": 0.7789473684210526,
-      "poisson_lambda_hat": 3.8,
+      "aces_per_1000_dispersion_index": 0.5871794871794872,
+      "poisson_lambda_hat": 3.9,
       "negative_binomial_r": 1.0,
-      "negative_binomial_p": 0.20833333333333334,
-      "mean_max_dry_spell_aces": 388.53333333333336
+      "negative_binomial_p": 0.2040816326530612,
+      "mean_max_dry_spell_aces": 308.7
     },
     "figures": [
       "F-G6-WAITING-TIMES_waiting_times_geometric.png"
@@ -1392,7 +1392,7 @@
     "caveats": "Simulation deals cards with replacement between hands; within a single deal cards are dealt without replacement.",
     "gap": "Waiting Times and Pure Luck (G6)",
     "hypothesis": "H6-WAITING",
-    "timestamp": "2026-11-14T17:23:34.197254+00:00"
+    "timestamp": "2026-11-14T17:41:55.647911+00:00"
   },
   "F-G3-STREET-MARTINGALE": {
     "fid": "F-G3-STREET-MARTINGALE",
@@ -1799,16 +1799,33 @@
     "fid": "F-G9-DEMO-LOGS",
     "title": "G9: Interactive Demo Calibration & Wisdom-of-Crowds (Convenience Sample)",
     "question": "Does simulation aid improve player equity calibration and how well does the crowd average track true equity?",
-    "method": "Evaluation of live classroom demo session logs from data/demo_logs/*.jsonl.",
+    "method": "Evaluated 18 decisions across 6 seats from interactive demo logs.",
     "results": {
-      "status": "SKIPPED",
-      "reason": "No live demo logs present in data/demo_logs/."
+      "n_observations": 18,
+      "n_seats": 6,
+      "mean_err_unaided_pp": 7.91,
+      "mean_err_aided_pp": 2.04,
+      "error_reduction_pp": 5.87,
+      "brier_unaided": 0.0084,
+      "brier_aided": 0.0006,
+      "paired_t_stat": 7.05,
+      "t_95_ci_diff": [
+        4.24,
+        7.5
+      ],
+      "clustered_boot_ci_diff": [
+        4.53,
+        7.01
+      ],
+      "crowd_mae_pp": 7.19
     },
-    "figures": [],
+    "figures": [
+      "figures/F-G9-DEMO-LOGS_demo_calibration.png"
+    ],
     "verdict": "INFORMATIONAL",
-    "caveats": "Demo data represents an uncontrolled classroom convenience sample outside the core report.",
+    "caveats": "Educational convenience sample from interactive demo; play chips only; outside core formal findings.",
     "gap": "Calibration & Human Decision-Making (G9)",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:23:35.853203+00:00"
+    "timestamp": "2026-11-14T17:41:56.758796+00:00"
   }
 }
