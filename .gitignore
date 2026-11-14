@@ -1,0 +1,10 @@
+venv/
+data/cache/
+data/external/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+holdem_lab_executed.ipynb

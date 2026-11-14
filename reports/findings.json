@@ -1,0 +1,38 @@
+{
+  "T-CORE-1": {
+    "fid": "T-CORE-1",
+    "title": "Test Core Finding",
+    "question": "Does findings helper record correctly?",
+    "method": "Unit test verification",
+    "results": {
+      "slope": 2.0,
+      "intercept": {
+        "value": 1.0,
+        "se": 0.01
+      }
+    },
+    "figures": [
+      "figures/T-CORE-1_test_plot.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "Synthetic unit test only",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T13:39:55.247741+00:00"
+  },
+  "T-BACKED-1": {
+    "fid": "T-BACKED-1",
+    "title": "Backed Claim Finding",
+    "question": "Is it backed?",
+    "method": "Direct verification",
+    "results": {
+      "success": true
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "None",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T13:39:55.284462+00:00"
+  }
+}
