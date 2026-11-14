@@ -40,6 +40,7 @@ import uvicorn
 
 # Hold'em Lab package imports
 from holdem_lab.cards import (
+    CATEGORY_NAMES,
     RANKS_STR,
     SUITS_STR,
     card_to_str,
@@ -321,8 +322,12 @@ class Seat:
         self.aid_revealed: bool = False
         self.brier_score_sum: float = 0.0
         self.rounds_guessed: int = 0
+        self.showdown_hand_cat: str = ""
+        self.showdown_score: int = 0
+        self.showdown_is_winner: bool = False
+        self.showdown_payout: int = 0
 
-    def to_dict(self, is_self: bool = False) -> dict[str, Any]:
+    def to_dict(self, is_self: bool = False, reveal_showdown: bool = False) -> dict[str, Any]:
         d: dict[str, Any] = {
             "seat_idx": self.seat_idx,
             "occupied": self.occupied,
@@ -336,8 +341,11 @@ class Seat:
             "aided_guess": self.aided_guess,
             "aid_revealed": self.aid_revealed,
             "calib_score": round(self.brier_score_sum / max(1, self.rounds_guessed), 4),
+            "showdown_cat": self.showdown_hand_cat,
+            "is_winner": self.showdown_is_winner,
+            "payout": self.showdown_payout,
         }
-        if is_self and self.cards:
+        if (is_self or reveal_showdown) and self.cards:
             d["cards"] = [card_to_str(c) for c in self.cards]
             d["hand_class"] = self.hand_class
         return d
@@ -400,6 +408,10 @@ class GameRoom:
                 s.unaided_guess = None
                 s.aided_guess = None
                 s.aid_revealed = False
+                s.showdown_hand_cat = ""
+                s.showdown_score = 0
+                s.showdown_is_winner = False
+                s.showdown_payout = 0
                 s.chips -= 1
                 self.pot += 1
                 c1 = self.deck.pop(0)
@@ -410,6 +422,10 @@ class GameRoom:
                 s.active = False
                 s.cards = []
                 s.hand_class = ""
+                s.showdown_hand_cat = ""
+                s.showdown_score = 0
+                s.showdown_is_winner = False
+                s.showdown_payout = 0
 
         # Pre-assign bot guesses
         active_n = self.get_active_count()
@@ -466,6 +482,12 @@ class GameRoom:
             self.community_cards.append(self.deck.pop(0))
 
         self.phase = "showdown"
+        for s in self.seats:
+            s.showdown_hand_cat = ""
+            s.showdown_score = 0
+            s.showdown_is_winner = False
+            s.showdown_payout = 0
+
         active_seats = [s for s in self.seats if s.active and not s.folded]
 
         if not active_seats:
@@ -474,6 +496,10 @@ class GameRoom:
         board = self.community_cards
         eval_hands = [np.array(s.cards + board, dtype=np.int8) for s in active_seats]
         scores, cats = evaluate_7cards(np.array(eval_hands, dtype=np.int8))
+        for i, s in enumerate(active_seats):
+            s.showdown_score = int(scores[i])
+            s.showdown_hand_cat = CATEGORY_NAMES[int(cats[i])]
+
         max_score = int(np.max(scores))
         winning_indices = [i for i, sc in enumerate(scores) if sc == max_score]
         n_winners = len(winning_indices)
@@ -487,7 +513,15 @@ class GameRoom:
             if remainder > 0:
                 remainder -= 1
             ws.chips += payout
-            winners.append({"nickname": ws.nickname, "seat_idx": ws.seat_idx, "payout": payout})
+            ws.showdown_is_winner = True
+            ws.showdown_payout = payout
+            winners.append({
+                "nickname": ws.nickname,
+                "seat_idx": ws.seat_idx,
+                "payout": payout,
+                "category": ws.showdown_hand_cat,
+                "cards": [card_to_str(c) for c in ws.cards],
+            })
 
         self.last_winners = winners
 
@@ -559,6 +593,15 @@ class GameRoom:
                 seat.cards, self.community_cards, max(1, active_n - 1)
             )
 
+        my_showdown = None
+        if self.phase == "showdown":
+            my_showdown = {
+                "is_winner": seat.showdown_is_winner,
+                "payout": seat.showdown_payout,
+                "hand_category": seat.showdown_hand_cat,
+                "folded": seat.folded,
+            }
+
         return {
             "type": "update",
             "role": "player",
@@ -588,12 +631,14 @@ class GameRoom:
             "aid_revealed": seat.aid_revealed,
             "postflop": postflop,
             "winners": self.last_winners,
+            "my_showdown": my_showdown,
         }
 
     async def broadcast_state(self) -> None:
         """Broadcast live game updates to host, player phones, and spectators."""
         active_n = self.get_active_count()
         board_strs = [card_to_str(c) for c in self.community_cards]
+        reveal_showdown = self.phase == "showdown"
 
         # 1. State for Host Projector View
         host_payload = {
@@ -603,7 +648,7 @@ class GameRoom:
             "pot": self.pot,
             "active_n": active_n,
             "board": board_strs,
-            "seats": [s.to_dict(is_self=False) for s in self.seats],
+            "seats": [s.to_dict(is_self=False, reveal_showdown=reveal_showdown) for s in self.seats],
             "winners": self.last_winners,
         }
         for ws in list(self.host_sockets):
@@ -621,7 +666,7 @@ class GameRoom:
             "pot": self.pot,
             "active_n": active_n,
             "board": board_strs,
-            "seats": [s.to_dict(is_self=False) for s in self.seats],
+            "seats": [s.to_dict(is_self=False, reveal_showdown=reveal_showdown) for s in self.seats],
             "winners": self.last_winners,
         }
         for ws in list(self.spectator_sockets):
@@ -686,7 +731,13 @@ HOST_HTML = """<!DOCTYPE html>
     .seats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 15px; }
     .seat-card { background: #0f172a; border: 1px solid var(--border); border-radius: 8px; padding: 12px; font-size: 0.9rem; text-align: left; }
     .seat-card.active { border-color: var(--accent); box-shadow: 0 0 8px rgba(56, 189, 248, 0.3); }
+    .seat-card.winner { border: 2px solid #22c55e !important; background: rgba(34, 197, 94, 0.18) !important; box-shadow: 0 0 15px rgba(34, 197, 94, 0.5) !important; }
     .seat-card.folded { opacity: 0.4; }
+    .mini-card { width: 34px; height: 48px; background: white; border-radius: 4px; display: inline-flex; flex-direction: column; justify-content: space-between; padding: 2px 4px; font-weight: bold; font-size: 0.8rem; box-shadow: 0 2px 4px rgba(0,0,0,0.3); vertical-align: middle; }
+    .mini-card.suit-s { color: var(--spade); }
+    .mini-card.suit-h { color: var(--heart); }
+    .mini-card.suit-d { color: var(--diamond); }
+    .mini-card.suit-c { color: var(--club); }
     .btn { background: #0284c7; color: white; border: none; padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; margin: 4px; transition: background 0.2s; }
     .btn:hover { background: #0369a1; }
     .leaderboard table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 10px; }
@@ -792,6 +843,14 @@ HOST_HTML = """<!DOCTYPE html>
       return `<div class="poker-card suit-${suit}"><div>${rank}</div><div style="align-self:flex-end;">${suitSym}</div></div>`;
     }
 
+    function renderMiniCard(cardStr) {
+      if (!cardStr) return '';
+      const rank = cardStr[0];
+      const suit = cardStr[1];
+      const suitSym = suit === "s" ? "♠" : suit === "h" ? "♥" : suit === "d" ? "♦" : "♣";
+      return `<span class="mini-card suit-${suit}"><span>${rank}</span><span style="align-self:flex-end;">${suitSym}</span></span>`;
+    }
+
     function updateState(state) {
       document.getElementById("roundId").textContent = state.round_id;
       document.getElementById("phase").textContent = state.phase;
@@ -810,8 +869,8 @@ HOST_HTML = """<!DOCTYPE html>
       // Winners Banner
       const winBanner = document.getElementById("winnerBanner");
       if (state.phase === "showdown" && state.winners && state.winners.length > 0) {
-        const winNames = state.winners.map(w => `${w.nickname} (+${w.payout} chips)`).join(", ");
-        winBanner.textContent = `🎉 Showdown Winner(s): ${winNames}`;
+        const winDetails = state.winners.map(w => `<strong>${w.nickname}</strong> (+${w.payout} chips) with <em>${w.category || 'High Hand'}</em>`).join(", ");
+        winBanner.innerHTML = `🏆 <strong>Showdown Result:</strong> ${winDetails}`;
         winBanner.style.display = "block";
       } else {
         winBanner.style.display = "none";
@@ -819,14 +878,26 @@ HOST_HTML = """<!DOCTYPE html>
 
       // Seats Grid
       const sGrid = document.getElementById("seatsGrid");
-      sGrid.innerHTML = state.seats.map(s => `
-        <div class="seat-card ${s.active ? 'active' : ''} ${s.folded ? 'folded' : ''}">
-          <div style="font-weight:bold; color:var(--accent);">${s.nickname}</div>
+      sGrid.innerHTML = state.seats.map(s => {
+        const isWinner = state.phase === "showdown" && s.is_winner;
+        return `
+        <div class="seat-card ${s.active ? 'active' : ''} ${s.folded ? 'folded' : ''} ${isWinner ? 'winner' : ''}">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-weight:bold; color:var(--accent);">${s.nickname}</span>
+            ${isWinner ? `<span class="badge" style="background:#22c55e; color:#052e16; font-weight:bold;">🏆 WINNER (+${s.payout})</span>` : ''}
+          </div>
           <div>Chips: <strong>${s.chips}</strong> | ${s.is_bot ? 'Bot' : 'Phone'}</div>
-          <div>Status: <span style="font-weight:bold; color:${s.folded ? '#ef4444' : (s.active ? '#22c55e' : '#94a3b8')};">${s.folded ? 'Folded' : (s.active ? 'Playing' : 'Empty')}</span></div>
+          <div>Status: <span style="font-weight:bold; color:${s.folded ? '#ef4444' : (s.active ? '#22c55e' : '#94a3b8')};">${s.folded ? 'Folded' : (s.active ? 'In Hand' : 'Empty')}</span></div>
           ${s.aided_guess !== null ? `<div style="font-size:0.8rem; color:#34d399; margin-top:2px;">Guess: ${(s.aided_guess*100).toFixed(0)}%</div>` : ''}
+          ${state.phase === "showdown" && s.active && !s.folded && s.cards && s.cards.length > 0 ? `
+            <div style="margin-top:8px; display:flex; align-items:center; gap:4px;">
+              ${s.cards.map(c => renderMiniCard(c)).join("")}
+              <span style="font-size:0.8rem; font-weight:bold; margin-left:6px; color:${isWinner ? '#86efac' : '#cbd5e1'};">${s.showdown_cat || ''}</span>
+            </div>
+          ` : ''}
         </div>
-      `).join("");
+        `;
+      }).join("");
 
       // Leaderboard
       const lbBody = document.getElementById("leaderboardBody");
@@ -921,6 +992,9 @@ PHONE_HTML = """<!DOCTYPE html>
 
   <!-- Game Table Screen -->
   <div id="gameSection" style="display:none;">
+    <!-- Showdown Winner Announcement Banner -->
+    <div id="showdownBanner" style="display:none; margin-bottom:12px; border-radius:8px; padding:12px; text-align:center;"></div>
+
     <!-- 1. Community Board -->
     <div class="card-panel">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
@@ -1046,6 +1120,45 @@ PHONE_HTML = """<!DOCTYPE html>
       document.getElementById("chipCount").textContent = data.chips;
       document.getElementById("nOpponents").textContent = Math.max(1, data.active_n - 1);
 
+      // 0. Showdown Winner Announcement
+      const sBanner = document.getElementById("showdownBanner");
+      if (data.phase === "showdown" && data.winners && data.winners.length > 0) {
+        sBanner.style.display = "block";
+        const mySd = data.my_showdown;
+        const isWin = mySd && mySd.is_winner;
+        const myCat = (mySd && mySd.hand_category) || "";
+        const winStr = data.winners.map(w => `${w.nickname} (${w.category || 'High Hand'}, +${w.payout} chips)`).join(", ");
+
+        if (isWin) {
+          sBanner.style.background = "linear-gradient(135deg, rgba(34,197,94,0.35), rgba(16,185,129,0.2))";
+          sBanner.style.border = "2px solid #22c55e";
+          sBanner.style.color = "#86efac";
+          sBanner.innerHTML = `
+            <div style="font-size:1.35rem; font-weight:bold;">🏆 YOU WON THE POT!</div>
+            <div style="font-size:1rem; margin-top:4px;">Collected <strong>+${mySd.payout} chips</strong> with <strong>${myCat}</strong></div>
+          `;
+        } else if (isFolded) {
+          sBanner.style.background = "rgba(100, 116, 139, 0.25)";
+          sBanner.style.border = "1px solid #64748b";
+          sBanner.style.color = "#cbd5e1";
+          sBanner.innerHTML = `
+            <div style="font-size:1.1rem; font-weight:bold;">⚠️ Hand Complete (You Folded)</div>
+            <div style="font-size:0.9rem; margin-top:4px;">Winner: <strong>${winStr}</strong></div>
+          `;
+        } else {
+          sBanner.style.background = "linear-gradient(135deg, rgba(239,68,68,0.25), rgba(185,28,28,0.15))";
+          sBanner.style.border = "1px solid #ef4444";
+          sBanner.style.color = "#fca5a5";
+          sBanner.innerHTML = `
+            <div style="font-size:1.25rem; font-weight:bold;">❌ You Lost This Hand</div>
+            <div style="font-size:0.9rem; margin-top:4px;">Winner: <strong>${winStr}</strong></div>
+            ${myCat ? `<div style="font-size:0.85rem; color:#cbd5e1; margin-top:4px;">Your Final Hand: <strong>${myCat}</strong></div>` : ''}
+          `;
+        }
+      } else {
+        sBanner.style.display = "none";
+      }
+
       // 1. Community Board
       const bRow = document.getElementById("boardCardsRow");
       const board = data.board || [];
@@ -1061,8 +1174,13 @@ PHONE_HTML = """<!DOCTYPE html>
       const cards = data.cards || [];
       if (cards.length > 0) {
         hRow.innerHTML = cards.map(c => `<div class="card-slot">${renderCard(c)}</div>`).join("");
-        document.getElementById("handClassLabel").textContent = data.hand_class;
-        document.getElementById("handDescLabel").textContent = data.hand_desc;
+        if (data.phase === "showdown" && data.my_showdown && data.my_showdown.hand_category) {
+          document.getElementById("handClassLabel").textContent = data.my_showdown.hand_category;
+          document.getElementById("handDescLabel").textContent = "Best 5-card combination at showdown.";
+        } else {
+          document.getElementById("handClassLabel").textContent = data.hand_class;
+          document.getElementById("handDescLabel").textContent = data.hand_desc;
+        }
       } else {
         hRow.innerHTML = `<div class="card-slot">${renderCard(null)}</div><div class="card-slot">${renderCard(null)}</div>`;
         document.getElementById("handClassLabel").textContent = "--";

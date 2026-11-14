@@ -194,3 +194,42 @@ def test_websocket_realtime_board_and_actions():
             p_fold = ws_player.receive_json()
             assert p_fold["folded"] is True
 
+
+def test_showdown_winner_announcement_and_payload():
+    """Verify showdown evaluates best hands, awards pot, and produces winner payloads."""
+    room = GameRoom("SHOWDOWN_TEST", seed=42, bots_count=5)
+    room.start_round()
+    room.deal_flop()
+    room.deal_turn()
+    room.deal_river()
+    res = room.showdown()
+
+    assert room.phase == "showdown"
+    assert "winners" in res
+    assert len(res["winners"]) >= 1
+
+    winner = res["winners"][0]
+    assert "nickname" in winner
+    assert "payout" in winner
+    assert winner["payout"] > 0
+    assert "category" in winner
+    assert len(winner["category"]) > 0
+    assert "cards" in winner
+    assert len(winner["cards"]) == 2
+
+    # Check player payload formatting
+    active_seat = next(s for s in room.seats if s.active and not s.folded)
+    payload = room.build_player_payload(active_seat, 5, [str(c) for c in room.community_cards])
+    assert "my_showdown" in payload
+    assert payload["my_showdown"] is not None
+    assert "is_winner" in payload["my_showdown"]
+    assert "hand_category" in payload["my_showdown"]
+    assert len(payload["my_showdown"]["hand_category"]) > 0
+
+    # Verify card privacy logic
+    public_hidden = active_seat.to_dict(is_self=False, reveal_showdown=False)
+    assert "cards" not in public_hidden
+    public_showdown = active_seat.to_dict(is_self=False, reveal_showdown=True)
+    assert "cards" in public_showdown
+
+

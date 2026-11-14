@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:41:54.243555+00:00"
+    "timestamp": "2026-11-14T18:34:17.054349+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:41:54.283925+00:00"
+    "timestamp": "2026-11-14T18:34:17.095667+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -1392,7 +1392,7 @@
     "caveats": "Simulation deals cards with replacement between hands; within a single deal cards are dealt without replacement.",
     "gap": "Waiting Times and Pure Luck (G6)",
     "hypothesis": "H6-WAITING",
-    "timestamp": "2026-11-14T17:41:55.647911+00:00"
+    "timestamp": "2026-11-14T18:34:18.448479+00:00"
   },
   "F-G3-STREET-MARTINGALE": {
     "fid": "F-G3-STREET-MARTINGALE",
@@ -1826,6 +1826,6 @@
     "caveats": "Educational convenience sample from interactive demo; play chips only; outside core formal findings.",
     "gap": "Calibration & Human Decision-Making (G9)",
     "hypothesis": null,
-    "timestamp": "2026-11-14T17:41:56.758796+00:00"
+    "timestamp": "2026-11-14T18:34:19.566328+00:00"
   }
 }
