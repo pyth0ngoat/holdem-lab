@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T13:39:55.247741+00:00"
+    "timestamp": "2026-11-14T13:53:27.208512+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,6 +33,86 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T13:39:55.284462+00:00"
+    "timestamp": "2026-11-14T13:53:27.243270+00:00"
+  },
+  "V-CARD-EVAL": {
+    "fid": "V-CARD-EVAL",
+    "title": "Evaluator Verification Against Treys Library",
+    "question": "Does the pure-NumPy vectorized evaluator exactly match Treys on category and relative hand ordering?",
+    "method": "Evaluated 5000 random 7-card hands against Treys library evaluator",
+    "results": {
+      "hand_sample_size": 5000,
+      "category_mismatches": 0,
+      "order_mismatches": 0,
+      "agreement_rate": 1.0
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:02:15.244429+00:00"
+  },
+  "V-CARD-COUNTS": {
+    "fid": "V-CARD-COUNTS",
+    "title": "Exact 5-Card and 7-Card Hand Combinatorics",
+    "question": "Do exact combinatorial category frequencies sum to total combinations C(52,5) and C(52,7)?",
+    "method": "Exact combinatorial counting verified against standard textbook enumeration",
+    "results": {
+      "total_5card_counted": 2598960,
+      "total_5card_expected": 2598960,
+      "total_7card_counted": 133784560,
+      "total_7card_expected": 133784560
+    },
+    "figures": [
+      "figures/V-CARD-COUNTS_exact_probabilities.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:02:15.244716+00:00"
+  },
+  "V-BENCH-PROBS": {
+    "fid": "V-BENCH-PROBS",
+    "title": "Three Fundamental Benchmark Probabilities",
+    "question": "Do theoretical benchmarks match reference poker probabilities?",
+    "method": "Exact combinatorial hypergeometric formulas",
+    "results": {
+      "p_set_on_flop": {
+        "value": 0.11755102040816323,
+        "odds": "1 in 8.51"
+      },
+      "p_flush_by_river": {
+        "value": 0.3496762257169288,
+        "percentage": "34.97%"
+      },
+      "p_7card_royal_flush": {
+        "value": 3.2320620555914674e-05,
+        "odds": "1 in 30940"
+      }
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:02:15.244891+00:00"
+  },
+  "I-CARD-SPEED": {
+    "fid": "I-CARD-SPEED",
+    "title": "Vectorized Evaluator Performance Benchmark",
+    "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
+    "method": "Vectorized batch evaluation of 50,000 hands",
+    "results": {
+      "hands_per_second": 4894144.0,
+      "target_hands_per_second": 1000000
+    },
+    "figures": [],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Measured on host CPU in quick mode.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:02:15.245037+00:00"
   }
 }

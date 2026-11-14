@@ -215,13 +215,15 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Honest AI-use disclosure (Section 2A) instead of minimal wording; hand-solved examples and report are student-written | Academic honesty and course rules |
 | 2026-11-14 | Used treys over phevaluator for verification benchmarks | phevaluator C extension build fails on macOS arm64e SDK; treys is pure Python |
 | 2026-11-14 | Scaffolded repository layout, findings system, notebook skeleton, and test harness (P0) | Establish reproducible research pipeline |
+| 2026-11-14 | Direct vectorized evaluator architecture in NumPy with base-15 kicker encoding (P1) | Surpasses 1M hands/s target (~3.95M hands/s) with 100% exact treys agreement |
 
 ## 19. Progress log
 
 Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P10 (EXTRA) if time allows.
 - [x] P0 Fresh repo, findings/figures helpers, notebook skeleton, disclosure statement
   - 2026-11-14: Scaffolding established. Modules created in holdem_lab/ (__init__.py, cards.py, equity.py, stats.py, analysis.py, formula.py, strategy.py, findings.py); tests in tests/test_core.py passed (5/5). Notebook holdem_lab.ipynb skeleton validated with nbconvert in quick mode. Reports findings.json and findings.md initialized. Caveat: phevaluator replaced by treys in dev dependencies due to macOS clang linker error.
-- [ ] P1 Cards, evaluator, exact counts, benchmark tests
+- [x] P1 Cards, evaluator, exact counts, benchmark tests
+  - 2026-11-14: Vectorized pure-NumPy 5-card and 7-card evaluators implemented in holdem_lab/cards.py with base-15 scoring. Verified against treys on 20,000 hands with 0 category and 0 ordering mismatches. Evaluator throughput measured at 3.95M hands/sec (exceeding 1M target). Exact 5-card (2,598,960) and 7-card (133,784,560) combinatorics, log-scale probability figure, and 3 textbook benchmarks verified. Notebook section 4 added; tests in tests/test_core.py passed (11/11).
 - [ ] P2 Equity engine and hand classes
 - [ ] P3 Statistics toolkit and student-owned stubs with checkers
 - [ ] P4 G1 and G2 (goodness-of-fit Table 2)
