@@ -180,9 +180,9 @@ def simulate_limp_fold_game(
         'summary': dict of statistics per player.
     """
     if strategies is None:
-        # Default archetype lineup
-        preset = ["TAG", "LAG", "Calling_Station", "Rock", "Calling_Station", "All_Hands"]
-        strategies = preset[:n_players]
+        # Default archetype lineup scaled to any table size (2 to 9)
+        preset = ["TAG", "LAG", "Calling_Station", "Rock", "Calling_Station", "All_Hands", "TAG", "LAG", "Rock"]
+        strategies = [preset[i % len(preset)] for i in range(n_players)]
 
     # Convert strategy specs to sets of playable hand classes
     player_ranges: List[Set[str]] = []
@@ -250,12 +250,9 @@ def simulate_limp_fold_game(
             # SB folds, forfeiting 0.5
             active_mask[sb_seat] = False
 
-        # 4. BB acts: BB is in for 1.0
-        # If at least one other player called (or SB called), BB is active in showdown
-        if np.any(active_mask):
-            active_mask[bb_seat] = True
-        else:
-            # Nobody called and SB folded: BB wins SB without showdown
+        # 4. BB acts: BB posted 1.0
+        # If nobody called and SB folded: BB wins SB without showdown
+        if not np.any(active_mask):
             pot = contributions.sum()
             profits[h, bb_seat] = pot - contributions[bb_seat]  # +0.5
             profits[h, sb_seat] = -contributions[sb_seat]       # -0.5
@@ -263,12 +260,26 @@ def simulate_limp_fold_game(
             pot_sizes[h] = pot
             continue
 
+        # If someone called, BB plays if hand is in range; folds (forfeiting 1.0) otherwise
+        if would_play[bb_seat]:
+            active_mask[bb_seat] = True
+        else:
+            active_mask[bb_seat] = False
+
         # Showdown occurs among active players
         pot = contributions.sum()
         pot_sizes[h] = pot
         active_seats = np.where(active_mask)[0]
         n_active = len(active_seats)
         active_counts[h] = n_active
+
+        # If only 1 player remains active (e.g. caller won when BB folded), lone active player wins pot
+        if n_active == 1:
+            lone_winner = active_seats[0]
+            payouts = np.zeros(n_players, dtype=np.float64)
+            payouts[lone_winner] = pot
+            profits[h, :] = payouts - contributions
+            continue
 
         # Evaluate 7-card hands for active players
         active_7cards = np.empty((n_active, 7), dtype=np.int32)
@@ -325,3 +336,175 @@ def closed_form_blind_cost(
     """
     baseline_blind_loss = 1.5 / float(n_players)
     return float(q_fraction * expected_gain_when_played - baseline_blind_loss)
+
+
+# =========================================================================
+# 4. Range Combos and Equity vs Range Models (G4)
+# =========================================================================
+
+def get_range_combos(
+    q_percent: float,
+    ranking: str = "heads_up",
+) -> np.ndarray:
+    """Return all valid 2-card combinations in the top q% range.
+
+    Returns
+    -------
+    np.ndarray of shape (K, 2)
+    """
+    card_to_class = get_card_to_class_map()
+    range_classes = get_range_classes(q_percent, ranking=ranking)
+
+    combos_list = []
+    for c1 in range(52):
+        for c2 in range(c1 + 1, 52):
+            if card_to_class[c1][c2] in range_classes:
+                combos_list.append((c1, c2))
+
+    return np.array(combos_list, dtype=np.int32)
+
+
+def estimate_equity_vs_range(
+    hand_cards: Sequence[int],
+    n_players: int = 2,
+    q_percent: float = 100.0,
+    ranking: str = "heads_up",
+    n_sim: int = 600,
+    seed: int = 42,
+) -> Dict[str, float]:
+    """Estimate equity of hand_cards against n-1 opponents holding hands from top q% range.
+
+    Parameters
+    ----------
+    hand_cards : sequence of 2 ints
+        Focal hole cards.
+    n_players : int
+        Table size (2 to 9).
+    q_percent : float
+        Opponent tightness percentage (8, 20, 33, 50, 100).
+    ranking : str
+        'heads_up' or 'multiway'.
+    n_sim : int
+        Monte Carlo simulation deals.
+    seed : int
+        Random seed.
+    """
+    focal = np.array(hand_cards, dtype=np.int32)
+    range_combos = get_range_combos(q_percent, ranking=ranking)
+    deck = np.arange(52, dtype=np.int32)
+
+    rng = np.random.default_rng(seed)
+    wins = 0.0
+
+    for _ in range(n_sim):
+        dead_cards = set(focal)
+
+        # Draw n-1 opponents from available range combos
+        opp_hands = []
+        valid_opponents = True
+        for _ in range(n_players - 1):
+            # Filter combos not containing any dead cards
+            avail = [
+                comb
+                for comb in range_combos
+                if comb[0] not in dead_cards and comb[1] not in dead_cards
+            ]
+            if len(avail) == 0:
+                valid_opponents = False
+                break
+            chosen = avail[rng.integers(0, len(avail))]
+            dead_cards.add(chosen[0])
+            dead_cards.add(chosen[1])
+            opp_hands.append(chosen)
+
+        if not valid_opponents:
+            continue
+
+        # Deal 5 community board cards from remaining deck
+        avail_board = [c for c in deck if c not in dead_cards]
+        board = rng.choice(avail_board, size=5, replace=False)
+
+        # Showdown evaluation
+        hands_7 = np.empty((n_players, 7), dtype=np.int32)
+        hands_7[0, :2] = focal
+        hands_7[0, 2:] = board
+        for p in range(n_players - 1):
+            hands_7[p + 1, :2] = opp_hands[p]
+            hands_7[p + 1, 2:] = board
+
+        scores, _ = evaluate_7cards(hands_7)
+        max_s = np.max(scores)
+        if scores[0] == max_s:
+            tied = np.sum(scores == max_s)
+            wins += 1.0 / float(tied)
+
+    eq = wins / float(n_sim)
+    return {
+        "equity": eq,
+        "n_players": n_players,
+        "q_percent": q_percent,
+        "ranking": ranking,
+    }
+
+
+# =========================================================================
+# 5. Table Selection ANOVA Factorial Design (G8)
+# =========================================================================
+
+TABLE_MIXES = {
+    "All_Wild": ["Calling_Station"] * 5,
+    "Mixed": ["TAG", "LAG", "Calling_Station", "Rock", "LAG"],
+    "All_Tight": ["Rock", "TAG", "Rock", "TAG", "TAG"],
+    "All_Medium": ["LAG"] * 5,
+}
+
+FOCAL_STRATEGIES = ["Rock", "TAG", "LAG", "Calling_Station", "All_Hands"]
+
+
+def run_table_selection_experiment(
+    n_reps: int = 15,
+    n_hands_per_rep: int = 1500,
+    seed: int = 42,
+) -> pd.DataFrame:
+    """Run factorial experiment of focal strategy x opponent mix across independent replicates.
+
+    Parameters
+    ----------
+    n_reps : int
+        Number of independent game replicates per cell.
+    n_hands_per_rep : int
+        Hands played per replicate.
+    seed : int
+        Base random seed.
+    """
+    records = []
+    current_seed = seed
+
+    for mix_name, opp_strats in TABLE_MIXES.items():
+        for focal_strat in FOCAL_STRATEGIES:
+            table_lineup = [focal_strat] + opp_strats[:5]
+
+            for rep in range(n_reps):
+                res = simulate_limp_fold_game(
+                    n_players=6,
+                    n_hands=n_hands_per_rep,
+                    strategies=table_lineup,
+                    ranking="heads_up",
+                    seed=current_seed,
+                )
+                current_seed += 1
+
+                focal_profit = res["profits"][:, 0]
+                mean_bb_hand = float(np.mean(focal_profit))
+                win_rate_100 = mean_bb_hand * 100.0
+
+                records.append({
+                    "strategy": focal_strat,
+                    "mix": mix_name,
+                    "replicate": rep,
+                    "mean_bb_hand": mean_bb_hand,
+                    "win_rate_bb_100": win_rate_100,
+                })
+
+    return pd.DataFrame(records)
+

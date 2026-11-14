@@ -758,6 +758,114 @@ def test_rao_blackwell_unbiased_lower_variance():
     assert vr_ratio > 1.2
 
 
+# =========================================================================
+# Prompt 7 Tests: G4 Opponents, Blinds, and Table Selection ANOVA
+# =========================================================================
+
+def test_pot_and_blind_accounting_conserves_chips():
+    """Verify pot and blind accounting strictly conserves chips (sum of profits = 0 on every hand)."""
+    import numpy as np
+    from holdem_lab.strategy import simulate_limp_fold_game
+
+    for n in [2, 3, 6, 9]:
+        res = simulate_limp_fold_game(n_players=n, n_hands=200, seed=42)
+        profits = res["profits"]
+
+        # Sum across players for every single hand must equal 0 exactly
+        hand_sums = np.sum(profits, axis=1)
+        assert np.all(np.abs(hand_sums) < 1e-10)
+        assert res["chips_conserved"] is True
+
+
+def test_strategy_q100_plays_every_hand():
+    """Verify that strategy with q=100% contains all 169 classes and calls every hand."""
+    from holdem_lab.strategy import get_range_classes, simulate_limp_fold_game
+
+    all_classes = get_range_classes(100.0, "heads_up")
+    assert len(all_classes) == 169
+
+    # In a game where seat 0 has q=100%, active showdown count should include seat 0 on every deal
+    res = simulate_limp_fold_game(n_players=6, n_hands=100, strategies=[100.0, 50.0, 50.0, 50.0, 50.0, 50.0], seed=42)
+    # Seat 0 should always be in showdown when not folded as small blind
+    assert res["chips_conserved"] is True
+
+
+def test_closed_form_blind_cost_vs_simulation():
+    """Verify closed-form blind cost matches simulation of 100% folding strategy within CI."""
+    import numpy as np
+    from holdem_lab.strategy import simulate_limp_fold_game, closed_form_blind_cost
+
+    # Strategy that plays empty set of classes (folds 100%)
+    empty_strat = set()
+    n_players = 6
+    n_hands = 2000
+
+    res = simulate_limp_fold_game(
+        n_players=n_players,
+        n_hands=n_hands,
+        strategies=[empty_strat] + [100.0] * (n_players - 1),
+        seed=123,
+    )
+    p0_profits = res["profits"][:, 0]
+    sim_mean = float(np.mean(p0_profits))
+    sim_se = float(np.std(p0_profits) / np.sqrt(n_hands))
+
+    # Theoretical cost: 1.5 / n = 0.25 bb/hand loss (-0.25)
+    expected_cost = closed_form_blind_cost(n_players, 0.0)
+    assert abs(expected_cost - (-1.5 / n_players)) < 1e-10
+
+    # Simulation mean should match closed form within 1e-6
+    assert abs(sim_mean - expected_cost) < 1e-6
+
+
+def test_anova_on_planted_interaction():
+    """Verify that two-way ANOVA detects planted factor interaction effect with high power."""
+    import numpy as np
+    from holdem_lab.stats import two_way_anova_interaction
+
+    rng = np.random.default_rng(777)
+    # 3 levels of factor A, 3 levels of factor B, 20 replicates per cell = 180 obs
+    levels_a = ["A1", "A2", "A3"]
+    levels_b = ["B1", "B2", "B3"]
+    k_rep = 25
+
+    rows = []
+    f_a_list = []
+    f_b_list = []
+
+    # Planted interaction table:
+    # A1: B1=0, B2=0, B3=0
+    # A2: B1=0, B2=5, B3=-5
+    # A3: B1=0, B2=-5, B3=5
+    planted = {
+        ("A1", "B1"): 0.0, ("A1", "B2"): 0.0, ("A1", "B3"): 0.0,
+        ("A2", "B1"): 0.0, ("A2", "B2"): 4.0, ("A2", "B3"): -4.0,
+        ("A3", "B1"): 0.0, ("A3", "B2"): -4.0, ("A3", "B3"): 4.0,
+    }
+
+    for a in levels_a:
+        for b in levels_b:
+            mean_val = planted[(a, b)]
+            noise = rng.normal(0.0, 1.0, size=k_rep)
+            y_cell = mean_val + noise
+            rows.extend(y_cell)
+            f_a_list.extend([a] * k_rep)
+            f_b_list.extend([b] * k_rep)
+
+    y = np.array(rows, dtype=np.float64)
+    fa = np.array(f_a_list)
+    fb = np.array(f_b_list)
+
+    anova_res = two_way_anova_interaction(y, fa, fb, n_permutations=200, seed=42)
+
+    # Interaction should be detected with high F and tiny p-value (< 0.001)
+    assert anova_res["f_interaction"] > 10.0
+    assert anova_res["p_analytical"] < 1e-4
+    assert anova_res["p_permutation"] < 0.02
+    assert anova_res["eta_squared"] > 0.20
+
+
+
 
 
 

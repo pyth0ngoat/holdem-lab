@@ -711,9 +711,12 @@ def one_way_anova(*groups: np.ndarray) -> Dict[str, Any]:
     f_stat = ms_between / ms_within if ms_within > 0 else 0.0
     p_val = max(0.0, 1.0 - f_cdf(f_stat, df_between, df_within))
 
+    eta_sq = ss_between / (ss_between + ss_within) if (ss_between + ss_within) > 0 else 0.0
+
     return {
         "f_stat": f_stat,
         "p_value": p_val,
+        "eta_squared": eta_sq,
         "ms_between": ms_between,
         "ms_within": ms_within,
         "df_between": df_between,
