@@ -3,6 +3,7 @@
 
 import math
 from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -19,7 +20,6 @@ from holdem_lab import (
     ROOT_DIR,
 )
 from holdem_lab.cards import (
-    CATEGORY_NAMES,
     EXACT_5CARD_COUNTS,
     EXACT_5CARD_PROBS,
     EXACT_7CARD_COUNTS,
@@ -34,7 +34,6 @@ from holdem_lab.cards import (
     card_to_str,
     evaluate_5cards,
     evaluate_7cards,
-    evaluate_hands,
     get_deck,
     measure_evaluator_speed,
     str_to_card,
@@ -44,11 +43,8 @@ from holdem_lab.equity import (
     COMBO_WEIGHTS,
     TOTAL_COMBOS,
     cards_to_class,
-    class_combos_count,
     class_representative,
-    class_to_combos,
     estimate_hand_equity,
-    exact_board_equity,
     exact_turn_equity,
     simulate_table_deals,
 )
@@ -398,6 +394,7 @@ def test_uci_goodness_of_fit_table():
 def test_phh_parser_and_pokerkit():
     """Verify PHH hand history parsing and optional pokerkit loader."""
     import glob
+
     from holdem_lab.analysis import parse_phh_handhq, parse_phh_with_pokerkit
 
     files = glob.glob("data/external/phh/phh-dataset/data/handhq/**/*.phhs", recursive=True)
@@ -476,6 +473,7 @@ def test_equity_table_1_over_n_identity():
 def test_beta_fit_mom_vs_scipy():
     """Verify from-scratch Beta MoM fit matches theoretical equations and SciPy."""
     import scipy.stats as sp_stats
+
     from holdem_lab.stats import fit_beta_mom
 
     rng = np.random.default_rng(42)
@@ -543,6 +541,7 @@ def test_cross_validation_excludes_held_out_class():
 def test_formula_held_out_tolerance():
     """Verify that formula reproduces held-out classes within tolerance and premium pairs fall."""
     import json
+
     from holdem_lab import DATA_DIR
     from holdem_lab.formula import fit_candidate_models
 
@@ -613,6 +612,7 @@ def test_power_calculation_vs_simulation():
 def test_ruin_approximation_sanity():
     """Sanity check Brownian ruin probability formula on random walk with known drift."""
     import numpy as np
+
     from holdem_lab.stats import brownian_ruin_prob
 
     mu = 0.05
@@ -765,6 +765,7 @@ def test_rao_blackwell_unbiased_lower_variance():
 def test_pot_and_blind_accounting_conserves_chips():
     """Verify pot and blind accounting strictly conserves chips (sum of profits = 0 on every hand)."""
     import numpy as np
+
     from holdem_lab.strategy import simulate_limp_fold_game
 
     for n in [2, 3, 6, 9]:
@@ -793,7 +794,8 @@ def test_strategy_q100_plays_every_hand():
 def test_closed_form_blind_cost_vs_simulation():
     """Verify closed-form blind cost matches simulation of 100% folding strategy within CI."""
     import numpy as np
-    from holdem_lab.strategy import simulate_limp_fold_game, closed_form_blind_cost
+
+    from holdem_lab.strategy import closed_form_blind_cost, simulate_limp_fold_game
 
     # Strategy that plays empty set of classes (folds 100%)
     empty_strat = set()
@@ -821,6 +823,7 @@ def test_closed_form_blind_cost_vs_simulation():
 def test_anova_on_planted_interaction():
     """Verify that two-way ANOVA detects planted factor interaction effect with high power."""
     import numpy as np
+
     from holdem_lab.stats import two_way_anova_interaction
 
     rng = np.random.default_rng(777)

@@ -8,38 +8,26 @@ exports data/formula_params.json, and runs out-of-sample validation.
 from __future__ import annotations
 
 import json
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
 from holdem_lab import (
-    CACHE_DIR,
     CONFIG,
     DATA_DIR,
     FIGURES_DATA_DIR,
-    FIGURES_DIR,
-    MODE,
-    REPORTS_DIR,
-    ROOT_DIR,
-    SEED_FIT,
     SEED_VALIDATION,
 )
-from holdem_lab.cards import CATEGORY_NAMES
 from holdem_lab.equity import (
-    ALL_CLASSES,
     COMBO_WEIGHTS,
-    class_to_combos,
     estimate_hand_equity,
 )
 from holdem_lab.findings import record_finding, register_claim, save_fig, write_findings
 from holdem_lab.stats import (
     kendall_rank_correlation,
-    ols_regression,
     spearman_rank_correlation,
-    wls_regression,
 )
 
 FORMULA_PARAMS_PATH = DATA_DIR / "formula_params.json"
@@ -63,7 +51,7 @@ RANK_VALUES = {
 }
 
 
-def _extract_hand_features(hand_class: str) -> Dict[str, float]:
+def _extract_hand_features(hand_class: str) -> dict[str, float]:
     """Extract numeric features from a 169-class starting hand notation."""
     r1 = RANK_VALUES[hand_class[0]]
     r2 = RANK_VALUES[hand_class[1]]
@@ -88,8 +76,8 @@ def _extract_hand_features(hand_class: str) -> Dict[str, float]:
 
 
 def analyze_rank_stability(
-    df_equity: Optional[pd.DataFrame] = None,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    df_equity: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Analyze starting hand rank stability from heads-up (n=2) to full ring (n=9).
 
     Computes Spearman and Kendall rank correlations, largest risers and fallers,
@@ -255,8 +243,8 @@ def analyze_rank_stability(
 
 
 def fit_candidate_models(
-    df_equity: Optional[pd.DataFrame] = None,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    df_equity: pd.DataFrame | None = None,
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Fit and compare candidate formulas M0, M1, M2, M3, M4 with combo-weighted LOOCV.
 
     Evaluates:
@@ -307,8 +295,8 @@ def fit_candidate_models(
 
     # Data collection for model comparison
     comparison_rows = []
-    m1_params: Dict[int, Dict[str, float]] = {}
-    m4_params: Dict[int, Dict[str, Any]] = {}
+    m1_params: dict[int, dict[str, float]] = {}
+    m4_params: dict[int, dict[str, Any]] = {}
 
     for n in range(2, 10):
         df_n = df_equity[df_equity["n_players"] == n].copy()
@@ -507,9 +495,9 @@ def fit_candidate_models(
 
 def validate_out_of_sample(
     df_equity_fit: pd.DataFrame,
-    best_model_info: Dict[str, Any],
+    best_model_info: dict[str, Any],
     seed: int = SEED_VALIDATION,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Validate selected formula on fresh simulated deals with validation seed.
 
     Parameters
@@ -632,7 +620,7 @@ def validate_out_of_sample(
 # -----------------------------------------------------------------------------
 
 
-def run_p5_pipeline() -> Dict[str, Any]:
+def run_p5_pipeline() -> dict[str, Any]:
     """Execute Prompt 5: Rank stability analysis, candidate formula fitting, and validation."""
     print("=== Running Prompt 5 Pipeline (G7 Formula & Rank Stability) ===")
 

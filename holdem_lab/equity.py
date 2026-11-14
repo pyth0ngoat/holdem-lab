@@ -11,17 +11,13 @@ from __future__ import annotations
 
 import itertools
 import math
-from typing import Dict, List, Optional, Set, Tuple, Union
 
 import numpy as np
 
 from holdem_lab.cards import (
     RANKS_STR,
-    SUITS_STR,
-    card_to_str,
     evaluate_7cards,
     get_deck,
-    str_to_card,
 )
 
 # -------------------------------------------------------------------------
@@ -53,7 +49,7 @@ def class_combos_count(hclass: str) -> int:
     raise ValueError(f"Invalid hand class format: '{hclass}'")
 
 
-COMBO_WEIGHTS: Dict[str, int] = {c: class_combos_count(c) for c in ALL_CLASSES}
+COMBO_WEIGHTS: dict[str, int] = {c: class_combos_count(c) for c in ALL_CLASSES}
 TOTAL_COMBOS: int = sum(COMBO_WEIGHTS.values())  # Exactly 1,326
 
 
@@ -72,7 +68,7 @@ def cards_to_class(c1: int, c2: int) -> str:
         return f"{RANKS_STR[high]}{RANKS_STR[low]}o"
 
 
-def class_to_combos(hclass: str) -> List[Tuple[int, int]]:
+def class_to_combos(hclass: str) -> list[tuple[int, int]]:
     """Return all specific 2-card pairs (as integer card tuples) for hand class."""
     if len(hclass) == 2:  # Pocket pair
         r = RANKS_STR.index(hclass[0])
@@ -88,7 +84,7 @@ def class_to_combos(hclass: str) -> List[Tuple[int, int]]:
     raise ValueError(f"Invalid hand class: '{hclass}'")
 
 
-def class_representative(hclass: str) -> Tuple[int, int]:
+def class_representative(hclass: str) -> tuple[int, int]:
     """Return canonical representative 2-card pair for hand class."""
     combos = class_to_combos(hclass)
     return combos[0]
@@ -98,14 +94,14 @@ def class_representative(hclass: str) -> Tuple[int, int]:
 # Monte Carlo Equity Engine
 # -------------------------------------------------------------------------
 def estimate_hand_equity(
-    hero_cards: Union[str, Tuple[int, int], List[int]],
+    hero_cards: str | tuple[int, int] | list[int],
     n_players: int,
-    board: Optional[Union[List[int], np.ndarray]] = None,
+    board: list[int] | np.ndarray | None = None,
     n_sim: int = 10_000,
-    target_precision: Optional[float] = None,
-    rng: Optional[np.random.Generator] = None,
-    opponent_combos: Optional[List[Tuple[int, int]]] = None,
-) -> Dict[str, Any]:
+    target_precision: float | None = None,
+    rng: np.random.Generator | None = None,
+    opponent_combos: list[tuple[int, int]] | None = None,
+) -> dict[str, Any]:
     """Estimate P_win, P_tie, and equity share for hero hand against n-1 opponents.
 
     Parameters
@@ -240,8 +236,8 @@ def estimate_hand_equity(
 def simulate_table_deals(
     n_players: int,
     n_deals: int,
-    rng: Optional[np.random.Generator] = None,
-) -> Dict[str, np.ndarray]:
+    rng: np.random.Generator | None = None,
+) -> dict[str, np.ndarray]:
     """Simulate full-table deals of n players, returning all player outcomes.
 
     Parameters
@@ -310,9 +306,9 @@ def simulate_table_deals(
 # Exact Enumeration (Turn and River)
 # -------------------------------------------------------------------------
 def exact_turn_equity(
-    hero_cards: Tuple[int, int],
-    turn_board: List[int],
-) -> Dict[str, float]:
+    hero_cards: tuple[int, int],
+    turn_board: list[int],
+) -> dict[str, float]:
     """Compute exact heads-up equity against a random opponent on a 4-card turn board.
     
     Exhaustively enumerates all C(46, 3) * 3 = 45,540 deals of opponent hole cards and river card.
@@ -352,10 +348,10 @@ def exact_turn_equity(
 
 
 def exact_board_equity(
-    hero_cards: Tuple[int, int],
-    opp_cards: Tuple[int, int],
-    partial_board: List[int],
-) -> Dict[str, float]:
+    hero_cards: tuple[int, int],
+    opp_cards: tuple[int, int],
+    partial_board: list[int],
+) -> dict[str, float]:
     """Compute exact heads-up equity by exhaustive enumeration of remaining board cards."""
     used = set(hero_cards) | set(opp_cards) | set(partial_board)
     deck = get_deck()

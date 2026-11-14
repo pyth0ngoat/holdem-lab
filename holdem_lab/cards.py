@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import math
 import time
-from typing import Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
@@ -109,7 +108,7 @@ def str_to_card(s: str) -> int:
     return r * 4 + su
 
 
-def hand_to_str(cards: Union[List[int], np.ndarray]) -> str:
+def hand_to_str(cards: list[int] | np.ndarray) -> str:
     """Convert sequence of integer cards to space-separated string representation."""
     return " ".join(card_to_str(int(c)) for c in cards)
 
@@ -117,7 +116,7 @@ def hand_to_str(cards: Union[List[int], np.ndarray]) -> str:
 # -------------------------------------------------------------------------
 # Exact Counts and Probabilities
 # -------------------------------------------------------------------------
-EXACT_5CARD_COUNTS: Dict[int, int] = {
+EXACT_5CARD_COUNTS: dict[int, int] = {
     0: 1_302_540,  # High card
     1: 1_098_240,  # One pair
     2: 123_552,    # Two pair
@@ -130,9 +129,9 @@ EXACT_5CARD_COUNTS: Dict[int, int] = {
     9: 4,          # Royal flush
 }
 TOTAL_5CARD = 2_598_960
-EXACT_5CARD_PROBS: Dict[int, float] = {k: v / TOTAL_5CARD for k, v in EXACT_5CARD_COUNTS.items()}
+EXACT_5CARD_PROBS: dict[int, float] = {k: v / TOTAL_5CARD for k, v in EXACT_5CARD_COUNTS.items()}
 
-EXACT_7CARD_COUNTS: Dict[int, int] = {
+EXACT_7CARD_COUNTS: dict[int, int] = {
     0: 23_294_460,  # High card
     1: 58_627_800,  # One pair
     2: 31_433_400,  # Two pair
@@ -145,7 +144,7 @@ EXACT_7CARD_COUNTS: Dict[int, int] = {
     9: 4_324,       # Royal flush
 }
 TOTAL_7CARD = 133_784_560
-EXACT_7CARD_PROBS: Dict[int, float] = {k: v / TOTAL_7CARD for k, v in EXACT_7CARD_COUNTS.items()}
+EXACT_7CARD_PROBS: dict[int, float] = {k: v / TOTAL_7CARD for k, v in EXACT_7CARD_COUNTS.items()}
 
 # Benchmark analytical probabilities
 P_SET_ON_FLOP = 1.0 - math.comb(48, 3) / math.comb(50, 3)  # 2304 / 19600 ≈ 0.117551 (1 in 8.51)
@@ -156,7 +155,7 @@ P_7CARD_ROYAL_FLUSH = 4_324 / TOTAL_7CARD  # 1 in 30,940
 # -------------------------------------------------------------------------
 # Vectorized Hand Evaluators (NumPy Only)
 # -------------------------------------------------------------------------
-def evaluate_5cards(hands: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def evaluate_5cards(hands: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Evaluate an array of 5-card hands in NumPy.
 
     Parameters
@@ -312,7 +311,7 @@ def evaluate_5cards(hands: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return scores, categories
 
 
-def evaluate_7cards(hands: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def evaluate_7cards(hands: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Evaluate an array of 7-card hands in NumPy.
 
     Parameters
@@ -475,7 +474,7 @@ def evaluate_7cards(hands: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return scores, categories
 
 
-def evaluate_hands(hands: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+def evaluate_hands(hands: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
     """Evaluate hands array with either 5 or 7 cards."""
     if hands.shape[-1] == 7:
         return evaluate_7cards(hands)

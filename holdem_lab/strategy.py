@@ -5,23 +5,25 @@ the limp-or-fold showdown game with blinds, closed-form blind-cost break-even mo
 and table selection ANOVA routines.
 """
 
-from typing import Dict, List, Optional, Set, Tuple, Any, Union
+from typing import Any
+from collections.abc import Sequence
+
 import numpy as np
 import pandas as pd
-from holdem_lab import DATA_DIR, FIGURES_DATA_DIR
-from holdem_lab.cards import evaluate_7cards, RANKS_STR, SUITS_STR
 
+from holdem_lab import FIGURES_DATA_DIR
+from holdem_lab.cards import evaluate_7cards
 
 # =========================================================================
 # 1. 169 Hand Class Mapping & Card Helpers
 # =========================================================================
 
 # Fast 52x52 lookup table for (c1, c2) -> hand class string
-_CARD_PAIR_TO_CLASS: Optional[List[List[str]]] = None
-_CLASS_COMBOS: Optional[Dict[str, int]] = None
+_CARD_PAIR_TO_CLASS: list[list[str]] | None = None
+_CLASS_COMBOS: dict[str, int] | None = None
 
 
-def get_card_to_class_map() -> List[List[str]]:
+def get_card_to_class_map() -> list[list[str]]:
     """Return a 52x52 matrix mapping (card1, card2) to its 169 hand class string."""
     global _CARD_PAIR_TO_CLASS
     if _CARD_PAIR_TO_CLASS is not None:
@@ -49,13 +51,13 @@ def get_card_to_class_map() -> List[List[str]]:
     return _CARD_PAIR_TO_CLASS
 
 
-def get_class_combos() -> Dict[str, int]:
+def get_class_combos() -> dict[str, int]:
     """Return dictionary of 169 classes to their combo counts (summing to 1,326)."""
     global _CLASS_COMBOS
     if _CLASS_COMBOS is not None:
         return _CLASS_COMBOS
 
-    combos: Dict[str, int] = {}
+    combos: dict[str, int] = {}
     rank_chars = "23456789TJQKA"
     for i in range(13):
         combos[f"{rank_chars[i]}{rank_chars[i]}"] = 6
@@ -80,7 +82,7 @@ ARCHETYPES = {
 }
 
 
-def get_ranked_classes(ranking: str = "heads_up") -> List[str]:
+def get_ranked_classes(ranking: str = "heads_up") -> list[str]:
     """Return the 169 hand classes sorted by equity (descending).
 
     Parameters
@@ -104,7 +106,7 @@ def get_ranked_classes(ranking: str = "heads_up") -> List[str]:
 def get_range_classes(
     q_percent: float,
     ranking: str = "heads_up",
-) -> Set[str]:
+) -> set[str]:
     """Return the set of hand classes that make up the top q% of combinations.
 
     Parameters
@@ -122,7 +124,7 @@ def get_range_classes(
     target_combos = 1326.0 * (q_percent / 100.0)
 
     cum_combos = 0
-    selected_classes: Set[str] = set()
+    selected_classes: set[str] = set()
 
     for cls in ranked:
         w = combos_dict[cls]
@@ -141,10 +143,10 @@ def get_range_classes(
 def simulate_limp_fold_game(
     n_players: int = 6,
     n_hands: int = 10000,
-    strategies: Optional[List[Union[float, Set[str], str]]] = None,
+    strategies: list[float | set[str] | str] | None = None,
     ranking: str = "heads_up",
     seed: int = 42,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Simulate a limp-or-fold poker game with rotating blinds.
 
     Rules (CONTEXT.md Section 4):
@@ -185,7 +187,7 @@ def simulate_limp_fold_game(
         strategies = [preset[i % len(preset)] for i in range(n_players)]
 
     # Convert strategy specs to sets of playable hand classes
-    player_ranges: List[Set[str]] = []
+    player_ranges: list[set[str]] = []
     for strat in strategies:
         if isinstance(strat, set):
             player_ranges.append(strat)
@@ -371,7 +373,7 @@ def estimate_equity_vs_range(
     ranking: str = "heads_up",
     n_sim: int = 600,
     seed: int = 42,
-) -> Dict[str, float]:
+) -> dict[str, float]:
     """Estimate equity of hand_cards against n-1 opponents holding hands from top q% range.
 
     Parameters

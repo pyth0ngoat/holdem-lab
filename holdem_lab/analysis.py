@@ -9,10 +9,9 @@ from __future__ import annotations
 
 import glob
 import json
-from pathlib import Path
 import re
-import time
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from pathlib import Path
+from typing import Any
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -22,19 +21,15 @@ from holdem_lab import (
     CACHE_DIR,
     DATA_DIR,
     FIGURES_DATA_DIR,
-    FIGURES_DIR,
     MODE,
     REPORTS_DIR,
-    ROOT_DIR,
     SEED_FIT,
-    SEED_VALIDATION,
 )
 from holdem_lab.cards import (
     CATEGORY_NAMES,
     EXACT_5CARD_COUNTS,
     EXACT_5CARD_PROBS,
     EXACT_7CARD_PROBS,
-    TOTAL_5CARD,
     evaluate_5cards,
     evaluate_7cards,
     get_deck,
@@ -58,25 +53,17 @@ from holdem_lab.stats import (
     fit_beta_mle,
     fit_beta_mom,
     fit_geometric_mle,
-    fit_geometric_mom,
     fit_negative_binomial_mom,
     fit_poisson_mle,
     ks_statistic,
-    norm_cdf,
     pgf_moments,
     two_way_anova_interaction,
 )
 from holdem_lab.strategy import (
-    ARCHETYPES,
-    FOCAL_STRATEGIES,
-    TABLE_MIXES,
-    closed_form_blind_cost,
     estimate_equity_vs_range,
-    get_range_classes,
     run_table_selection_experiment,
     simulate_limp_fold_game,
 )
-
 
 # -----------------------------------------------------------------------------
 # Part A: UCI Poker Hand Dataset
@@ -103,7 +90,7 @@ UCI_COLUMNS = [
 
 
 def load_uci_data(
-    split: str = "train", data_dir: Optional[Union[str, Path]] = None
+    split: str = "train", data_dir: str | Path | None = None
 ) -> pd.DataFrame:
     """Load the UCI Poker Hand dataset split.
 
@@ -137,7 +124,7 @@ def load_uci_data(
     return df
 
 
-def uci_eda_summary(df: pd.DataFrame) -> Dict[str, Any]:
+def uci_eda_summary(df: pd.DataFrame) -> dict[str, Any]:
     """Perform exploratory data analysis and summary statistics on UCI data.
 
     Parameters
@@ -226,7 +213,7 @@ def map_uci_to_card_ints(df: pd.DataFrame) -> np.ndarray:
 
 def verify_uci_evaluator(
     train_df: pd.DataFrame, test_df: pd.DataFrame
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Verify our pure-NumPy 5-card evaluator against all 1,025,010 UCI labels.
 
     Parameters
@@ -276,7 +263,7 @@ def uci_goodness_of_fit_table(
     test_df: pd.DataFrame,
     mc_reps: int = 2000,
     seed: int = SEED_FIT,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Construct Goodness-of-Fit Table 1 comparing UCI observed counts with exact probabilities.
 
     Runs chi-square test with sparse bin pooling, computes analytical p-values,
@@ -379,7 +366,7 @@ PHH_FIGURES_FILE = FIGURES_DATA_DIR / "phh_showdowns.csv"
 
 
 def parse_phh_with_pokerkit(
-    file_path: Union[str, Path], max_hands: int = 100
+    file_path: str | Path, max_hands: int = 100
 ) -> pd.DataFrame:
     """Isolated optional parser using the pokerkit library to parse a PHH file.
 
@@ -411,7 +398,7 @@ def parse_phh_with_pokerkit(
 
             # Extract board deals
             board_cards_str = ""
-            sm_cards: List[Tuple[int, str]] = []
+            sm_cards: list[tuple[int, str]] = []
             for action in hh.actions:
                 if action.startswith("d db "):
                     board_cards_str += action[5:].strip()
@@ -455,11 +442,11 @@ def parse_phh_with_pokerkit(
 
 
 def parse_phh_handhq(
-    data_dir: Optional[Union[str, Path]] = None,
-    max_files: Optional[int] = None,
-    max_hands: Optional[int] = None,
+    data_dir: str | Path | None = None,
+    max_files: int | None = None,
+    max_hands: int | None = None,
     use_cache: bool = True,
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Parse HandHQ PHH files for showdown hands, seats dealt, and winning categories.
 
     Uses high-speed regex streaming to extract boards and revealed hole cards,
@@ -516,7 +503,7 @@ def parse_phh_handhq(
         "retained_showdowns": 0,
     }
 
-    records: List[Dict[str, Any]] = []
+    records: list[dict[str, Any]] = []
 
     for fpath in target_files:
         try:
@@ -590,7 +577,7 @@ def parse_phh_handhq(
     return df_showdowns, cleaning_log
 
 
-def analyze_phh_showdowns(df: pd.DataFrame) -> Dict[str, Any]:
+def analyze_phh_showdowns(df: pd.DataFrame) -> dict[str, Any]:
     """Compute table size distribution, showdown participant counts, and winning categories.
 
     Parameters
@@ -632,7 +619,7 @@ def estimate_effective_tightness(
     df: pd.DataFrame,
     n_sim: int = 1500,
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Estimate effective player tightness q from real showdowns.
 
     Under selection bias, players fold weak starting hands preflop and postflop,
@@ -693,7 +680,7 @@ def estimate_effective_tightness(
     ranked_classes = sorted(ALL_CLASSES, key=hand_strength_rank, reverse=True)
 
     # Map all 1,326 hole card combos in ranking order
-    ordered_combos: List[Tuple[int, int]] = []
+    ordered_combos: list[tuple[int, int]] = []
     for c in ranked_classes:
         ordered_combos.extend(class_to_combos(c))
 
@@ -786,7 +773,7 @@ def estimate_effective_tightness(
 # -----------------------------------------------------------------------------
 
 
-def run_p9_pipeline() -> Dict[str, Any]:
+def run_p9_pipeline() -> dict[str, Any]:
     """Execute Prompt 9: UCI ingestion, verification, Table 1 GOF, and PHH analysis."""
     print("=== Running Prompt 9 Pipeline ===")
 
@@ -1141,7 +1128,7 @@ def run_p9_pipeline() -> Dict[str, Any]:
 
 def run_g1_simulation(
     n_deals: int = 5000, seed: int = SEED_FIT
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Simulate full table deals for n = 2..9 and compare with tie-aware iid-max model.
 
     Quantifies the discrepancy between real Hold'em (with card sharing) and the
@@ -1316,7 +1303,7 @@ EQUITY_TABLE_FIGURE = FIGURES_DATA_DIR / "equity_table.csv"
 
 
 def compute_equity_table(
-    n_sim: Optional[int] = None, use_cache: bool = True
+    n_sim: int | None = None, use_cache: bool = True
 ) -> pd.DataFrame:
     """Compute equity share for all 169 starting hand classes across n = 2..9.
 
@@ -1381,8 +1368,8 @@ def compute_equity_table(
 
 
 def run_g2_equity_analysis(
-    df_equity: Optional[pd.DataFrame] = None, seed: int = SEED_FIT
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    df_equity: pd.DataFrame | None = None, seed: int = SEED_FIT
+) -> tuple[pd.DataFrame, dict[str, Any]]:
     """Analyze starting hand equity distributions, Beta fits (Table 2), and return per unit staked.
 
     Parameters
@@ -1655,7 +1642,7 @@ def run_g2_equity_analysis(
 def run_g5_luck_analysis(
     n_hands: int = 10000,
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute G5 analysis: per-hand profit distribution, CLT convergence, power analysis, and ruin.
 
     Parameters
@@ -1930,7 +1917,7 @@ def run_g5_luck_analysis(
 def run_g6_waiting_times(
     n_deals: int = 100000,
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute G6 analysis: Geometric waiting times, Goodness-of-Fit Table 3, PGF derivation, and Poisson counts.
 
     Parameters
@@ -1978,7 +1965,7 @@ def run_g6_waiting_times(
     }
 
     # 2. Extract empirical waiting times (inter-arrival intervals)
-    waiting_times: Dict[str, np.ndarray] = {}
+    waiting_times: dict[str, np.ndarray] = {}
     for ev_name, bool_arr in events_data.items():
         indices = np.where(bool_arr)[0]
         if len(indices) < 2:
@@ -2209,7 +2196,7 @@ def run_g6_waiting_times(
     }
 
 
-def run_p8_pipeline() -> Dict[str, Any]:
+def run_p8_pipeline() -> dict[str, Any]:
     """Execute Prompt 8: G5 (luck, sample size, ruin) & G6 (waiting times, Table 3)."""
     print("=== Running Prompt 8 Pipeline (G5 & G6) ===")
     g5_results = run_g5_luck_analysis(n_hands=10000, seed=SEED_FIT)
@@ -2222,7 +2209,7 @@ def run_p8_pipeline() -> Dict[str, Any]:
 
 
 
-def run_p4_pipeline() -> Dict[str, Any]:
+def run_p4_pipeline() -> dict[str, Any]:
     """Execute Prompt 4: G1 table simulation, G2 equity table, Beta fits, and return analysis."""
     print("=== Running Prompt 4 Pipeline (G1 & G2) ===")
     print("Running G1 table size simulations...")
@@ -2277,7 +2264,7 @@ def rule_of_2_and_4(outs: int, street: str = "flop") -> float:
         raise ValueError(f"Unknown street: {street}")
 
 
-def run_rule_of_2_and_4_analysis() -> Tuple[pd.DataFrame, plt.Figure]:
+def run_rule_of_2_and_4_analysis() -> tuple[pd.DataFrame, plt.Figure]:
     """Evaluate accuracy of the Rule of 4 and Rule of 2 against exact combinatorial draw probabilities."""
     outs_range = list(range(1, 22))
     records = []
@@ -2337,11 +2324,11 @@ def run_rule_of_2_and_4_analysis() -> Tuple[pd.DataFrame, plt.Figure]:
 
 
 def run_street_martingale_and_variance_analysis(
-    hands: Optional[List[str]] = None,
-    n_list: Optional[List[int]] = None,
+    hands: list[str] | None = None,
+    n_list: list[int] | None = None,
     n_deals: int = 300,
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute G3 analysis: street equity martingale verification, variance decomposition, and Rao-Blackwell.
 
     Parameters
@@ -2643,7 +2630,7 @@ def run_street_martingale_and_variance_analysis(
     }
 
 
-def run_p6_pipeline() -> Dict[str, Any]:
+def run_p6_pipeline() -> dict[str, Any]:
     """Execute Prompt 6: G3 streets analysis, martingale checks, variance decomposition, and Rule of 2 & 4."""
     print("=== Running Prompt 6 Pipeline (G3) ===")
     df_rules, fig_rules = run_rule_of_2_and_4_analysis()
@@ -2661,7 +2648,7 @@ def run_p6_pipeline() -> Dict[str, Any]:
 
 def run_g4_opponent_ranges_pipeline(
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute G4 analysis: opponent tightness ranges, equity shifts, and parameter scaling."""
     print("Running G4 opponent range simulation...")
     focal_hands = {
@@ -2793,7 +2780,7 @@ def run_g4_opponent_ranges_pipeline(
 
 def run_g8_blinds_and_table_selection_pipeline(
     seed: int = SEED_FIT,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Execute G8 analysis: blind-cost break-even models and two-way ANOVA table selection."""
     print("Running G8 blinds and table selection analysis...")
 
@@ -2999,7 +2986,7 @@ def run_g8_blinds_and_table_selection_pipeline(
     }
 
 
-def run_p7_pipeline() -> Dict[str, Any]:
+def run_p7_pipeline() -> dict[str, Any]:
     """Execute Prompt 7: G4 opponent ranges, G8 blind-cost break-even, and table selection ANOVA."""
     print("=== Running Prompt 7 Pipeline (G4 & G8) ===")
     g4_results = run_g4_opponent_ranges_pipeline(seed=SEED_FIT)
@@ -3015,7 +3002,7 @@ def run_p7_pipeline() -> Dict[str, Any]:
 # HAND-SOLVED PROBLEM SHEET AND ANSWER CHECKER (PROMPT 12 / SECTION 2A)
 # =====================================================================
 
-_HAND_ANSWERS: Dict[str, Dict[str, Any]] = {
+_HAND_ANSWERS: dict[str, dict[str, Any]] = {
     # Problem E1: Discrete Order Statistic of Maximum
     "E1": {"truth": 0.6022, "tol": 0.005, "desc": "P(M = 1) winning category One Pair"},
     "E1_P_max_1": {"truth": 0.6022, "tol": 0.005, "desc": "P(M = 1)"},
@@ -3052,7 +3039,7 @@ _HAND_ANSWERS: Dict[str, Dict[str, Any]] = {
     "E6_error": {"truth": 0.0793, "tol": 0.01, "desc": "Absolute error (|E_hat - E_empirical|)"},
 }
 
-_ATTEMPTS: Dict[str, int] = {}
+_ATTEMPTS: dict[str, int] = {}
 
 
 def check_answer(example_id: str, value: Any) -> bool:

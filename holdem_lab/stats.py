@@ -8,7 +8,8 @@ Every statistical formula is documented in its docstring.
 from __future__ import annotations
 
 import math
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from collections.abc import Callable, Sequence
+from typing import Any
 
 import numpy as np
 
@@ -168,13 +169,13 @@ def incomplete_gamma(s: float, x: float) -> float:
 # =========================================================================
 # 2. Probability Distributions (PDF, CDF, PPF)
 # =========================================================================
-def norm_pdf(x: Union[float, np.ndarray], loc: float = 0.0, scale: float = 1.0) -> Union[float, np.ndarray]:
+def norm_pdf(x: float | np.ndarray, loc: float = 0.0, scale: float = 1.0) -> float | np.ndarray:
     """Standard Normal Probability Density Function."""
     z = (x - loc) / scale
     return np.exp(-0.5 * z * z) / (scale * math.sqrt(2.0 * math.pi))
 
 
-def norm_cdf(x: Union[float, np.ndarray], loc: float = 0.0, scale: float = 1.0) -> Union[float, np.ndarray]:
+def norm_cdf(x: float | np.ndarray, loc: float = 0.0, scale: float = 1.0) -> float | np.ndarray:
     """Standard Normal Cumulative Distribution Function via math.erf."""
     z = (x - loc) / (scale * math.sqrt(2.0))
     if isinstance(z, np.ndarray):
@@ -207,7 +208,7 @@ def norm_ppf(p: float, loc: float = 0.0, scale: float = 1.0) -> float:
     return loc + scale * z
 
 
-def t_pdf(x: Union[float, np.ndarray], df: float) -> Union[float, np.ndarray]:
+def t_pdf(x: float | np.ndarray, df: float) -> float | np.ndarray:
     """Student-t probability density function."""
     coef = math.exp(math.lgamma(0.5 * (df + 1.0)) - math.lgamma(0.5 * df)) / math.sqrt(math.pi * df)
     return coef * (1.0 + (x * x) / df) ** (-0.5 * (df + 1.0))
@@ -243,7 +244,7 @@ def t_ppf(p: float, df: float) -> float:
     return 0.5 * (low + high)
 
 
-def beta_pdf(x: Union[float, np.ndarray], a: float, b: float) -> Union[float, np.ndarray]:
+def beta_pdf(x: float | np.ndarray, a: float, b: float) -> float | np.ndarray:
     """Beta probability density function."""
     if isinstance(x, np.ndarray):
         res = np.zeros_like(x, dtype=float)
@@ -262,7 +263,7 @@ def beta_cdf(x: float, a: float, b: float) -> float:
     return incomplete_beta(x, a, b)
 
 
-def gamma_pdf(x: Union[float, np.ndarray], shape: float, scale: float = 1.0) -> Union[float, np.ndarray]:
+def gamma_pdf(x: float | np.ndarray, shape: float, scale: float = 1.0) -> float | np.ndarray:
     """Gamma probability density function."""
     if isinstance(x, np.ndarray):
         res = np.zeros_like(x, dtype=float)
@@ -281,7 +282,7 @@ def gamma_cdf(x: float, shape: float, scale: float = 1.0) -> float:
     return incomplete_gamma(shape, x / scale)
 
 
-def f_pdf(x: Union[float, np.ndarray], df1: float, df2: float) -> Union[float, np.ndarray]:
+def f_pdf(x: float | np.ndarray, df1: float, df2: float) -> float | np.ndarray:
     """Snedecor's F-distribution probability density function."""
     if isinstance(x, np.ndarray):
         res = np.zeros_like(x, dtype=float)
@@ -313,7 +314,7 @@ def f_cdf(x: float, df1: float, df2: float) -> float:
     return incomplete_beta(z, 0.5 * df1, 0.5 * df2)
 
 
-def chi2_pdf(x: Union[float, np.ndarray], df: float) -> Union[float, np.ndarray]:
+def chi2_pdf(x: float | np.ndarray, df: float) -> float | np.ndarray:
     """Chi-square probability density function."""
     return gamma_pdf(x, shape=0.5 * df, scale=2.0)
 
@@ -345,7 +346,7 @@ def chi2_ppf(p: float, df: float) -> float:
 # =========================================================================
 # 3. Parameter Fitting (MoM and MLE)
 # =========================================================================
-def fit_beta_mom(data: np.ndarray) -> Tuple[float, float]:
+def fit_beta_mom(data: np.ndarray) -> tuple[float, float]:
     """Fit Beta distribution parameters (alpha, beta) via Method of Moments.
 
     Formula:
@@ -364,7 +365,7 @@ def fit_beta_mom(data: np.ndarray) -> Tuple[float, float]:
     return alpha, beta
 
 
-def fit_beta_mle(data: np.ndarray, max_iter: int = 100, tol: float = 1e-7) -> Tuple[float, float]:
+def fit_beta_mle(data: np.ndarray, max_iter: int = 100, tol: float = 1e-7) -> tuple[float, float]:
     """Fit Beta distribution parameters (alpha, beta) via Maximum Likelihood (Newton-Raphson)."""
     # Initialize from Method of Moments
     try:
@@ -423,7 +424,7 @@ def fit_beta_mle(data: np.ndarray, max_iter: int = 100, tol: float = 1e-7) -> Tu
     return a, b
 
 
-def fit_gamma_mom(data: np.ndarray) -> Tuple[float, float]:
+def fit_gamma_mom(data: np.ndarray) -> tuple[float, float]:
     """Fit Gamma distribution (shape k, scale theta) via Method of Moments."""
     mean = float(np.mean(data))
     var = float(np.var(data, ddof=1))
@@ -432,7 +433,7 @@ def fit_gamma_mom(data: np.ndarray) -> Tuple[float, float]:
     return shape, scale
 
 
-def fit_gamma_mle(data: np.ndarray, max_iter: int = 100, tol: float = 1e-7) -> Tuple[float, float]:
+def fit_gamma_mle(data: np.ndarray, max_iter: int = 100, tol: float = 1e-7) -> tuple[float, float]:
     """Fit Gamma distribution (shape k, scale theta) via MLE."""
     shape, _ = fit_gamma_mom(data)
     mean = float(np.mean(data))
@@ -474,7 +475,7 @@ def fit_poisson_mle(data: np.ndarray) -> float:
     return float(np.mean(data))
 
 
-def fit_negative_binomial_mom(data: np.ndarray) -> Tuple[float, float]:
+def fit_negative_binomial_mom(data: np.ndarray) -> tuple[float, float]:
     """Fit Negative Binomial parameters (r, p) via Method of Moments (support {0, 1, ...})."""
     mean = float(np.mean(data))
     var = float(np.var(data, ddof=1))
@@ -504,7 +505,7 @@ def chi2_goodness_of_fit(
     expected: Sequence[float],
     params_estimated: int = 0,
     min_expected: float = 5.0,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Perform chi-square goodness-of-fit test with sparse bin pooling.
 
     Parameters
@@ -532,8 +533,8 @@ def chi2_goodness_of_fit(
         exp = [e * total_obs for e in exp]
 
     # Pool bins where expected < min_expected
-    pooled_obs: List[float] = []
-    pooled_exp: List[float] = []
+    pooled_obs: list[float] = []
+    pooled_exp: list[float] = []
 
     cur_obs = 0.0
     cur_exp = 0.0
@@ -577,7 +578,7 @@ def chi2_goodness_of_fit(
 # =========================================================================
 # 5. Regression & Confidence Intervals
 # =========================================================================
-def ols_regression(X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
+def ols_regression(X: np.ndarray, y: np.ndarray) -> dict[str, Any]:
     """Ordinary Least Squares regression with analytical standard errors."""
     if X.ndim == 1:
         X = X[:, None]
@@ -612,7 +613,7 @@ def ols_regression(X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
     }
 
 
-def wls_regression(X: np.ndarray, y: np.ndarray, weights: np.ndarray) -> Dict[str, Any]:
+def wls_regression(X: np.ndarray, y: np.ndarray, weights: np.ndarray) -> dict[str, Any]:
     """Weighted Least Squares regression with analytical standard errors."""
     if X.ndim == 1:
         X = X[:, None]
@@ -625,7 +626,7 @@ def wls_regression(X: np.ndarray, y: np.ndarray, weights: np.ndarray) -> Dict[st
     return ols_regression(X_w, y_w)
 
 
-def t_confidence_interval(data: np.ndarray, confidence: float = 0.95) -> Tuple[float, float]:
+def t_confidence_interval(data: np.ndarray, confidence: float = 0.95) -> tuple[float, float]:
     """Student-t confidence interval for sample mean."""
     n = len(data)
     mean = float(np.mean(data))
@@ -639,9 +640,9 @@ def bootstrap_ci(
     stat_func: Callable[[np.ndarray], float] = np.mean,
     n_boot: int = 2_000,
     confidence: float = 0.95,
-    block_size: Optional[int] = None,
+    block_size: int | None = None,
     seed: int = 42,
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """Bootstrap confidence interval (iid or moving block)."""
     rng = np.random.default_rng(seed)
     n = len(data)
@@ -693,7 +694,7 @@ def permutation_test(
 # =========================================================================
 # 6. Analysis of Variance (ANOVA)
 # =========================================================================
-def one_way_anova(*groups: np.ndarray) -> Dict[str, Any]:
+def one_way_anova(*groups: np.ndarray) -> dict[str, Any]:
     """One-way Analysis of Variance (ANOVA)."""
     k = len(groups)
     n_total = sum(len(g) for g in groups)
@@ -730,7 +731,7 @@ def two_way_anova_interaction(
     factor_b: np.ndarray,
     n_permutations: int = 1_000,
     seed: int = 42,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """Two-way balanced ANOVA with interaction F-test and permutation calibration."""
     levels_a = np.unique(factor_a)
     levels_b = np.unique(factor_b)
@@ -878,7 +879,7 @@ def order_stat_min_cdf(x: float, cdf_func: Callable[[float], float], n: int) -> 
     return 1.0 - (1.0 - cdf_func(x)) ** n
 
 
-def discrete_order_stat_max(probs: np.ndarray, n: int) -> Dict[str, Any]:
+def discrete_order_stat_max(probs: np.ndarray, n: int) -> dict[str, Any]:
     """Discrete tie-aware order statistics for max of n iid draws.
 
     Parameters
@@ -923,7 +924,7 @@ def discrete_order_stat_max(probs: np.ndarray, n: int) -> Dict[str, Any]:
 # =========================================================================
 # 9. Probability Generating Functions (PGF) & Brownian Ruin
 # =========================================================================
-def pgf_moments(pgf_func: Callable[[float], float], h: float = 1e-4) -> Dict[str, float]:
+def pgf_moments(pgf_func: Callable[[float], float], h: float = 1e-4) -> dict[str, float]:
     """Derive numerical mean and variance from a Probability Generating Function G(s).
 
     Formulas:

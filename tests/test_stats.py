@@ -4,55 +4,32 @@ Verifies pure-NumPy holdem_lab.stats against SciPy and Statsmodels reference lib
 """
 
 import math
+
 import numpy as np
-import pytest
+import pandas as pd
 import scipy.special as sc
-import scipy.stats as stats
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
-import pandas as pd
+from scipy import stats
 
 from holdem_lab.stats import (
-    bootstrap_ci,
     brownian_ruin_prob,
     chi2_cdf,
     chi2_goodness_of_fit,
-    chi2_pdf,
-    chi2_ppf,
     digamma,
     discrete_order_stat_max,
     f_cdf,
-    f_pdf,
     fit_beta_mle,
     fit_beta_mom,
-    fit_gamma_mle,
-    fit_gamma_mom,
-    fit_geometric_mle,
-    fit_geometric_mom,
-    fit_negative_binomial_mom,
-    fit_poisson_mle,
-    gamma_cdf,
-    gamma_pdf,
     incomplete_beta,
     incomplete_gamma,
     kendall_rank_correlation,
-    ks_statistic,
-    loggamma,
     norm_cdf,
-    norm_pdf,
     norm_ppf,
     ols_regression,
-    one_way_anova,
-    order_stat_max_cdf,
-    order_stat_min_cdf,
-    permutation_test,
     pgf_moments,
     spearman_rank_correlation,
     t_cdf,
-    t_confidence_interval,
-    t_pdf,
-    t_ppf,
-    trigamma,
     two_way_anova_interaction,
     wls_regression,
 )
