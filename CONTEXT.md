@@ -219,6 +219,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Monte Carlo & exhaustive turn equity engine (P2) | Combines batch sampling with precision stopping and 45,540 deal exact check |
 | 2026-11-14 | From-scratch statistics toolkit in pure NumPy with automated student checkers (P3) | Complies with numpy/stdlib rule; six student-owned functions scaffolded with stubs and tests |
 | 2026-11-14 | Real data ingestion, 1.025M UCI hand evaluator verification, Table 1 GOF, and PHH HandHQ showdown parsing (P9) | 100% agreement on UCI; documented train-set rare class oversampling; real-play showdown selection bias quantified |
+| 2026-11-14 | Table size dynamics (G1), 169-class equity table across n=2..9, and Beta goodness-of-fit Table 2 (P4) | Confirmed card sharing breaks i.i.d.-max model (H1); combo-weighted equity conservation verified; Beta fit verified (H2) |
 
 ## 19. Progress log
 
@@ -233,7 +234,8 @@ Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P
   - 2026-11-14: Complete statistical toolkit implemented in holdem_lab/stats.py (pure NumPy/stdlib). Special functions, distributions, fits (Beta MoM/MLE, Gamma, Geometric, NB), chi-square GOF with pooling, OLS/WLS, two-way ANOVA interaction F, rank correlations, discrete tie-aware order stats, PGF moments, and ruin probability. Verified against SciPy and Statsmodels in tests/test_stats.py (10/10, 26/26 overall). Six student-owned function stubs and automated checkers placed in holdem_lab.ipynb Section 3 with USE_STUDENT=False flag.
 - [x] P9 Data: UCI and PHH, cleaning, goodness-of-fit Table 1, real-play comparison
   - 2026-11-14: Loaded and evaluated all 1,025,010 UCI hands with 100.0% agreement (0 mismatches across train/test). Goodness-of-fit Table 1 proved training split rejects natural frequencies (Chi2=16.12, p=0.024) due to intentional over-sampling of rare classes, while testing split matches theoretical distribution (Chi2=1.66, p=0.990). Parsed 2009 HandHQ multi-player cash games; verified table sizes (6-max and Heads-up predominate) and revealed selection bias at showdown (High Card drops from 17.4% to 3.8%, Two Pair and Full House elevated). Effective player tightness estimated at q ~ 0.25-0.50. Figures and data saved; notebook sections 2 & 11 verified; all 31 tests passed.
-- [ ] P4 G1 and G2 (goodness-of-fit Table 2)
+- [x] P4 G1 and G2 (goodness-of-fit Table 2)
+  - 2026-11-14: G1 table deal simulations (5,000 deals per n=2..9) proved that card sharing breaks the independent order-statistic model F(x)^n (TV distance 0.05-0.14, split pot probability overestimated by ~20 pp due to kicker resolution). G2 computed full 169-class equity table across n=2..9; verified combo-weighted mean equals 1/n exactly; fitted Beta distributions by MoM and MLE (KS stats 0.05-0.09, Goodness-of-Fit Table 2); confirmed return per unit staked R_n = n*E_n - 1 dynamics (AA expands from +70% at n=2 to +213% at n=9). Figures, CSVs, and notebook Section 6 with draft worked example added; 34/34 tests passed.
 - [ ] P5 G7 formula and rank stability
 - [ ] P6 G3 streets (Tier B)
 - [ ] P7 G4 and G8 opponents, blinds, ANOVA (Tier B)

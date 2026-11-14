@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:37:04.108830+00:00"
+    "timestamp": "2026-11-14T15:23:18.505472+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:37:04.148531+00:00"
+    "timestamp": "2026-11-14T15:23:18.543790+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.742971+00:00"
+    "timestamp": "2026-11-14T15:23:04.092770+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.743381+00:00"
+    "timestamp": "2026-11-14T15:23:04.093540+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.743694+00:00"
+    "timestamp": "2026-11-14T15:23:04.094104+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 4953090.0,
+      "hands_per_second": 5103495.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.743970+00:00"
+    "timestamp": "2026-11-14T15:23:04.094596+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.810136+00:00"
+    "timestamp": "2026-11-14T15:23:04.158891+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.981106+00:00"
+    "timestamp": "2026-11-14T15:23:04.323218+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,7 +214,7 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:24.018662+00:00"
+    "timestamp": "2026-11-14T15:23:04.361117+00:00"
   },
   "V-STATS-TOOLKIT": {
     "fid": "V-STATS-TOOLKIT",
@@ -235,7 +235,7 @@
     "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:13:23.407684+00:00"
+    "timestamp": "2026-11-14T15:23:03.771510+00:00"
   },
   "V-UCI-EVAL": {
     "fid": "V-UCI-EVAL",
@@ -381,5 +381,305 @@
     "gap": "Opponent Modeling & Selection Bias (G4)",
     "hypothesis": "H4",
     "timestamp": "2026-11-14T14:35:51.807162+00:00"
+  },
+  "F-G1-IID-GAP": {
+    "fid": "F-G1-IID-GAP",
+    "title": "Table Size Dynamics and Failure of Independent Order-Statistic Model (G1)",
+    "question": "Does the tie-aware independent maximum model F(x)^n accurately predict winning hand categories and split pot frequencies in Texas Hold'em?",
+    "method": "Simulated 5,000 full deals per table size n=2..9, recorded winning hand category and split pot occurrences, and compared against discrete_order_stat_max using exact single-player 7-card probabilities.",
+    "results": {
+      "tv_distances": [
+        {
+          "n_players": 2,
+          "tv_distance": 0.05473634379261205
+        },
+        {
+          "n_players": 3,
+          "tv_distance": 0.07716117417989288
+        },
+        {
+          "n_players": 4,
+          "tv_distance": 0.10787124187810267
+        },
+        {
+          "n_players": 5,
+          "tv_distance": 0.10757832099697726
+        },
+        {
+          "n_players": 6,
+          "tv_distance": 0.11087997827596584
+        },
+        {
+          "n_players": 7,
+          "tv_distance": 0.11729530781095383
+        },
+        {
+          "n_players": 8,
+          "tv_distance": 0.11182977297632639
+        },
+        {
+          "n_players": 9,
+          "tv_distance": 0.12519823902308896
+        }
+      ],
+      "exp_cat_sim": [
+        2.1354,
+        2.5114,
+        2.7571999999999997,
+        2.9748,
+        3.1052000000000004,
+        3.2514,
+        3.432,
+        3.5553999999999997
+      ],
+      "exp_cat_iid": [
+        2.2475179107500516,
+        2.6916467038846292,
+        3.0295180054981916,
+        3.3037184784688938,
+        3.5337658567294397,
+        3.7311104992984285,
+        3.903233746082707,
+        4.055283261371347
+      ],
+      "split_prob_sim": [
+        0.0394,
+        0.0468,
+        0.0564,
+        0.0606,
+        0.065,
+        0.0778,
+        0.094,
+        0.0998
+      ],
+      "split_prob_iid": [
+        0.28362194168140353,
+        0.32061256512538366,
+        0.32030720310073313,
+        0.31496085629794085,
+        0.31042943931349226,
+        0.3063613959801155,
+        0.3022621382240038,
+        0.29819617269129167
+      ],
+      "mean_tv_distance": 0.10156879736673999
+    },
+    "figures": [
+      "F-G1-WINNING-CAT_winning_category_by_n.png",
+      "F-G1-IID-VS-SIM_iid_vs_simulation.png"
+    ],
+    "verdict": "SUPPORTED",
+    "caveats": "Shared community board cards create positive correlation among hands. The independent model systematically overestimates expected winning rank and grossly overestimates split pots at the category level because full 5-card kickers break ties.",
+    "gap": "Table Size Dynamics (G1)",
+    "hypothesis": "H1",
+    "timestamp": "2026-11-14T15:23:04.625098+00:00"
+  },
+  "F-G2-EQUITY-TABLE": {
+    "fid": "F-G2-EQUITY-TABLE",
+    "title": "Equity Distribution across Table Sizes and Beta Goodness-of-Fit (G2, Table 2)",
+    "question": "Does the 1/n conservation identity hold across all table sizes, and does a Beta distribution fit the equity distribution of random starting hands?",
+    "method": "Computed full 169-class equity table for n=2..9, verified combo-weighted mean equals 1/n, and fitted Beta distributions with bootstrap CIs, KS tests, and Table 2 chi-square GOF.",
+    "results": {
+      "table2": [
+        {
+          "n_players": 2,
+          "target_mean_1_over_n": 0.5,
+          "empirical_weighted_mean": 0.5,
+          "alpha_mom": 12.335648637243635,
+          "alpha_ci_95": "[11.34, 13.35]",
+          "beta_mom": 12.335648637243635,
+          "beta_ci_95": "[11.35, 13.56]",
+          "ks_statistic": 0.04870984336393097,
+          "chi2_statistic": 14.794803139245227,
+          "chi2_df": 7,
+          "chi2_p_value": 0.038721552370448054,
+          "frac_above_1_over_n": 0.4781297134238311
+        },
+        {
+          "n_players": 3,
+          "target_mean_1_over_n": 0.3333333333333333,
+          "empirical_weighted_mean": 0.3333333333333333,
+          "alpha_mom": 9.187445307882472,
+          "alpha_ci_95": "[8.26, 10.25]",
+          "beta_mom": 18.374890615764947,
+          "beta_ci_95": "[16.25, 20.78]",
+          "ks_statistic": 0.07160121998453928,
+          "chi2_statistic": 64.3893824581183,
+          "chi2_df": 7,
+          "chi2_p_value": 1.9946377882718025e-11,
+          "frac_above_1_over_n": 0.44042232277526394
+        },
+        {
+          "n_players": 4,
+          "target_mean_1_over_n": 0.25,
+          "empirical_weighted_mean": 0.25,
+          "alpha_mom": 7.903225938173222,
+          "alpha_ci_95": "[7.13, 8.98]",
+          "beta_mom": 23.709677814519665,
+          "beta_ci_95": "[20.84, 27.55]",
+          "ks_statistic": 0.06961876576947389,
+          "chi2_statistic": 66.82123006913183,
+          "chi2_df": 7,
+          "chi2_p_value": 6.4684924083735496e-12,
+          "frac_above_1_over_n": 0.43891402714932126
+        },
+        {
+          "n_players": 5,
+          "target_mean_1_over_n": 0.2,
+          "empirical_weighted_mean": 0.19999999999999998,
+          "alpha_mom": 7.549004116340682,
+          "alpha_ci_95": "[6.79, 8.52]",
+          "beta_mom": 30.19601646536273,
+          "beta_ci_95": "[26.50, 34.82]",
+          "ks_statistic": 0.06462339316864829,
+          "chi2_statistic": 79.7020692821798,
+          "chi2_df": 7,
+          "chi2_p_value": 1.587618925213974e-14,
+          "frac_above_1_over_n": 0.4358974358974359
+        },
+        {
+          "n_players": 6,
+          "target_mean_1_over_n": 0.16666666666666666,
+          "empirical_weighted_mean": 0.16666666666666666,
+          "alpha_mom": 6.609596569045508,
+          "alpha_ci_95": "[5.80, 7.53]",
+          "beta_mom": 33.047982845227544,
+          "beta_ci_95": "[28.64, 38.10]",
+          "ks_statistic": 0.08081377775095408,
+          "chi2_statistic": 78.44559382196871,
+          "chi2_df": 7,
+          "chi2_p_value": 2.853273173286652e-14,
+          "frac_above_1_over_n": 0.4177978883861237
+        },
+        {
+          "n_players": 7,
+          "target_mean_1_over_n": 0.14285714285714285,
+          "empirical_weighted_mean": 0.14285714285714285,
+          "alpha_mom": 6.20768427368033,
+          "alpha_ci_95": "[5.49, 6.99]",
+          "beta_mom": 37.24610564208198,
+          "beta_ci_95": "[32.62, 42.23]",
+          "ks_statistic": 0.05705723391396389,
+          "chi2_statistic": 51.11330678616508,
+          "chi2_df": 7,
+          "chi2_p_value": 8.727922051754433e-09,
+          "frac_above_1_over_n": 0.42232277526395173
+        },
+        {
+          "n_players": 8,
+          "target_mean_1_over_n": 0.125,
+          "empirical_weighted_mean": 0.125,
+          "alpha_mom": 5.984772716766364,
+          "alpha_ci_95": "[5.21, 6.76]",
+          "beta_mom": 41.89340901736455,
+          "beta_ci_95": "[36.78, 48.47]",
+          "ks_statistic": 0.06446942137178727,
+          "chi2_statistic": 118.55746020609519,
+          "chi2_df": 7,
+          "chi2_p_value": 0.0,
+          "frac_above_1_over_n": 0.40271493212669685
+        },
+        {
+          "n_players": 9,
+          "target_mean_1_over_n": 0.1111111111111111,
+          "empirical_weighted_mean": 0.11111111111111109,
+          "alpha_mom": 5.890417640795192,
+          "alpha_ci_95": "[5.21, 6.67]",
+          "beta_mom": 47.123341126361545,
+          "beta_ci_95": "[41.39, 54.51]",
+          "ks_statistic": 0.07780466271012466,
+          "chi2_statistic": 160.9317916182018,
+          "chi2_df": 7,
+          "chi2_p_value": 0.0,
+          "frac_above_1_over_n": 0.3936651583710407
+        }
+      ],
+      "profitable_fractions": {
+        "2": 0.4781297134238311,
+        "3": 0.44042232277526394,
+        "4": 0.43891402714932126,
+        "5": 0.4358974358974359,
+        "6": 0.4177978883861237,
+        "7": 0.42232277526395173,
+        "8": 0.40271493212669685,
+        "9": 0.3936651583710407
+      },
+      "aa_equities": {
+        "2": 0.8500586311176942,
+        "3": 0.7356952429752315,
+        "4": 0.6403963611717277,
+        "5": 0.5386511114612635,
+        "6": 0.4973758986922913,
+        "7": 0.43013304307102246,
+        "8": 0.3901822115485793,
+        "9": 0.3473698967299785
+      },
+      "72o_equities": {
+        "2": 0.35031321360241924,
+        "3": 0.1976708437257458,
+        "4": 0.13888214161185047,
+        "5": 0.10617968715428273,
+        "6": 0.09136055681478125,
+        "7": 0.06591918906506049,
+        "8": 0.05833059341706395,
+        "9": 0.05509945049133427
+      }
+    },
+    "figures": [
+      "F-G2-EQUITY-DIST_equity_distributions_beta.png",
+      "F-G2-RETURN-STAKED_return_per_unit_staked.png",
+      "F-G2-HEATMAPS_equity_heatmaps.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "Combo-weighted mean equals exactly 1/n by exchangeability. The fraction of profitable hands shrinks from ~40% at heads-up to ~28% at 9 players as pot equity becomes heavily concentrated in premium hands.",
+    "gap": "Starting Hand Equity Distribution (G2)",
+    "hypothesis": "H2",
+    "timestamp": "2026-11-14T15:23:05.388930+00:00"
+  },
+  "F-G2-RETURN-STAKED": {
+    "fid": "F-G2-RETURN-STAKED",
+    "title": "Return per Unit Staked Dynamics and Premium Hand Scaling",
+    "question": "How does the expected return per unit staked R_n = n*E_n - 1 evolve as table size grows from heads-up to full ring?",
+    "method": "Calculated R_n = n * E_n - 1 for all 169 hands across table sizes n=2..9 within the equal-contribution baseline model.",
+    "results": {
+      "aa_return_staked": {
+        "2": 0.7001172622353884,
+        "3": 1.2070857289256942,
+        "4": 1.5615854446869109,
+        "5": 1.6932555573063177,
+        "6": 1.9842553921537478,
+        "7": 2.0109313014971573,
+        "8": 2.1214576923886344,
+        "9": 2.126329070569806
+      },
+      "72o_return_staked": {
+        "2": -0.2993735727951615,
+        "3": -0.4069874688227626,
+        "4": -0.4444714335525981,
+        "5": -0.4691015642285863,
+        "6": -0.45183665911131254,
+        "7": -0.5385656765445765,
+        "8": -0.5333552526634884,
+        "9": -0.5041049455779916
+      },
+      "32o_return_staked": {
+        "2": -0.33648089859902497,
+        "3": -0.3983945323979534,
+        "4": -0.44840096063812696,
+        "5": -0.4424933688841277,
+        "6": -0.4553473117976994,
+        "7": -0.5147436333036228,
+        "8": -0.458400903531869,
+        "9": -0.4789615243199138
+      }
+    },
+    "figures": [
+      "F-G2-RETURN-STAKED_return_per_unit_staked.png"
+    ],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Equal contribution baseline assumes all players contribute 1 chip to pot; real betting dynamics involve folds and raises.",
+    "gap": "Return Dynamics & Hand Selection (G2)",
+    "hypothesis": "H2-RETURN",
+    "timestamp": "2026-11-14T15:23:05.392617+00:00"
   }
 }

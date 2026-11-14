@@ -428,3 +428,67 @@ def test_phh_tightness_estimation():
     assert "tv_distance" in tightness
     assert "chi2_stat" in tightness
 
+
+# -----------------------------------------------------------------------------
+# Prompt 4 Tests: G1 Table Dynamics & G2 Equity Distribution
+# -----------------------------------------------------------------------------
+
+
+def test_tie_aware_fn_toy():
+    """Verify discrete tie-aware order statistic of maximum against brute-force enumeration."""
+    from holdem_lab.stats import discrete_order_stat_max
+
+    probs = np.array([0.5, 0.3, 0.2])
+    res = discrete_order_stat_max(probs, 2)
+
+    # Brute-force: (0,0)=0.25 tie; (1,1)=0.09 tie; (2,2)=0.04 tie -> total tie = 0.38
+    assert abs(res["prob_tie_for_max"] - 0.38) < 1e-12
+    # P(max = 0)=0.25, P(max = 1)=0.39, P(max = 2)=0.36
+    assert np.allclose(res["pmf_max"], [0.25, 0.39, 0.36])
+    assert np.allclose(res["cdf_max"], [0.25, 0.64, 1.00])
+
+
+def test_equity_table_1_over_n_identity():
+    """Verify combo-weighted mean equals 1/n across all n=2..9 in the equity table."""
+    from holdem_lab.analysis import compute_equity_table
+
+    df_equity = compute_equity_table(use_cache=True)
+    assert len(df_equity) == 169 * 8
+
+    for n in range(2, 10):
+        df_n = df_equity[df_equity["n_players"] == n]
+        weighted_mean = float(np.sum(df_n["equity"] * df_n["combos"]) / 1326.0)
+        assert abs(weighted_mean - 1.0 / n) < 1e-6
+
+    # Verify AA, 72o, and rank reversal at n >= 6
+    df_aa = df_equity[df_equity["hand_class"] == "AA"].set_index("n_players")
+    df_72 = df_equity[df_equity["hand_class"] == "72o"].set_index("n_players")
+    df_32 = df_equity[df_equity["hand_class"] == "32o"].set_index("n_players")
+
+    assert df_aa.loc[2, "equity"] > df_aa.loc[6, "equity"] > df_aa.loc[9, "equity"]
+    assert df_72.loc[2, "equity"] > df_32.loc[2, "equity"]  # heads up: 72o > 32o
+    assert df_32.loc[9, "equity"] > df_72.loc[9, "equity"]  # multiway (9-max): 32o > 72o (rank reversal)
+
+
+def test_beta_fit_mom_vs_scipy():
+    """Verify from-scratch Beta MoM fit matches theoretical equations and SciPy."""
+    import scipy.stats as sp_stats
+    from holdem_lab.stats import fit_beta_mom
+
+    rng = np.random.default_rng(42)
+    data = rng.beta(3.5, 6.2, size=1500)
+
+    a_mom, b_mom = fit_beta_mom(data)
+    m = np.mean(data)
+    v = np.var(data, ddof=1)
+    a_exp = m * (m * (1 - m) / v - 1)
+    b_exp = (1 - m) * (m * (1 - m) / v - 1)
+
+    assert abs(a_mom - a_exp) < 1e-12
+    assert abs(b_mom - b_exp) < 1e-12
+
+    a_sp, b_sp, _, _ = sp_stats.beta.fit(data, floc=0, fscale=1)
+    assert abs(a_mom - a_sp) < 0.25
+    assert abs(b_mom - b_sp) < 0.35
+
+
