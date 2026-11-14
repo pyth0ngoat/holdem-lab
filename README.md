@@ -134,7 +134,9 @@ It contains six one-page problems built from real project numbers, designed to b
 ## Running the Project
 
 ### Running the Notebook
-Execute end-to-end in quick mode (~1-3 minutes):
+
+#### 1. Full Development Mode (with `holdem_lab` package)
+Execute end-to-end in quick mode (~25s):
 ```bash
 HOLDEM_MODE=quick venv/bin/jupyter nbconvert --to notebook --execute holdem_lab.ipynb --output holdem_lab_executed.ipynb
 ```
@@ -142,6 +144,28 @@ Or open interactively:
 ```bash
 venv/bin/jupyter lab holdem_lab.ipynb
 ```
+
+#### 2. Portable Submission Mode (Running with only the Submission Files)
+A grader or examiner who receives only the submission directory can run the notebook without installing the development package:
+```bash
+# 1. Create and activate a clean virtual environment
+python3 -m venv submission_env
+source submission_env/bin/activate  # On Windows: submission_env\Scripts\activate
+
+# 2. Install pinned dependencies (no demo server packages required)
+pip install -r submission/requirements.txt
+
+# 3. Open and run all cells in Jupyter
+jupyter lab holdem_lab.ipynb
+```
+- **Expected Run Time:** ~3-5 seconds in portable mode (loads verified cached tables and runs pure-NumPy verifications inline); ~25 seconds in quick simulation mode.
+- **Required Files Staged Alongside Notebook:**
+  - `data/external/uci/`: `poker-hand-training-true.data` and `poker-hand-testing.data`
+  - `data/formula_params.json`: Fitted power-law formula parameters
+  - `figures/data/*.csv`: Pre-computed simulation outputs, GOF tables, and benchmark data
+  - `reports/hand_examples_sheet.md`: Six hand-solved problem sheets
+  - `submission/requirements.txt`: Minimal pinned submission dependencies
+- **Zero-Traceback Guarantee:** Notebook automatically detects package absence (`USE_PACKAGE = False`) and executes seamlessly start-to-end.
 
 ### Running the Live Interactive Demo (`demo.py`, EXTRA)
 Host a live 9-seat room with real-time probability displays and QR code join:

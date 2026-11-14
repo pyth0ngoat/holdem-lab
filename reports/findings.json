@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:57:19.085102+00:00"
+    "timestamp": "2026-11-14T17:14:56.286320+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:57:19.124970+00:00"
+    "timestamp": "2026-11-14T17:14:56.327115+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.693176+00:00"
+    "timestamp": "2026-11-14T17:11:56.411861+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.694652+00:00"
+    "timestamp": "2026-11-14T17:11:56.413352+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.695920+00:00"
+    "timestamp": "2026-11-14T17:11:56.414552+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 5017268.0,
+      "hands_per_second": 5071444.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.697087+00:00"
+    "timestamp": "2026-11-14T17:11:56.415734+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.765899+00:00"
+    "timestamp": "2026-11-14T17:11:56.481117+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.934712+00:00"
+    "timestamp": "2026-11-14T17:11:56.650388+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,7 +214,7 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.974037+00:00"
+    "timestamp": "2026-11-14T17:11:56.688447+00:00"
   },
   "V-STATS-TOOLKIT": {
     "fid": "V-STATS-TOOLKIT",
@@ -235,7 +235,7 @@
     "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T16:56:20.344623+00:00"
+    "timestamp": "2026-11-14T17:01:07.882657+00:00"
   },
   "V-UCI-EVAL": {
     "fid": "V-UCI-EVAL",
@@ -472,7 +472,7 @@
     "caveats": "Shared community board cards create positive correlation among hands. The independent model systematically overestimates expected winning rank and grossly overestimates split pots at the category level because full 5-card kickers break ties.",
     "gap": "Table Size Dynamics (G1)",
     "hypothesis": "H1",
-    "timestamp": "2026-11-14T16:56:21.255160+00:00"
+    "timestamp": "2026-11-14T17:11:56.958358+00:00"
   },
   "F-G2-EQUITY-TABLE": {
     "fid": "F-G2-EQUITY-TABLE",
@@ -634,7 +634,7 @@
     "caveats": "Combo-weighted mean equals exactly 1/n by exchangeability. The fraction of profitable hands shrinks from ~40% at heads-up to ~28% at 9 players as pot equity becomes heavily concentrated in premium hands.",
     "gap": "Starting Hand Equity Distribution (G2)",
     "hypothesis": "H2",
-    "timestamp": "2026-11-14T16:56:22.042734+00:00"
+    "timestamp": "2026-11-14T17:11:57.728568+00:00"
   },
   "F-G2-RETURN-STAKED": {
     "fid": "F-G2-RETURN-STAKED",
@@ -680,7 +680,7 @@
     "caveats": "Equal contribution baseline assumes all players contribute 1 chip to pot; real betting dynamics involve folds and raises.",
     "gap": "Return Dynamics & Hand Selection (G2)",
     "hypothesis": "H2-RETURN",
-    "timestamp": "2026-11-14T16:56:22.047146+00:00"
+    "timestamp": "2026-11-14T17:11:57.732890+00:00"
   },
   "F-G7-RANK-STABILITY": {
     "fid": "F-G7-RANK-STABILITY",
@@ -810,7 +810,7 @@
     "caveats": "Rank correlation decays from 1.000 to 0.829 (Spearman) and 0.647 (Kendall). Suited connectors and small pairs rise up to 67 positions due to straight/flush multiway potential, while weak unsuited broadways drop.",
     "gap": "Formula & Rank Stability (G7)",
     "hypothesis": "H7",
-    "timestamp": "2026-11-14T16:56:22.226199+00:00"
+    "timestamp": "2026-11-14T17:11:57.899964+00:00"
   },
   "F-G7-FORMULA-FIT": {
     "fid": "F-G7-FORMULA-FIT",
@@ -1304,7 +1304,7 @@
     "caveats": "Limp-or-fold game model abstracts post-flop betting and raises; actual poker variance is higher due to deep-stack multi-street betting.",
     "gap": "Luck, Sample Size, and Ruin (G5)",
     "hypothesis": "H5",
-    "timestamp": "2026-11-14T16:56:43.855645+00:00"
+    "timestamp": "2026-11-14T17:12:19.262966+00:00"
   },
   "F-G6-WAITING-TIMES": {
     "fid": "F-G6-WAITING-TIMES",
@@ -1392,7 +1392,7 @@
     "caveats": "Simulation deals cards with replacement between hands; within a single deal cards are dealt without replacement.",
     "gap": "Waiting Times and Pure Luck (G6)",
     "hypothesis": "H6-WAITING",
-    "timestamp": "2026-11-14T16:57:20.518576+00:00"
+    "timestamp": "2026-11-14T17:14:57.706087+00:00"
   },
   "F-G3-STREET-MARTINGALE": {
     "fid": "F-G3-STREET-MARTINGALE",
@@ -1705,7 +1705,7 @@
     "caveats": "Simulation uses flat distributions for opponent holdings; opponent actions (bets/folds) create information that alters conditional distributions.",
     "gap": "Streets and Martingale (G3)",
     "hypothesis": "H3",
-    "timestamp": "2026-11-14T16:56:24.474346+00:00"
+    "timestamp": "2026-11-14T17:12:00.134363+00:00"
   },
   "F-G4-OPPONENTS-RANGES": {
     "fid": "F-G4-OPPONENTS-RANGES",
@@ -1728,7 +1728,7 @@
     "caveats": "Simulation assumes opponent preflop range equals showdown range; in actual play post-flop betting produces further selection bias.",
     "gap": "Opponent Tightness and Selection Bias (G4)",
     "hypothesis": "H4",
-    "timestamp": "2026-11-14T16:56:37.489479+00:00"
+    "timestamp": "2026-11-14T17:12:12.994867+00:00"
   },
   "F-G8-BLIND-COST": {
     "fid": "F-G8-BLIND-COST",
@@ -1749,7 +1749,7 @@
     "caveats": "Assumes fixed blinds without ante or structure escalation; folding players forfeit posted blinds.",
     "gap": "Strategies, Blinds and Table Selection (G8)",
     "hypothesis": "H8-BLINDS",
-    "timestamp": "2026-11-14T16:56:42.479683+00:00"
+    "timestamp": "2026-11-14T17:12:17.942269+00:00"
   },
   "F-G8-TABLE-SELECTION": {
     "fid": "F-G8-TABLE-SELECTION",
@@ -1771,6 +1771,28 @@
     "caveats": "Opponents play fixed preflop ranges; actual players adapt their play style dynamically to focal opponents.",
     "gap": "Strategies, Blinds and Table Selection (G8)",
     "hypothesis": "H8",
-    "timestamp": "2026-11-14T16:56:42.480995+00:00"
+    "timestamp": "2026-11-14T17:12:17.943544+00:00"
+  },
+  "V-PORTABLE-NB": {
+    "fid": "V-PORTABLE-NB",
+    "title": "Portable Notebook Execution and Fresh-Environment Verification",
+    "question": "Can a reader receiving only the submission files (notebook, requirements, CSVs, data files) execute the entire notebook from first cell to last with zero errors, both with and without the holdem_lab package?",
+    "method": "Executed holdem_lab.ipynb via jupyter nbconvert across both normal mode (USE_PACKAGE=True) and an isolated fresh environment (/tmp/holdem_submission_test) with holdem_lab completely unavailable (USE_PACKAGE=False).",
+    "results": {
+      "normal_mode_exit_code": 0,
+      "portable_mode_exit_code": 0,
+      "submission_files_count": 34,
+      "normal_mode_runtime_s": 24.8,
+      "portable_mode_runtime_s": 3.2,
+      "zero_traceback_guarantee": true,
+      "data_manifest_passed": true,
+      "environment_check_passed": true
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "Submission environment requires Python 3.11+ and dependencies specified in submission/requirements.txt.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T17:14:38.075769+00:00"
   }
 }

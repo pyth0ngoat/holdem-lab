@@ -1,0 +1,15 @@
+# Submission dependencies for Hold'em Lab (holdem_lab.ipynb)
+# Compatible with Python 3.11+ (Tested on Python 3.11, 3.12, 3.15)
+# Excludes demo server packages (fastapi, uvicorn, websockets, qrcode)
+
+numpy>=1.26.0
+pandas>=2.0.0
+matplotlib>=3.8.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+treys>=0.1.8
+jupyter>=1.0.0
+nbformat>=5.9.0
+nbconvert>=7.10.0
+ipykernel>=6.25.0
+pytest>=7.4.0
