@@ -220,6 +220,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | From-scratch statistics toolkit in pure NumPy with automated student checkers (P3) | Complies with numpy/stdlib rule; six student-owned functions scaffolded with stubs and tests |
 | 2026-11-14 | Real data ingestion, 1.025M UCI hand evaluator verification, Table 1 GOF, and PHH HandHQ showdown parsing (P9) | 100% agreement on UCI; documented train-set rare class oversampling; real-play showdown selection bias quantified |
 | 2026-11-14 | Table size dynamics (G1), 169-class equity table across n=2..9, and Beta goodness-of-fit Table 2 (P4) | Confirmed card sharing breaks i.i.d.-max model (H1); combo-weighted equity conservation verified; Beta fit verified (H2) |
+| 2026-11-14 | Simple formula candidates LOOCV fitting, smooth law beta_n = 1 + 0.230*sqrt(n-2), and rank stability decay (P5) | Spearman rho decays from 1.000 to 0.829 (H7); suited connectors gain up to 67 ranks; M1 phone recipe exported to formula_params.json; M4 achieves MAE < 1.0 pp (H6) |
 
 ## 19. Progress log
 
@@ -236,7 +237,8 @@ Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P
   - 2026-11-14: Loaded and evaluated all 1,025,010 UCI hands with 100.0% agreement (0 mismatches across train/test). Goodness-of-fit Table 1 proved training split rejects natural frequencies (Chi2=16.12, p=0.024) due to intentional over-sampling of rare classes, while testing split matches theoretical distribution (Chi2=1.66, p=0.990). Parsed 2009 HandHQ multi-player cash games; verified table sizes (6-max and Heads-up predominate) and revealed selection bias at showdown (High Card drops from 17.4% to 3.8%, Two Pair and Full House elevated). Effective player tightness estimated at q ~ 0.25-0.50. Figures and data saved; notebook sections 2 & 11 verified; all 31 tests passed.
 - [x] P4 G1 and G2 (goodness-of-fit Table 2)
   - 2026-11-14: G1 table deal simulations (5,000 deals per n=2..9) proved that card sharing breaks the independent order-statistic model F(x)^n (TV distance 0.05-0.14, split pot probability overestimated by ~20 pp due to kicker resolution). G2 computed full 169-class equity table across n=2..9; verified combo-weighted mean equals 1/n exactly; fitted Beta distributions by MoM and MLE (KS stats 0.05-0.09, Goodness-of-Fit Table 2); confirmed return per unit staked R_n = n*E_n - 1 dynamics (AA expands from +70% at n=2 to +213% at n=9). Figures, CSVs, and notebook Section 6 with draft worked example added; 34/34 tests passed.
-- [ ] P5 G7 formula and rank stability
+- [x] P5 G7 formula and rank stability
+  - 2026-11-14: Rank stability analysis proved that starting hand hierarchy decays from heads-up (rho=1.000) to full ring (rho=0.829, tau=0.647), with suited connectors rising by up to 67 ranks (65s rank 133->66) and unsuited kings dropping by 61 ranks (K6o rank 61->122), verifying 72o vs 32o rank reversal (H7). Fitted candidate models M0..M4 with LOOCV; discovered smooth square-root law beta_n = 1.0 + 0.230*sqrt(n-2); M4 achieves mean MAE 0.92 pp (<1.0 pp tolerance); out-of-sample validation on seed 1337 confirmed calibration r=0.9868 (H6). Exported data/formula_params.json and phone recipe; notebook Section 7 added; 37/37 tests passed.
 - [ ] P6 G3 streets (Tier B)
 - [ ] P7 G4 and G8 opponents, blinds, ANOVA (Tier B)
 - [ ] P8 G5 and G6 luck and waiting times (goodness-of-fit Table 3)

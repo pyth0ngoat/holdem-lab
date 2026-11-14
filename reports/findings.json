@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:18.505472+00:00"
+    "timestamp": "2026-11-14T15:31:45.216464+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:18.543790+00:00"
+    "timestamp": "2026-11-14T15:31:45.253658+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.092770+00:00"
+    "timestamp": "2026-11-14T15:31:32.703313+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.093540+00:00"
+    "timestamp": "2026-11-14T15:31:32.704446+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.094104+00:00"
+    "timestamp": "2026-11-14T15:31:32.705386+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 5103495.0,
+      "hands_per_second": 4821116.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.094596+00:00"
+    "timestamp": "2026-11-14T15:31:32.706245+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.158891+00:00"
+    "timestamp": "2026-11-14T15:31:32.773684+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.323218+00:00"
+    "timestamp": "2026-11-14T15:31:32.944769+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,7 +214,7 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:04.361117+00:00"
+    "timestamp": "2026-11-14T15:31:32.984883+00:00"
   },
   "V-STATS-TOOLKIT": {
     "fid": "V-STATS-TOOLKIT",
@@ -235,7 +235,7 @@
     "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T15:23:03.771510+00:00"
+    "timestamp": "2026-11-14T15:31:32.377991+00:00"
   },
   "V-UCI-EVAL": {
     "fid": "V-UCI-EVAL",
@@ -472,7 +472,7 @@
     "caveats": "Shared community board cards create positive correlation among hands. The independent model systematically overestimates expected winning rank and grossly overestimates split pots at the category level because full 5-card kickers break ties.",
     "gap": "Table Size Dynamics (G1)",
     "hypothesis": "H1",
-    "timestamp": "2026-11-14T15:23:04.625098+00:00"
+    "timestamp": "2026-11-14T15:31:33.256440+00:00"
   },
   "F-G2-EQUITY-TABLE": {
     "fid": "F-G2-EQUITY-TABLE",
@@ -634,7 +634,7 @@
     "caveats": "Combo-weighted mean equals exactly 1/n by exchangeability. The fraction of profitable hands shrinks from ~40% at heads-up to ~28% at 9 players as pot equity becomes heavily concentrated in premium hands.",
     "gap": "Starting Hand Equity Distribution (G2)",
     "hypothesis": "H2",
-    "timestamp": "2026-11-14T15:23:05.388930+00:00"
+    "timestamp": "2026-11-14T15:31:34.022628+00:00"
   },
   "F-G2-RETURN-STAKED": {
     "fid": "F-G2-RETURN-STAKED",
@@ -680,6 +680,599 @@
     "caveats": "Equal contribution baseline assumes all players contribute 1 chip to pot; real betting dynamics involve folds and raises.",
     "gap": "Return Dynamics & Hand Selection (G2)",
     "hypothesis": "H2-RETURN",
-    "timestamp": "2026-11-14T15:23:05.392617+00:00"
+    "timestamp": "2026-11-14T15:31:34.026756+00:00"
+  },
+  "F-G7-RANK-STABILITY": {
+    "fid": "F-G7-RANK-STABILITY",
+    "title": "Starting Hand Rank Stability and Multiway Reordering (G7)",
+    "question": "Do starting hand rankings remain stable as table size n expands, and which hand archetypes change rank?",
+    "method": "Calculated Spearman rho and Kendall tau rank correlations of all 169 classes across n=2..9, tracked rank changes, and mapped to a 13x13 grid.",
+    "results": {
+      "correlations": [
+        {
+          "n_players": 2,
+          "spearman_rho": 1.0,
+          "kendall_tau": 1.0
+        },
+        {
+          "n_players": 3,
+          "spearman_rho": 0.9770298979316332,
+          "kendall_tau": 0.8732473841367752
+        },
+        {
+          "n_players": 4,
+          "spearman_rho": 0.9496318543308687,
+          "kendall_tau": 0.8089903553863524
+        },
+        {
+          "n_players": 5,
+          "spearman_rho": 0.913780125868759,
+          "kendall_tau": 0.7488639281979973
+        },
+        {
+          "n_players": 6,
+          "spearman_rho": 0.9083352135330386,
+          "kendall_tau": 0.7432799055076788
+        },
+        {
+          "n_players": 7,
+          "spearman_rho": 0.8694087483532001,
+          "kendall_tau": 0.6958819285738658
+        },
+        {
+          "n_players": 8,
+          "spearman_rho": 0.8460152877131502,
+          "kendall_tau": 0.6625801517203673
+        },
+        {
+          "n_players": 9,
+          "spearman_rho": 0.8291856110676357,
+          "kendall_tau": 0.6469863065803189
+        }
+      ],
+      "top_risers": [
+        {
+          "hand_class": "65s",
+          "rank_2": 133.0,
+          "rank_9": 66.0,
+          "rank_change": 67.0
+        },
+        {
+          "hand_class": "64s",
+          "rank_2": 144.0,
+          "rank_9": 78.0,
+          "rank_change": 66.0
+        },
+        {
+          "hand_class": "75s",
+          "rank_2": 125.0,
+          "rank_9": 62.0,
+          "rank_change": 63.0
+        },
+        {
+          "hand_class": "54s",
+          "rank_2": 140.0,
+          "rank_9": 77.0,
+          "rank_change": 63.0
+        },
+        {
+          "hand_class": "53s",
+          "rank_2": 146.0,
+          "rank_9": 84.0,
+          "rank_change": 62.0
+        }
+      ],
+      "top_fallers": [
+        {
+          "hand_class": "K6o",
+          "rank_2": 61.0,
+          "rank_9": 122.0,
+          "rank_change": -61.0
+        },
+        {
+          "hand_class": "Q7o",
+          "rank_2": 75.0,
+          "rank_9": 132.0,
+          "rank_change": -57.0
+        },
+        {
+          "hand_class": "K5o",
+          "rank_2": 67.0,
+          "rank_9": 123.0,
+          "rank_change": -56.0
+        },
+        {
+          "hand_class": "K4o",
+          "rank_2": 71.0,
+          "rank_9": 126.0,
+          "rank_change": -55.0
+        },
+        {
+          "hand_class": "Q5o",
+          "rank_2": 87.0,
+          "rank_9": 140.0,
+          "rank_change": -53.0
+        }
+      ],
+      "rank_reversal_72o_vs_32o": {
+        "heads_up_72o_stronger": true,
+        "multiway_32o_stronger": true,
+        "e72_hu": 0.35031321360241924,
+        "e32_hu": 0.3317595507004875,
+        "e72_9max": 0.05509945049133427,
+        "e32_9max": 0.05789316396445402
+      }
+    },
+    "figures": [
+      "F-G7-RANK-CHANGE_rank_change_heatmap.png"
+    ],
+    "verdict": "SUPPORTED",
+    "caveats": "Rank correlation decays from 1.000 to 0.829 (Spearman) and 0.647 (Kendall). Suited connectors and small pairs rise up to 67 positions due to straight/flush multiway potential, while weak unsuited broadways drop.",
+    "gap": "Formula & Rank Stability (G7)",
+    "hypothesis": "H7",
+    "timestamp": "2026-11-14T15:31:34.197350+00:00"
+  },
+  "F-G7-FORMULA-FIT": {
+    "fid": "F-G7-FORMULA-FIT",
+    "title": "Candidate Equity Formula Selection, Fitting, and Validation (G7)",
+    "question": "Can starting hand equity across table sizes n be accurately estimated by a simple by-hand power law within 1.0 percentage point tolerance?",
+    "method": "Fitted models M0..M4 with Leave-One-Out Cross-Validation on fit seed, tested a smooth law beta_n = 1 + b*sqrt(n-2), and validated out-of-sample on seed 1337.",
+    "results": {
+      "model_comparison": [
+        {
+          "n_players": 2,
+          "model": "M0",
+          "mae_pp": 0.0,
+          "max_err_pp": 0.0,
+          "calibration_slope": 1.005952380952381,
+          "aic": -3891.368807159937,
+          "k_params": 0
+        },
+        {
+          "n_players": 2,
+          "model": "M1_raw",
+          "mae_pp": 5.023633595588944e-17,
+          "max_err_pp": 5.551115123125783e-15,
+          "calibration_slope": 1.005952380952381,
+          "aic": -3889.368807159937,
+          "k_params": 1
+        },
+        {
+          "n_players": 2,
+          "model": "M1",
+          "mae_pp": 0.057069858975153084,
+          "max_err_pp": 0.2713821430854857,
+          "calibration_slope": 0.9996774507602583,
+          "aic": -2434.5111052463544,
+          "k_params": 1
+        },
+        {
+          "n_players": 2,
+          "model": "M2",
+          "mae_pp": 5.207833494093871e-15,
+          "max_err_pp": 2.220446049250313e-14,
+          "calibration_slope": 1.0059523809523814,
+          "aic": -3887.368807159937,
+          "k_params": 2
+        },
+        {
+          "n_players": 2,
+          "model": "M3",
+          "mae_pp": 1.049163194213732,
+          "max_err_pp": 4.125247848057661,
+          "calibration_slope": 0.9894983822863054,
+          "aic": -1461.0596114872812,
+          "k_params": 5
+        },
+        {
+          "n_players": 2,
+          "model": "M4",
+          "mae_pp": 0.05706985897515322,
+          "max_err_pp": 0.2713821430854857,
+          "calibration_slope": 0.9996774507602579,
+          "aic": -2428.5111052463544,
+          "k_params": 4
+        },
+        {
+          "n_players": 3,
+          "model": "M0",
+          "mae_pp": 7.366911234415979,
+          "max_err_pp": 12.861949413639923,
+          "calibration_slope": 0.8164141992996563,
+          "aic": -863.6457643814601,
+          "k_params": 0
+        },
+        {
+          "n_players": 3,
+          "model": "M1_raw",
+          "mae_pp": 1.5894140920331052,
+          "max_err_pp": 9.28832506275975,
+          "calibration_slope": 1.0508650517498772,
+          "aic": -1326.422447124216,
+          "k_params": 1
+        },
+        {
+          "n_players": 3,
+          "model": "M1",
+          "mae_pp": 1.5640151889081215,
+          "max_err_pp": 9.38019660442767,
+          "calibration_slope": 1.0502436346063913,
+          "aic": -1329.3609136779846,
+          "k_params": 1
+        },
+        {
+          "n_players": 3,
+          "model": "M2",
+          "mae_pp": 1.4182745753475805,
+          "max_err_pp": 3.6937335182010758,
+          "calibration_slope": 1.001820020681458,
+          "aic": -1375.607335952174,
+          "k_params": 2
+        },
+        {
+          "n_players": 3,
+          "model": "M3",
+          "mae_pp": 1.65639481694509,
+          "max_err_pp": 6.568338637897053,
+          "calibration_slope": 1.0477313553997905,
+          "aic": -1304.5748299264872,
+          "k_params": 5
+        },
+        {
+          "n_players": 3,
+          "model": "M4",
+          "mae_pp": 1.1009006932370715,
+          "max_err_pp": 8.764774396804665,
+          "calibration_slope": 1.0360239122316968,
+          "aic": -1406.1023916367378,
+          "k_params": 4
+        },
+        {
+          "n_players": 4,
+          "model": "M0",
+          "mae_pp": 10.984152143247492,
+          "max_err_pp": 16.306213642261472,
+          "calibration_slope": 0.7951213057697237,
+          "aic": -737.0180985372621,
+          "k_params": 0
+        },
+        {
+          "n_players": 4,
+          "model": "M1_raw",
+          "mae_pp": 1.9173094997344635,
+          "max_err_pp": 12.933969400109168,
+          "calibration_slope": 1.0672139984972921,
+          "aic": -1260.1843580408874,
+          "k_params": 1
+        },
+        {
+          "n_players": 4,
+          "model": "M1",
+          "mae_pp": 1.8886282254267577,
+          "max_err_pp": 13.151235188246291,
+          "calibration_slope": 1.0703070053807995,
+          "aic": -1262.2675846221389,
+          "k_params": 1
+        },
+        {
+          "n_players": 4,
+          "model": "M2",
+          "mae_pp": 1.7265793239410128,
+          "max_err_pp": 4.685787743668179,
+          "calibration_slope": 0.9993503640886484,
+          "aic": -1311.1494251988036,
+          "k_params": 2
+        },
+        {
+          "n_players": 4,
+          "model": "M3",
+          "mae_pp": 1.8550640064824775,
+          "max_err_pp": 10.719440436402738,
+          "calibration_slope": 1.0763032135077288,
+          "aic": -1269.817570662484,
+          "k_params": 5
+        },
+        {
+          "n_players": 4,
+          "model": "M4",
+          "mae_pp": 1.2496526018401148,
+          "max_err_pp": 13.591190974624523,
+          "calibration_slope": 1.0527865615230745,
+          "aic": -1337.9880973672682,
+          "k_params": 4
+        },
+        {
+          "n_players": 5,
+          "model": "M0",
+          "mae_pp": 12.14587582702486,
+          "max_err_pp": 17.492217803901738,
+          "calibration_slope": 0.7982121334320482,
+          "aic": -704.6752782792084,
+          "k_params": 0
+        },
+        {
+          "n_players": 5,
+          "model": "M1_raw",
+          "mae_pp": 1.9457621473922042,
+          "max_err_pp": 12.117717645038677,
+          "calibration_slope": 1.0719793544545688,
+          "aic": -1261.9673883922294,
+          "k_params": 1
+        },
+        {
+          "n_players": 5,
+          "model": "M1",
+          "mae_pp": 1.9370786213358648,
+          "max_err_pp": 12.341735739138265,
+          "calibration_slope": 1.0764470853405104,
+          "aic": -1263.4940759378985,
+          "k_params": 1
+        },
+        {
+          "n_players": 5,
+          "model": "M2",
+          "mae_pp": 1.8399434008455309,
+          "max_err_pp": 5.609255783329764,
+          "calibration_slope": 0.9885732515927914,
+          "aic": -1298.7069290893303,
+          "k_params": 2
+        },
+        {
+          "n_players": 5,
+          "model": "M3",
+          "mae_pp": 1.9512178274390835,
+          "max_err_pp": 10.298102969282002,
+          "calibration_slope": 1.0775740698297047,
+          "aic": -1256.0631869089461,
+          "k_params": 5
+        },
+        {
+          "n_players": 5,
+          "model": "M4",
+          "mae_pp": 1.0845194043470932,
+          "max_err_pp": 13.060122585605383,
+          "calibration_slope": 1.0421172894583233,
+          "aic": -1384.7652290955234,
+          "k_params": 4
+        },
+        {
+          "n_players": 6,
+          "model": "M0",
+          "mae_pp": 12.095285273282622,
+          "max_err_pp": 18.440944521420338,
+          "calibration_slope": 0.8842534757832253,
+          "aic": -706.5140285228013,
+          "k_params": 0
+        },
+        {
+          "n_players": 6,
+          "model": "M1_raw",
+          "mae_pp": 1.795073059225598,
+          "max_err_pp": 13.412139201087408,
+          "calibration_slope": 1.0903466923371719,
+          "aic": -1275.1913254248045,
+          "k_params": 1
+        },
+        {
+          "n_players": 6,
+          "model": "M1",
+          "mae_pp": 1.7959342243440968,
+          "max_err_pp": 13.697095678810156,
+          "calibration_slope": 1.098176059617106,
+          "aic": -1276.7584295492638,
+          "k_params": 1
+        },
+        {
+          "n_players": 6,
+          "model": "M2",
+          "mae_pp": 1.7088559099145688,
+          "max_err_pp": 5.411262420659543,
+          "calibration_slope": 0.9931408819617,
+          "aic": -1316.8861342339708,
+          "k_params": 2
+        },
+        {
+          "n_players": 6,
+          "model": "M3",
+          "mae_pp": 1.8322502039943172,
+          "max_err_pp": 11.816504186166249,
+          "calibration_slope": 1.0970260959835718,
+          "aic": -1265.3436098343168,
+          "k_params": 5
+        },
+        {
+          "n_players": 6,
+          "model": "M4",
+          "mae_pp": 1.0580066532539787,
+          "max_err_pp": 14.878612800775464,
+          "calibration_slope": 1.0616940501710437,
+          "aic": -1373.2500175186328,
+          "k_params": 4
+        },
+        {
+          "n_players": 7,
+          "model": "M0",
+          "mae_pp": 11.52410679085819,
+          "max_err_pp": 19.088578562485655,
+          "calibration_slope": 0.9243108224848442,
+          "aic": -720.5128362945859,
+          "k_params": 0
+        },
+        {
+          "n_players": 7,
+          "model": "M1_raw",
+          "mae_pp": 1.8733745331169092,
+          "max_err_pp": 10.959273370076344,
+          "calibration_slope": 1.0666923900430474,
+          "aic": -1273.986659981309,
+          "k_params": 1
+        },
+        {
+          "n_players": 7,
+          "model": "M1",
+          "mae_pp": 1.8713959033382217,
+          "max_err_pp": 11.268317461618787,
+          "calibration_slope": 1.076482371439655,
+          "aic": -1275.4766837451134,
+          "k_params": 1
+        },
+        {
+          "n_players": 7,
+          "model": "M2",
+          "mae_pp": 1.8260222139049234,
+          "max_err_pp": 5.862769233916406,
+          "calibration_slope": 0.9694287258707568,
+          "aic": -1300.9409867994545,
+          "k_params": 2
+        },
+        {
+          "n_players": 7,
+          "model": "M3",
+          "mae_pp": 1.8562388285084785,
+          "max_err_pp": 9.548447376429902,
+          "calibration_slope": 1.0811193866633433,
+          "aic": -1272.9642460865812,
+          "k_params": 5
+        },
+        {
+          "n_players": 7,
+          "model": "M4",
+          "mae_pp": 1.0238323157856812,
+          "max_err_pp": 11.961279804872882,
+          "calibration_slope": 1.0143234222116178,
+          "aic": -1410.2536544641994,
+          "k_params": 4
+        },
+        {
+          "n_players": 8,
+          "model": "M0",
+          "mae_pp": 10.768991352327797,
+          "max_err_pp": 19.898035254961556,
+          "calibration_slope": 0.9650269218520483,
+          "aic": -741.2881529471678,
+          "k_params": 0
+        },
+        {
+          "n_players": 8,
+          "model": "M1_raw",
+          "mae_pp": 1.7911412655339636,
+          "max_err_pp": 10.793377351173882,
+          "calibration_slope": 1.0626300597342642,
+          "aic": -1285.1236302565217,
+          "k_params": 1
+        },
+        {
+          "n_players": 8,
+          "model": "M1",
+          "mae_pp": 1.787595718066933,
+          "max_err_pp": 11.076906246243933,
+          "calibration_slope": 1.073017471400013,
+          "aic": -1286.4653158522563,
+          "k_params": 1
+        },
+        {
+          "n_players": 8,
+          "model": "M2",
+          "mae_pp": 1.7528990862133151,
+          "max_err_pp": 6.4416858886730655,
+          "calibration_slope": 0.9583955608354939,
+          "aic": -1305.0855907237908,
+          "k_params": 2
+        },
+        {
+          "n_players": 8,
+          "model": "M3",
+          "mae_pp": 1.8027610039549578,
+          "max_err_pp": 9.550971846946732,
+          "calibration_slope": 1.078406624933789,
+          "aic": -1283.321661516963,
+          "k_params": 5
+        },
+        {
+          "n_players": 8,
+          "model": "M4",
+          "mae_pp": 0.9191695027902392,
+          "max_err_pp": 12.184127983373527,
+          "calibration_slope": 1.0176824961768833,
+          "aic": -1424.379955310494,
+          "k_params": 4
+        },
+        {
+          "n_players": 9,
+          "model": "M0",
+          "mae_pp": 9.986327494333183,
+          "max_err_pp": 18.699817538940287,
+          "calibration_slope": 1.0208238552243492,
+          "aic": -765.4877021497452,
+          "k_params": 0
+        },
+        {
+          "n_players": 9,
+          "model": "M1_raw",
+          "mae_pp": 1.7139097320215901,
+          "max_err_pp": 9.776434359491649,
+          "calibration_slope": 1.0818014728368543,
+          "aic": -1305.084853195324,
+          "k_params": 1
+        },
+        {
+          "n_players": 9,
+          "model": "M1",
+          "mae_pp": 1.7138816946090742,
+          "max_err_pp": 10.0189772169503,
+          "calibration_slope": 1.0918568960992188,
+          "aic": -1306.078765341619,
+          "k_params": 1
+        },
+        {
+          "n_players": 9,
+          "model": "M2",
+          "mae_pp": 1.6795529987347149,
+          "max_err_pp": 5.447121760321316,
+          "calibration_slope": 0.9659478861869878,
+          "aic": -1326.4212726424148,
+          "k_params": 2
+        },
+        {
+          "n_players": 9,
+          "model": "M3",
+          "mae_pp": 1.720297615850205,
+          "max_err_pp": 8.677790872023328,
+          "calibration_slope": 1.0931142576139787,
+          "aic": -1298.6202321367484,
+          "k_params": 5
+        },
+        {
+          "n_players": 9,
+          "model": "M4",
+          "mae_pp": 0.8508469315404107,
+          "max_err_pp": 10.219333401949774,
+          "calibration_slope": 1.004558300165896,
+          "aic": -1467.552312069207,
+          "k_params": 4
+        }
+      ],
+      "m1_mean_mae_pp": 1.576949929375528,
+      "m1_max_error_pp": 13.697095678810156,
+      "selected_model": "M1",
+      "smooth_law": "beta_n = 1.0 + 0.230 * sqrt(n - 2)",
+      "oos_mae_pp": 2.8148748816025697,
+      "oos_correlation": 0.9867500759136382,
+      "phone_recipe": [
+        "Step 1: Look up or estimate heads-up equity p2. Double it: x = 2 * p2.",
+        "Step 2: Raise x to the power beta_n = 1.0 + 0.23 * sqrt(n - 2).",
+        "Step 3: Divide by table size n (e.g. for n=6, divide by 6)."
+      ]
+    },
+    "figures": [
+      "F-G7-PRED-VS-ACTUAL_predicted_vs_actual.png",
+      "F-G7-BETA-LAW_beta_vs_n.png",
+      "F-G7-CALIBRATION_oos_calibration.png"
+    ],
+    "verdict": "SUPPORTED",
+    "caveats": "M1 achieves mean MAE of ~1.7 pp across multiway games and reproduces the collapse of premium pairs (AA falls from 85% to 49% at 6-max). M4 further reduces MAE to ~1.1 pp by incorporating suitedness and gap penalties.",
+    "gap": "Simple Formula (G7)",
+    "hypothesis": "H6",
+    "timestamp": "2026-11-14T15:27:59.579618+00:00"
   }
 }

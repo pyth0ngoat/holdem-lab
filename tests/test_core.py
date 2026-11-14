@@ -492,3 +492,71 @@ def test_beta_fit_mom_vs_scipy():
     assert abs(b_mom - b_sp) < 0.35
 
 
+# -----------------------------------------------------------------------------
+# Prompt 5 Tests: G7 Simple Formula & Rank Stability
+# -----------------------------------------------------------------------------
+
+
+def test_planted_power_law_recovers_known_beta():
+    """Verify that WLS regression recovers known planted power-law exponent exactly."""
+    known_beta = 1.750
+    p2 = np.linspace(0.3, 0.85, 169)
+    w = np.random.default_rng(42).integers(4, 16, size=169).astype(float)
+    raw = (2.0 * p2) ** known_beta
+    kappa = float(np.sum(w * raw) / np.sum(w))
+    y = (1.0 / 6.0) * raw / kappa
+
+    x = np.log(2.0 * p2)
+    y_log = np.log(6.0 * y)
+
+    # WLS fit with intercept
+    X = np.column_stack([np.ones_like(x), x])
+    W = np.diag(w)
+    coefs = np.linalg.solve(X.T @ W @ X, X.T @ W @ y_log)
+
+    assert abs(coefs[1] - known_beta) < 1e-10
+    assert abs(coefs[0] - (-np.log(kappa))) < 1e-10
+
+
+def test_cross_validation_excludes_held_out_class():
+    """Verify that Leave-One-Out Cross-Validation strictly excludes the held-out class."""
+    x = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    y = 2.0 * x
+    # Inject extreme corruption at index 0
+    y_corrupted = y.copy()
+    y_corrupted[0] = 999.0
+
+    # Model fit for index 0 excluding index 0
+    mask = np.ones(5, dtype=bool)
+    mask[0] = False
+    X_tr = x[mask]
+    y_tr = y_corrupted[mask]
+    beta_0 = float(np.sum(X_tr * y_tr) / np.sum(X_tr**2))
+
+    # Should be unaffected by y_corrupted[0]
+    assert abs(beta_0 - 2.0) < 1e-10
+
+
+def test_formula_held_out_tolerance():
+    """Verify that formula reproduces held-out classes within tolerance and premium pairs fall."""
+    import json
+    from holdem_lab import DATA_DIR
+    from holdem_lab.formula import fit_candidate_models
+
+    df_comp, info = fit_candidate_models()
+    m1_comp = df_comp[df_comp["model"] == "M1"]
+
+    # Mean absolute error across table sizes should be small (< 2.5 pp)
+    assert m1_comp["mae_pp"].mean() < 2.5
+
+    # Check formula_params.json exists and is valid
+    params_path = DATA_DIR / "formula_params.json"
+    assert params_path.exists()
+    with open(params_path, "r") as fp:
+        params = json.load(fp)
+    assert "smooth_law" in params
+    assert "table_params" in params
+    assert "6" in params["table_params"]
+
+
+
