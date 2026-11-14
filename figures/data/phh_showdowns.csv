@@ -1,0 +1,660 @@
+hand_id,venue,min_bet,seats_dealt,players_showdown,winning_cat,winning_cat_name,winning_score,is_split,board
+3017254774,Absolute Poker,10.0,6,2,1,One Pair,802460,True,Kc7s4h6s9d
+3017265406,Absolute Poker,10.0,6,1,3,Three of a Kind,2280759,False,3cQhKdKh2s
+3017252372,Absolute Poker,10.0,2,1,2,Two Pair,1520857,False,5c7c7s9dJh
+3017255090,Absolute Poker,10.0,2,2,2,Two Pair,1520907,False,4sTcJhQcAd
+3017258354,Absolute Poker,10.0,2,2,2,Two Pair,1521618,True,KcKhAh5c4h
+3017259596,Absolute Poker,10.0,2,2,0,High Card,647002,False,4sAc9sKh8s
+3017264696,Absolute Poker,10.0,2,1,2,Two Pair,1520187,False,7h8cAh3s8s
+3017277764,Absolute Poker,10.0,6,2,1,One Pair,802508,False,As6cThQh4s
+3017278088,Absolute Poker,10.0,2,2,3,Three of a Kind,2280115,False,Ts6hTd9hAs
+3017267636,Absolute Poker,10.0,2,2,5,Flush,4389361,True,Th6hKhQh3h
+3017268900,Absolute Poker,10.0,2,2,2,Two Pair,1521365,False,5s2d7cJcKd
+3017273016,Absolute Poker,10.0,2,2,1,One Pair,772372,False,9h5c4s3cAh
+3017275144,Absolute Poker,10.0,2,2,1,One Pair,798652,False,9c2sJsKd4h
+3017281498,Absolute Poker,10.0,2,2,1,One Pair,785859,False,9d7hAd9s3h
+3017283060,Absolute Poker,10.0,2,1,4,Straight,3037507,False,7cJs8s9h5s
+3017286762,Absolute Poker,10.0,2,2,1,One Pair,785599,False,2s6cKhTs4s
+3017290570,Absolute Poker,10.0,2,2,2,Two Pair,1520659,False,6sTd9s2sTh
+3017292604,Absolute Poker,10.0,2,2,5,Flush,4281137,False,TsJsJh6s4s
+3017292650,Absolute Poker,10.0,5,2,2,Two Pair,1521581,True,TsAcThJdAs
+3017293870,Absolute Poker,10.0,2,2,1,One Pair,768004,False,7s4c3h2cTh
+3017295218,Absolute Poker,10.0,2,2,3,Three of a Kind,2279102,False,6h7h6c3c2c
+3017296030,Absolute Poker,10.0,2,1,1,One Pair,799357,False,Qs5s7dKsAc
+3017298996,Absolute Poker,10.0,2,2,4,Straight,3037511,False,Qd3hTcKc7s
+3017301790,Absolute Poker,10.0,2,1,1,One Pair,789186,False,4h8d9dTcAs
+3017303546,Absolute Poker,10.0,6,1,1,One Pair,792560,False,9sJd3c5c7d
+3017304110,Absolute Poker,10.0,2,1,1,One Pair,788027,False,7s4s9dTc2d
+3017299140,Absolute Poker,10.0,2,2,1,One Pair,792625,False,Jd5cAcKh3d
+3017305500,Absolute Poker,10.0,2,1,1,One Pair,802444,False,8s2sAsKc6h
+3017301678,Absolute Poker,10.0,2,2,2,Two Pair,1520186,False,7cThKd8c7s
+3017307258,Absolute Poker,10.0,2,2,1,One Pair,795741,False,Jc4d8dQdKc
+3017308622,Absolute Poker,10.0,2,1,1,One Pair,795003,False,Qs5dTh2c3s
+3017305584,Absolute Poker,10.0,5,2,2,Two Pair,1520869,False,6d6c2cJcJh
+3017311424,Absolute Poker,10.0,6,2,1,One Pair,802509,False,QcKsAd3c7h
+3017306232,Absolute Poker,10.0,2,1,2,Two Pair,1519898,False,3d5s7h9h3c
+3017307092,Absolute Poker,10.0,2,2,2,Two Pair,1521234,False,Kc2hJd8hKs
+3017313254,Absolute Poker,10.0,2,2,2,Two Pair,1521252,True,KsAs2s3hKc
+3017314376,Absolute Poker,10.0,2,2,1,One Pair,775718,False,Jd6d6s3c2c
+3017311634,Absolute Poker,10.0,6,1,3,Three of a Kind,2278539,False,6s3hAh9sJc
+3017321014,Absolute Poker,10.0,6,1,5,Flush,4435938,False,Ah8h7s6s5s
+3017317972,Absolute Poker,10.0,6,2,1,One Pair,775746,False,8hAhKh6c3d
+3017314432,Absolute Poker,10.0,2,2,2,Two Pair,1521237,False,8sKhQhAhKd
+3017318462,Absolute Poker,10.0,2,1,2,Two Pair,1519464,False,8s5s2s4cJc
+3017323350,Absolute Poker,10.0,6,1,2,Two Pair,1520652,False,Tc8c8sJs7c
+3017321254,Absolute Poker,10.0,2,2,1,One Pair,778883,False,ThKh6hQs2s
+3017322106,Absolute Poker,10.0,2,1,2,Two Pair,1520907,False,Td5cJdTcJh
+3017322898,Absolute Poker,10.0,2,2,2,Two Pair,1520185,False,7c8dQd7dTh
+3017338230,Absolute Poker,10.0,6,2,2,Two Pair,1520652,False,2dTd4c8sAc
+3017330348,Absolute Poker,10.0,6,2,1,One Pair,785875,False,4h8sKsQc9c
+3017329726,Absolute Poker,10.0,2,1,1,One Pair,792383,False,7sKcJc5dQc
+3017331626,Absolute Poker,10.0,2,2,1,One Pair,775750,False,8h6hAdJdQh
+3017338326,Absolute Poker,10.0,6,1,1,One Pair,772374,False,Js5c2dKh4s
+3017334396,Absolute Poker,10.0,2,1,0,High Card,646761,False,9h2cJsAh5s
+3017340294,Absolute Poker,10.0,6,2,4,Straight,3037507,False,6d7cJc5d9c
+3017344748,Absolute Poker,10.0,5,1,5,Flush,4172686,False,Ks6h8h9h7h
+3017344906,Absolute Poker,10.0,6,2,3,Three of a Kind,2280516,False,6sQc8h4cQh
+3017337522,Absolute Poker,10.0,2,1,2,Two Pair,1520134,False,3c6h8c4s4h
+3017339190,Absolute Poker,10.0,2,1,0,High Card,592776,False,Jd8s7dQs5h
+3017345328,Absolute Poker,10.0,2,2,1,One Pair,771650,False,JsTd3s7h4s
+3017346802,Absolute Poker,10.0,2,1,1,One Pair,778852,False,7h9c8sKh5h
+3017348832,Absolute Poker,10.0,2,2,1,One Pair,788929,False,4sKcTh5c7d
+3017351952,Absolute Poker,10.0,2,1,1,One Pair,771647,False,5d4dJsTh2d
+3017353094,Absolute Poker,10.0,2,1,1,One Pair,765368,False,3s9cJc8hTd
+3017366872,Absolute Poker,10.0,6,2,0,High Card,646536,False,5hTdAd9d6h
+3017391650,Absolute Poker,10.0,6,2,2,Two Pair,1521532,False,5c7h7cAs6s
+3017369300,Absolute Poker,10.0,2,2,1,One Pair,789006,False,Qd4dTc3hKd
+3017398732,Absolute Poker,10.0,5,1,4,Straight,3037512,False,AcTcKdQd8c
+3017384408,Absolute Poker,10.0,6,1,2,Two Pair,1520104,False,6d2s8c2h3d
+3017372700,Absolute Poker,10.0,2,1,1,One Pair,775507,False,4d9sQhKh6d
+3017375006,Absolute Poker,10.0,2,1,2,Two Pair,1519437,False,9h2h5cAs2d
+3017404526,Absolute Poker,10.0,5,1,5,Flush,4440017,False,QcTc7hAc4c
+3017377180,Absolute Poker,10.0,2,1,1,One Pair,785874,False,9cKs4h6d9d
+3017378356,Absolute Poker,10.0,2,1,1,One Pair,768983,False,Ad4d5c2hQh
+3017379344,Absolute Poker,10.0,2,2,1,One Pair,765624,False,Jh5s6c3dAd
+3017393036,Absolute Poker,10.0,6,2,2,Two Pair,1521147,True,JsQhJdQcAd
+3017397922,Absolute Poker,10.0,6,1,2,Two Pair,1521486,False,4c3d4s8h2c
+3017385432,Absolute Poker,10.0,2,1,1,One Pair,785634,False,Jd9c6s5hQh
+3017420742,Absolute Poker,10.0,6,2,2,Two Pair,1520112,True,2d8c8d2s5d
+3017388206,Absolute Poker,10.0,2,2,2,Two Pair,1519881,False,7c4c2h3h2d
+3017389414,Absolute Poker,10.0,2,2,2,Two Pair,1520622,False,ThTc8h9d6s
+3017423260,Absolute Poker,10.0,6,1,1,One Pair,771636,False,9c5hJc7s8d
+3017405410,Absolute Poker,10.0,6,1,5,Flush,4425540,False,2c8cAsAc3c
+3017406500,Absolute Poker,10.0,5,1,5,Flush,4382176,False,Kd3d8h8dKc
+3017409458,Absolute Poker,10.0,6,2,5,Flush,4432562,True,7s6s4sTsAs
+3017399320,Absolute Poker,10.0,2,1,1,One Pair,801303,False,3c7c4s8hAc
+3017401560,Absolute Poker,10.0,2,2,1,One Pair,802236,False,2d9sAh6c8h
+3017402912,Absolute Poker,10.0,2,2,1,One Pair,775750,False,Qd2d6dKhAc
+3017418628,Absolute Poker,10.0,6,2,2,Two Pair,1519900,False,7c6cQs8s7d
+3017405262,Absolute Poker,10.0,2,1,3,Three of a Kind,2278316,False,AdKdTd5c2c
+3017407288,Absolute Poker,10.0,2,2,1,One Pair,792608,False,QcTdJdJc3c
+3017409916,Absolute Poker,10.0,2,1,1,One Pair,782209,False,5c8c6s3h9c
+3017412370,Absolute Poker,10.0,2,1,1,One Pair,795997,False,AdKd5s6h9c
+3017431640,Absolute Poker,10.0,6,2,2,Two Pair,1521579,True,Th2sTcJh7s
+3017414708,Absolute Poker,10.0,2,2,1,One Pair,802008,False,5d3d9cAsJd
+3017415798,Absolute Poker,10.0,2,1,1,One Pair,765366,False,3d3sJh2c8h
+3017457136,Absolute Poker,10.0,6,2,1,One Pair,795742,False,9cQsJs2h7c
+3017418524,Absolute Poker,10.0,2,2,1,One Pair,785875,False,9cQc9sJs7h
+3017435022,Absolute Poker,10.0,6,1,4,Straight,3037512,False,TcQdAc4hKh
+3017437900,Absolute Poker,10.0,6,2,2,Two Pair,1521461,True,2d7c2sAc5h
+3017462464,Absolute Poker,10.0,6,1,1,One Pair,775509,False,Kh6cJcTh4c
+3017441230,Absolute Poker,10.0,6,2,2,Two Pair,1521037,False,Qc2d3cQh9s
+3017424692,Absolute Poker,10.0,2,2,2,Two Pair,1519705,False,Qd3c6h9c5s
+3017445800,Absolute Poker,10.0,6,2,2,Two Pair,1521235,False,Qc2h4h2s9s
+3017427178,Absolute Poker,10.0,2,2,5,Flush,4378530,False,4s7sKs2c2s
+3017469100,Absolute Poker,10.0,6,2,1,One Pair,802268,False,JhTd5hAdQh
+3017448270,Absolute Poker,10.0,6,2,3,Three of a Kind,2280341,True,JhAs2dQcJc
+3017474988,Absolute Poker,10.0,6,1,2,Two Pair,1521324,False,KdTsJs4sKh
+3017457972,Absolute Poker,10.0,6,1,1,One Pair,801770,False,7dAsTd6c8s
+3017483764,Absolute Poker,10.0,6,1,1,One Pair,802505,False,Qs2sAhKs7c
+3017485852,Absolute Poker,10.0,6,2,3,Three of a Kind,2278985,False,3d5d7s5c6c
+3017469148,Absolute Poker,10.0,6,1,1,One Pair,801786,False,TsAs3d4h8d
+3017451448,Absolute Poker,10.0,2,1,1,One Pair,782243,False,3h8dTsKs7s
+3017456436,Absolute Poker,10.0,2,1,4,Straight,3037510,False,9h8s7dQc4h
+3017504602,Absolute Poker,10.0,5,1,2,Two Pair,1520787,False,KcJd8s2h2c
+3017465798,Absolute Poker,10.0,2,2,1,One Pair,768998,False,TdAh8h4s2d
+3017472504,Absolute Poker,10.0,2,2,2,Two Pair,1520408,False,9c3d3hTd7d
+3017477198,Absolute Poker,10.0,2,2,2,Two Pair,1521354,False,KdTd4d3hTh
+3017479466,Absolute Poker,10.0,2,1,2,Two Pair,1521551,False,8cAdJdAsKh
+3017484076,Absolute Poker,10.0,2,2,5,Flush,4334865,False,3d8cJcQc3c
+3017486608,Absolute Poker,10.0,2,1,2,Two Pair,1521566,False,2dAs9hTsKc
+3017492196,Absolute Poker,10.0,6,1,1,One Pair,792383,False,Js5cTsQd2c
+3017502948,Absolute Poker,10.0,5,1,6,Full House,4556373,False,5dTd3dTc5c
+3017516262,Absolute Poker,10.0,5,1,1,One Pair,768996,False,4d5s4c3s8d
+3017525068,Absolute Poker,10.0,5,2,1,One Pair,778639,False,JcQc7c6d3d
+3017527074,Absolute Poker,10.0,5,2,1,One Pair,802505,False,4d7hAd2hAc
+3017526338,Absolute Poker,10.0,4,1,6,Full House,4556302,False,6d9s5s5c9c
+3017530244,Absolute Poker,10.0,5,2,2,Two Pair,1521620,False,Kh7h6d2hAh
+3017527742,Absolute Poker,10.0,4,1,6,Full House,4556274,False,3hJdJs2c3c
+3017536382,Absolute Poker,10.0,4,2,2,Two Pair,1520796,False,5c3sJc6h3c
+3017549478,Absolute Poker,10.0,4,1,3,Three of a Kind,2280116,False,6d5sTdTsAs
+3017571690,Absolute Poker,10.0,6,1,1,One Pair,788945,False,8hTc3s7c6s
+3017577064,Absolute Poker,10.0,6,1,2,Two Pair,1520645,False,Tc8dTs4s7d
+3017588786,Absolute Poker,10.0,2,1,1,One Pair,762009,False,KdQh8sJh2c
+3017592088,Absolute Poker,10.0,2,2,2,Two Pair,1520635,False,7s6hTd7d6d
+3017589582,Absolute Poker,10.0,2,1,1,One Pair,802506,False,Ad2c5s8dKh
+3017593944,Absolute Poker,10.0,2,1,1,One Pair,792126,False,QdJh8d3s4d
+3017606584,Absolute Poker,10.0,6,1,2,Two Pair,1519914,False,7c8s7s3h4d
+3017615590,Absolute Poker,10.0,5,1,3,Three of a Kind,2279886,False,Ac2s7h8c9c
+3017618008,Absolute Poker,10.0,6,1,6,Full House,4556295,False,8s2s2h5cJd
+3017611538,Absolute Poker,10.0,2,1,4,Straight,3037507,False,7d9h3s7h6d
+3017623266,Absolute Poker,10.0,2,2,2,Two Pair,1521132,False,AcQs9d4sQh
+3017634482,Absolute Poker,10.0,6,2,1,One Pair,789234,False,Qc4hAhTs9d
+3017629362,Absolute Poker,10.0,2,1,2,Two Pair,1521340,False,Qh2d9hKh3h
+3017631610,Absolute Poker,10.0,2,2,1,One Pair,789232,False,Qc7d2d9cTd
+3017635950,Absolute Poker,10.0,2,1,1,One Pair,775508,False,KdQd6hTs5h
+3017637534,Absolute Poker,10.0,2,1,1,One Pair,785328,False,9d3d5h2c7s
+3017646214,Absolute Poker,10.0,6,2,2,Two Pair,1521560,False,9s7h3d5h9d
+3017647720,Absolute Poker,10.0,5,2,2,Two Pair,1521355,False,QcKc5cJdTs
+3024373098,Absolute Poker,10.0,6,1,1,One Pair,772102,False,Kc5d7c9s4s
+3024374680,Absolute Poker,10.0,6,1,2,Two Pair,1521334,False,2d6d9h5hKc
+3024375220,Absolute Poker,10.0,6,1,6,Full House,4556405,False,Qh7d7sAsQs
+3024381614,Absolute Poker,10.0,6,2,2,Two Pair,1521625,True,KcJdQhAhAd
+3024387730,Absolute Poker,10.0,6,2,5,Flush,4433043,False,Kc9d8dTd4d
+3024396730,Absolute Poker,10.0,5,2,2,Two Pair,1521304,False,6s2dKcKd4c
+3024426410,Absolute Poker,10.0,6,2,1,One Pair,802503,False,2dKs5dQh3h
+3024435402,Absolute Poker,10.0,6,2,1,One Pair,799358,False,ThKs2cAh5d
+3024440518,Absolute Poker,10.0,6,1,1,One Pair,765625,False,3hQd7s6hAs
+3024453552,Absolute Poker,10.0,4,1,2,Two Pair,1521339,False,KsJc8sKh3c
+3024463586,Absolute Poker,10.0,5,2,5,Flush,4386034,False,KhJcJh6hTd
+3024466526,Absolute Poker,10.0,5,1,2,Two Pair,1521461,False,2hKsTsAd7c
+3024474514,Absolute Poker,10.0,6,2,2,Two Pair,1521550,False,8s8h2h9dAc
+3024486446,Absolute Poker,10.0,6,2,1,One Pair,799327,False,Ts9cKdKh2s
+3024487864,Absolute Poker,10.0,6,2,0,High Card,646520,True,Th4s7h8d5d
+3024496578,Absolute Poker,10.0,5,1,5,Flush,4443781,False,Qc3hQhKhTs
+3024504838,Absolute Poker,10.0,6,1,1,One Pair,795741,False,4hQc8s5dJd
+3024505648,Absolute Poker,10.0,6,1,5,Flush,4443765,False,2hQh3h2sKh
+3024511334,Absolute Poker,10.0,6,2,1,One Pair,802250,False,Qh7cAh6hTd
+3024518276,Absolute Poker,10.0,6,2,5,Flush,4331715,False,Ks9c2c3cTc
+3024534940,Absolute Poker,10.0,5,2,4,Straight,3037503,True,3c4s2d5dAd
+3024536340,Absolute Poker,10.0,5,2,6,Full House,4556331,False,Ts7d8h7h8c
+3024545190,Absolute Poker,10.0,5,1,1,One Pair,792381,False,Jd2cQcKh8s
+3024547332,Absolute Poker,10.0,6,2,1,One Pair,785120,False,4hJs2s7d8h
+3024551938,Absolute Poker,10.0,6,1,1,One Pair,802476,False,Ts4d8s6cAh
+3024552512,Absolute Poker,10.0,6,2,2,Two Pair,1520876,False,Kh8c2dJd6h
+3024562654,Absolute Poker,10.0,3,2,1,One Pair,799325,False,KsAc5h2h7s
+3024642560,Absolute Poker,10.0,2,1,5,Flush,4118206,False,4d8d3d5d4s
+3024644204,Absolute Poker,10.0,6,2,1,One Pair,799359,False,KhJd5sAs4h
+3024644724,Absolute Poker,10.0,2,2,4,Straight,3037505,False,4c7c2h5cQc
+3024645914,Absolute Poker,10.0,6,1,5,Flush,4389393,False,5h6s8hQh2c
+3024647612,Absolute Poker,10.0,2,2,5,Flush,4388928,False,Kd5dQd7c8c
+3024648774,Absolute Poker,10.0,6,1,2,Two Pair,1521279,False,6s3c5hJh5d
+3024652596,Absolute Poker,10.0,6,1,2,Two Pair,1520620,False,6c5h2h6hQc
+3024656958,Absolute Poker,10.0,5,1,1,One Pair,788767,False,2hJs9c5sQh
+3024657254,Absolute Poker,10.0,6,2,2,Two Pair,1518987,False,3s3dAd5sQh
+3024659610,Absolute Poker,10.0,6,1,2,Two Pair,1521019,False,3h2c6d3c2s
+3024662804,Absolute Poker,10.0,6,2,4,Straight,3037511,False,TdJs8sQh9c
+3024665454,Absolute Poker,10.0,6,1,1,One Pair,785149,False,Td2d5s9d6c
+3024687108,Absolute Poker,10.0,5,1,2,Two Pair,1521335,False,7c3h4d9hKs
+3024689982,Absolute Poker,10.0,5,2,4,Straight,3037509,False,Tc2h7dJc4d
+3024690556,Absolute Poker,10.0,5,2,2,Two Pair,1521566,False,QsKhAs8h9h
+3024707982,Absolute Poker,10.0,5,1,4,Straight,3037512,False,5sThJdTcKh
+3024718800,Absolute Poker,10.0,6,1,1,One Pair,762004,False,Qs6s2h3s4c
+3024733266,Absolute Poker,10.0,6,2,1,One Pair,802509,False,KsQs5dJhAh
+3024724840,Absolute Poker,10.0,6,3,2,Two Pair,1520375,False,2h6d5c5d9s
+3024732522,Absolute Poker,10.0,5,1,6,Full House,4556335,False,7cQc6c7sAd
+3024732784,Absolute Poker,10.0,6,1,1,One Pair,802268,False,Th3d5cQcJh
+3024737420,Absolute Poker,10.0,6,2,5,Flush,4118206,False,3c8c6s5c4c
+3024744156,Absolute Poker,10.0,5,2,3,Three of a Kind,2280115,False,5sTcTs6sAs
+3024745896,Absolute Poker,10.0,6,2,1,One Pair,802490,False,3cJhKc7d2d
+3024751318,Absolute Poker,10.0,5,1,6,Full House,4556316,False,6s8d4h8s6d
+3024757194,Absolute Poker,10.0,5,2,1,One Pair,802187,False,6cAc4s2h3d
+3024758488,Absolute Poker,10.0,5,2,1,One Pair,802267,True,3h8sAhJc9d
+3024762088,Absolute Poker,10.0,5,1,1,One Pair,798633,False,5h9d2h3dJc
+3024774588,Absolute Poker,10.0,5,2,2,Two Pair,1520590,False,4s4dQd5sTc
+3024774770,Absolute Poker,10.0,5,2,5,Flush,4433025,False,2d9dAd7dJs
+3024776870,Absolute Poker,10.0,2,2,2,Two Pair,1521308,False,Kc2c8c7sKs
+3024779710,Absolute Poker,10.0,5,1,2,Two Pair,1521143,False,7s3sQdQhTc
+3024780132,Absolute Poker,10.0,2,2,3,Three of a Kind,2280340,False,JhJsQh6dTh
+3024779662,Absolute Poker,10.0,5,1,2,Two Pair,1521129,False,4d4sTcTdQh
+3024781074,Absolute Poker,10.0,5,2,2,Two Pair,1520905,False,9hQd2sJhJc
+3024782548,Absolute Poker,10.0,6,1,5,Flush,4443813,False,6sKsQs5sAd
+3024786024,Absolute Poker,10.0,6,1,6,Full House,4556424,False,9hJdAcJsKh
+3024787700,Absolute Poker,10.0,2,1,2,Two Pair,1520408,False,3s5sTc7s7c
+3024788588,Absolute Poker,10.0,2,2,0,High Card,484054,False,8sTh4d7d2c
+3024788936,Absolute Poker,10.0,2,2,5,Flush,4429186,False,Ah3h6s9hJc
+3024792900,Absolute Poker,10.0,2,1,1,One Pair,785390,False,7c2h5sJcQd
+3024793464,Absolute Poker,10.0,2,2,2,Two Pair,1520140,False,5h8s4d4sQc
+3024793490,Absolute Poker,10.0,6,2,2,Two Pair,1521340,True,KcKh9c9dQs
+3024794778,Absolute Poker,10.0,2,2,1,One Pair,798651,True,8h6sTsJhKs
+3024795832,Absolute Poker,10.0,6,1,1,One Pair,785600,False,4h6d7sThKh
+3024797732,Absolute Poker,10.0,2,1,4,Straight,3037508,False,8sTd7h5c6s
+3024800762,Absolute Poker,10.0,2,2,1,One Pair,799358,False,KhQh6dAs7h
+3024802830,Absolute Poker,10.0,2,1,2,Two Pair,1521488,False,4d3cAd4h9h
+3024803372,Absolute Poker,10.0,2,2,1,One Pair,779122,False,7cAh2c6hKc
+3024806334,Absolute Poker,10.0,2,1,4,Straight,3037503,False,3cQd5h4sTd
+3024810534,Absolute Poker,10.0,2,2,5,Flush,4334655,False,3hQd4s7dJd
+3024815056,Absolute Poker,10.0,2,1,5,Flush,4226656,False,Tc3c4cTh9c
+3024820558,Absolute Poker,10.0,6,2,0,High Card,592727,False,Qc7s2d4c3d
+3024822742,Absolute Poker,10.0,4,2,4,Straight,3037511,False,QsJhTd9d7c
+3024823416,Absolute Poker,10.0,2,1,2,Two Pair,1518984,False,2h9s3d3c5s
+3024826220,Absolute Poker,10.0,2,1,1,One Pair,795693,False,3sQd8h2hKh
+3024826746,Absolute Poker,10.0,2,1,1,One Pair,792544,False,Jc8hAd2cJd
+3024826566,Absolute Poker,10.0,5,2,0,High Card,643384,False,Qs9h6s2hJs
+3024827914,Absolute Poker,10.0,2,1,2,Two Pair,1521611,False,QhAsKs2s8d
+3024830990,Absolute Poker,10.0,2,1,2,Two Pair,1520409,False,JsTs6h9c7h
+3024831830,Absolute Poker,10.0,2,2,6,Full House,4556415,True,2sKs2cKcTs
+3024833838,Absolute Poker,10.0,2,1,3,Three of a Kind,2278524,False,3s3dKh3c9d
+3024835412,Absolute Poker,10.0,2,2,0,High Card,592729,True,5dQs3dJc6s
+3024836792,Absolute Poker,10.0,2,1,4,Straight,3037505,False,5h4s3d2h7c
+3024840222,Absolute Poker,10.0,2,1,1,One Pair,802265,False,4h7hJhAd5h
+3024839924,Absolute Poker,10.0,6,2,2,Two Pair,1520409,False,4s9h3d9c7c
+3024840566,Absolute Poker,10.0,6,3,2,Two Pair,1520142,False,2s8c8d4dAh
+3024841722,Absolute Poker,10.0,2,1,1,One Pair,778642,False,7c9h6sQs7s
+3024843718,Absolute Poker,10.0,2,1,0,High Card,647002,False,KsAhTs4s9d
+3024845554,Absolute Poker,10.0,2,1,2,Two Pair,1521357,False,2cKc6dAdTs
+3024847120,Absolute Poker,10.0,6,2,0,High Card,643399,False,6sTh3sQh5d
+3024847968,Absolute Poker,10.0,2,2,1,One Pair,782500,False,8sJsKc8d7h
+3024847902,Absolute Poker,10.0,5,2,1,One Pair,802010,False,3s2cAc7d9s
+3024848106,Absolute Poker,10.0,5,2,2,Two Pair,1521623,False,4hTh5dKsKc
+3024848616,Absolute Poker,10.0,2,1,1,One Pair,765576,False,7dTh3c3d2c
+3024853460,Absolute Poker,10.0,2,2,1,One Pair,775718,False,6d4hJdTh6c
+3024853522,Absolute Poker,10.0,5,2,3,Three of a Kind,2280340,True,JcJh3hQdAh
+3024854152,Absolute Poker,10.0,2,2,2,Two Pair,1521038,False,6d4sTc7sQs
+3024855422,Absolute Poker,10.0,2,1,2,Two Pair,1519947,False,7s9hAc3s6s
+3024855126,Absolute Poker,10.0,4,2,2,Two Pair,1521357,False,ThTc7sKd8d
+3024856496,Absolute Poker,10.0,5,2,2,Two Pair,1521354,False,KcKsTs7hJc
+3024858930,Absolute Poker,10.0,2,1,1,One Pair,798876,False,Ts6cKhQc8h
+3024859574,Absolute Poker,10.0,4,2,3,Three of a Kind,2279663,False,Ah7hTs8d8h
+3024860694,Absolute Poker,10.0,2,1,1,One Pair,792380,False,Qc7c4s2cJd
+3024861182,Absolute Poker,10.0,6,1,2,Two Pair,1520167,False,4s7h6c9c8c
+3024862338,Absolute Poker,10.0,2,1,3,Three of a Kind,2279167,False,6h3h9d8hJd
+3024863584,Absolute Poker,10.0,2,2,1,One Pair,799327,False,Tc9dKhKs2d
+3024863530,Absolute Poker,10.0,6,2,4,Straight,3037503,False,5h8s3d2d9s
+3024864512,Absolute Poker,10.0,2,1,4,Straight,3037506,False,6h7cQs8d2h
+3024865262,Absolute Poker,10.0,2,1,3,Three of a Kind,2280112,False,ThTd8c5h9s
+3024864782,Absolute Poker,10.0,6,1,5,Flush,4371315,False,Tc7d2d4cKd
+3024866486,Absolute Poker,10.0,6,1,1,One Pair,788510,False,5d3h7s9hTc
+3024867124,Absolute Poker,10.0,2,2,1,One Pair,765319,False,3d8d6s3c4c
+3024868166,Absolute Poker,10.0,2,2,1,One Pair,795711,False,Kh2c8c3d9c
+3024869278,Absolute Poker,10.0,2,1,4,Straight,3037511,False,Kh9d8hQhJd
+3024870722,Absolute Poker,10.0,2,1,2,Two Pair,1521460,False,2sQhTcAdJs
+3024870470,Absolute Poker,10.0,5,1,1,One Pair,798877,False,Ts2sQdKd7s
+3024871538,Absolute Poker,10.0,5,2,4,Straight,3037507,False,5h4d7h8s8d
+3024873730,Absolute Poker,10.0,2,1,3,Three of a Kind,2280740,False,5s7cKsKd2h
+3024873766,Absolute Poker,10.0,2,2,2,Two Pair,1521117,False,Qh4s3h9s9c
+3024875680,Absolute Poker,10.0,4,1,5,Flush,4443377,False,2sAd4h7hKh
+3024877204,Absolute Poker,10.0,2,1,2,Two Pair,1520404,False,9s6h7h9d7c
+3024877694,Absolute Poker,10.0,2,2,2,Two Pair,1518986,False,2s2d3d3cJc
+3024879220,Absolute Poker,10.0,6,2,4,Straight,3037508,False,8sQhTd9d6s
+3024880742,Absolute Poker,10.0,2,1,1,One Pair,779061,False,7d9cAd6s3c
+3024882914,Absolute Poker,10.0,2,2,2,Two Pair,1521486,False,Ad5sAs7h4s
+3024883514,Absolute Poker,10.0,2,2,1,One Pair,761510,False,9d5dJd2s7h
+3024883672,Absolute Poker,10.0,6,2,1,One Pair,785615,False,3hJhKd7d2h
+3024884758,Absolute Poker,10.0,2,2,1,One Pair,778638,False,4c2d7s5sJs
+3024887426,Absolute Poker,10.0,2,2,1,One Pair,765624,False,3dJs4hAc9d
+3024892328,Absolute Poker,10.0,2,1,5,Flush,4335090,False,AsQc9cJc2s
+3024896488,Absolute Poker,10.0,4,1,0,High Card,646761,False,2cKd9s5d8s
+3024903628,Absolute Poker,10.0,4,2,1,One Pair,798394,False,5cTs8h3s6h
+3024906020,Absolute Poker,10.0,6,2,2,Two Pair,1521550,False,3s8dQs8c9d
+3024911220,Absolute Poker,10.0,5,1,2,Two Pair,1521379,False,6cKsQhKh5c
+3024916030,Absolute Poker,10.0,2,2,5,Flush,4226895,False,9h8s8hThTc
+3024916326,Absolute Poker,10.0,6,1,2,Two Pair,1519467,False,9s4d4cQh5s
+3024918078,Absolute Poker,10.0,2,1,1,One Pair,785600,False,Kd6h2hTs9d
+3024918548,Absolute Poker,10.0,6,1,5,Flush,4385297,False,Kc8sJc4cTs
+3024922466,Absolute Poker,10.0,6,2,4,Straight,3037508,False,9s8h7h4c6h
+3024935732,Absolute Poker,10.0,6,1,2,Two Pair,1521490,False,6c4c9sAd4h
+3024986220,Absolute Poker,10.0,6,2,1,One Pair,765577,False,9d4h3h2dTh
+3024986218,Absolute Poker,10.0,6,2,4,Straight,3037506,False,QsKd7d5h8c
+3024988576,Absolute Poker,10.0,2,1,2,Two Pair,1521579,False,TcAhAc4s7s
+3024991402,Absolute Poker,10.0,2,1,1,One Pair,792542,False,4s2dJs3c8c
+3024994368,Absolute Poker,10.0,6,2,1,One Pair,789007,False,Tc4h9h2cQs
+3024994548,Absolute Poker,10.0,2,1,3,Three of a Kind,2279888,False,5s9dTcAh9s
+3024997368,Absolute Poker,10.0,6,2,1,One Pair,778398,False,JhTh4d5d3h
+3024995814,Absolute Poker,10.0,6,2,2,Two Pair,1521294,False,JdKs8h6hKh
+3024998816,Absolute Poker,10.0,6,2,3,Three of a Kind,2279211,False,4c8c2h6cAs
+3024997820,Absolute Poker,10.0,6,3,1,One Pair,775506,False,8hQcKs6d4c
+3025001474,Absolute Poker,10.0,5,1,1,One Pair,792625,False,8hJsKc2sJh
+3025000978,Absolute Poker,10.0,6,1,5,Flush,4443603,False,Tc2d5d7dAd
+3025000952,Absolute Poker,10.0,2,1,2,Two Pair,1520629,False,7c6d2hTh3h
+3025005446,Absolute Poker,10.0,6,2,2,Two Pair,1521086,False,Kc9cQhQd2d
+3025006812,Absolute Poker,10.0,6,1,2,Two Pair,1519932,False,3s5cAh7c7s
+3025009166,Absolute Poker,10.0,6,2,1,One Pair,795995,False,5dKhQs7c2s
+3025010224,Absolute Poker,10.0,6,1,3,Three of a Kind,2280983,False,As5hAcTs3d
+3025010478,Absolute Poker,10.0,6,2,2,Two Pair,1520122,False,3h3c5h4s9s
+3025011078,Absolute Poker,10.0,6,2,1,One Pair,782498,False,Kc6s5cTsAc
+3025016154,Absolute Poker,10.0,6,2,1,One Pair,775750,False,6c6h5hQhKd
+3025016974,Absolute Poker,10.0,6,1,6,Full House,4556422,False,Kc8cKs9sJs
+3025012696,Absolute Poker,10.0,6,1,2,Two Pair,1521623,False,KsKdAs9sTc
+3025020724,Absolute Poker,10.0,6,2,2,Two Pair,1520652,False,2sTdAc8sQd
+3025023564,Absolute Poker,10.0,6,1,1,One Pair,788961,False,Tc2h5h9sKh
+3025020650,Absolute Poker,10.0,6,1,6,Full House,4556367,False,AhAd9d5h2d
+3025023638,Absolute Poker,10.0,5,2,1,One Pair,771407,False,9s2d5cTs3d
+3025023618,Absolute Poker,10.0,6,1,4,Straight,3037509,False,5sJh9cTc7c
+3025026044,Absolute Poker,10.0,6,2,3,Three of a Kind,2278252,False,2dTc8s9d6h
+3025026670,Absolute Poker,10.0,5,2,1,One Pair,792111,False,QcJs8s4d3h
+3025035230,Absolute Poker,10.0,5,2,2,Two Pair,1520366,False,Js4hKh4sTc
+3025029936,Absolute Poker,10.0,4,1,1,One Pair,762233,False,3sAh2dQcTh
+3025035614,Absolute Poker,10.0,4,2,1,One Pair,772370,False,4cKs5h2h7h
+3025036984,Absolute Poker,10.0,4,2,3,Three of a Kind,2279649,False,6h8sKd4c8c
+3025039238,Absolute Poker,10.0,4,1,2,Two Pair,1520382,False,5h3d5c9d8d
+3025040454,Absolute Poker,10.0,4,1,1,One Pair,801513,False,4d2dAs6c9h
+3025040484,Absolute Poker,10.0,4,2,4,Straight,3037512,True,AsTcKh6sJc
+3025042074,Absolute Poker,10.0,6,1,2,Two Pair,1521458,False,2d7cTdAh4c
+3025044620,Absolute Poker,10.0,4,2,6,Full House,4556395,False,QsQcJhTh6s
+3025045428,Absolute Poker,10.0,5,1,2,Two Pair,1521491,False,2h4d9h4hKc
+3025046196,Absolute Poker,10.0,5,1,1,One Pair,802267,False,3d7cAh9hQc
+3025051246,Absolute Poker,10.0,6,2,2,Two Pair,1521472,False,9c3h2c8dAs
+3025053852,Absolute Poker,10.0,4,2,6,Full House,4556340,False,8cQd2c2s4d
+3025056812,Absolute Poker,10.0,3,1,4,Straight,3037512,False,Ts8dAcKdJh
+3025061252,Absolute Poker,10.0,6,1,2,Two Pair,1521365,False,7c5cJs6sKc
+3025062770,Absolute Poker,10.0,4,1,1,One Pair,768984,False,4c2d3dJsQd
+3025064126,Absolute Poker,10.0,4,2,3,Three of a Kind,2279168,False,6s9s2sTdJd
+3025064914,Absolute Poker,10.0,4,2,4,Straight,3037508,False,7c8hTdQs9h
+3025067060,Absolute Poker,10.0,2,1,2,Two Pair,1519941,False,5d6c2c8c6h
+3025068176,Absolute Poker,10.0,2,1,3,Three of a Kind,2278297,False,9c2d3dKh4h
+3025069810,Absolute Poker,10.0,3,1,2,Two Pair,1521575,False,TdThAd3d2s
+3025071058,Absolute Poker,10.0,2,2,6,Full House,4556411,False,KhJhQs3sQd
+3025070862,Absolute Poker,10.0,6,1,6,Full House,4556360,False,7s8h7d9hTh
+3025072632,Absolute Poker,10.0,6,2,1,One Pair,761527,False,Jd5c4d9sTs
+3025074038,Absolute Poker,10.0,2,2,1,One Pair,772130,False,Qd6h5s4d7d
+3025075184,Absolute Poker,10.0,2,1,2,Two Pair,1519692,False,Ah4s6dJs6h
+3025074384,Absolute Poker,10.0,4,2,1,One Pair,792381,False,8sQhJh7c4d
+3025079728,Absolute Poker,10.0,3,2,4,Straight,3037507,True,7d5d6sAh9c
+3025078018,Absolute Poker,10.0,4,1,2,Two Pair,1520171,False,6d8s6c5hKs
+3025083472,Absolute Poker,10.0,4,1,3,Three of a Kind,2280759,False,KcQdJd3cKd
+3025084908,Absolute Poker,10.0,4,2,2,Two Pair,1521267,True,Ks9d4dAs4c
+3025086902,Absolute Poker,10.0,4,1,4,Straight,3037509,False,Jd9h6dKd7c
+3025086386,Absolute Poker,10.0,2,1,1,One Pair,768935,False,2dAc3c9h7s
+3025089484,Absolute Poker,10.0,5,1,4,Straight,3037509,False,3c9dJh5d8s
+3025090474,Absolute Poker,10.0,4,1,2,Two Pair,1521141,False,Jd6c8h6dQs
+3025094912,Absolute Poker,10.0,4,2,1,One Pair,782243,False,Kd8d2sJd8h
+3025096202,Absolute Poker,10.0,4,1,1,One Pair,782493,False,As5d3c2dKd
+3025095218,Absolute Poker,10.0,2,2,3,Three of a Kind,2279441,False,7hKh5h6c7c
+3025102328,Absolute Poker,10.0,2,1,1,One Pair,765368,False,9cKcJh4cTd
+3025107084,Absolute Poker,10.0,5,2,2,Two Pair,1520337,False,9s2cQd2s7h
+3025107026,Absolute Poker,10.0,5,1,1,One Pair,779109,False,Qc7sTdJdAc
+3025108464,Absolute Poker,10.0,5,1,2,Two Pair,1519912,False,4d7s5s4h9s
+3025107206,Absolute Poker,10.0,2,1,2,Two Pair,1520120,False,4d2h8s8d7s
+3025113438,Absolute Poker,10.0,4,1,2,Two Pair,1521280,False,Kd7c5h5c3c
+3025115644,Absolute Poker,10.0,3,1,1,One Pair,792621,False,3d4hJh8cJc
+3025169774,Absolute Poker,10.0,5,1,3,Three of a Kind,2280322,False,9d4sJd5hJs
+3025184732,Absolute Poker,10.0,6,2,2,Two Pair,1521357,False,TsAhKh9h7d
+3025197304,Absolute Poker,10.0,2,2,4,Straight,3037505,False,4s6h2s5d7h
+3025199010,Absolute Poker,10.0,2,2,2,Two Pair,1521625,False,Kh9cAdKd2d
+3025203688,Absolute Poker,10.0,4,2,4,Straight,3037509,True,As7d9c3s8s
+3025208796,Absolute Poker,10.0,4,1,1,One Pair,762218,False,2h2sJh6c7s
+3025210698,Absolute Poker,10.0,4,1,4,Straight,3037508,False,6s8c5h7d9h
+3025212082,Absolute Poker,10.0,4,1,1,One Pair,795998,False,AdThQs5s9s
+3025215700,Absolute Poker,10.0,3,2,1,One Pair,785615,False,2dKhJs4h9d
+3025217102,Absolute Poker,10.0,4,1,5,Flush,4280913,False,8sKcTs8dJs
+3025222510,Absolute Poker,10.0,5,2,2,Two Pair,1521308,False,9dTsKs7d7s
+3025222822,Absolute Poker,10.0,2,2,5,Flush,4440256,False,3sAc3h3cQc
+3025224908,Absolute Poker,10.0,6,1,1,One Pair,782482,False,8h2c8d9h6d
+3025228236,Absolute Poker,10.0,2,2,2,Two Pair,1521023,False,Qd7s3cTs2c
+3025233960,Absolute Poker,10.0,6,2,2,Two Pair,1521475,False,Ac3c3s2sQh
+3025235586,Absolute Poker,10.0,6,1,1,One Pair,778161,False,4s7cTs8d3c
+3025236988,Absolute Poker,10.0,6,2,2,Two Pair,1521476,False,Kc3c3sQd7d
+3025239496,Absolute Poker,10.0,2,2,2,Two Pair,1520408,False,9c4d8h9sTc
+3025243666,Absolute Poker,10.0,2,1,4,Straight,3037508,False,Qd8h6sAhTd
+3025249688,Absolute Poker,10.0,5,2,3,Three of a Kind,2278763,False,Ts9h4d5cAs
+3025249856,Absolute Poker,10.0,2,1,2,Two Pair,1521558,False,9cAs2s9s5d
+3025256902,Absolute Poker,10.0,4,2,2,Two Pair,1521127,False,TdQd3c9s8s
+3025266608,Absolute Poker,10.0,2,2,1,One Pair,765126,False,8s5h3h4dTc
+3025275514,Absolute Poker,10.0,6,1,1,One Pair,792608,False,4hJhTsQs2d
+3025276458,Absolute Poker,10.0,2,2,1,One Pair,795276,False,TcJs4c8d7h
+3025279082,Absolute Poker,10.0,6,1,4,Straight,3037508,False,6hTc9hAc7h
+3025287176,Absolute Poker,10.0,5,1,1,One Pair,802457,False,KhAs3h4c9s
+3025289062,Absolute Poker,10.0,2,1,1,One Pair,802493,False,TsAdKdJd9s
+3025292998,Absolute Poker,10.0,6,1,1,One Pair,785873,False,AsTh9c9d6d
+3025296622,Absolute Poker,10.0,6,2,6,Full House,4556427,False,KhAdAh7s4d
+3025295164,Absolute Poker,10.0,2,1,2,Two Pair,1521342,False,4d9dJc9sKs
+3025299066,Absolute Poker,10.0,6,2,2,Two Pair,1519705,False,Qs6d8d6s4c
+3025302274,Absolute Poker,10.0,2,2,1,One Pair,785627,False,9h3c4d2cKs
+3025305754,Absolute Poker,10.0,6,2,2,Two Pair,1520660,False,2h4s7c9h9d
+3025305502,Absolute Poker,10.0,2,2,4,Straight,3037510,True,8cQsJc9s9c
+3025310786,Absolute Poker,10.0,5,1,1,One Pair,782257,False,9h7d8c4c8h
+3025307574,Absolute Poker,10.0,2,2,2,Two Pair,1520163,False,8c3h5c4c8h
+3025315264,Absolute Poker,10.0,6,1,5,Flush,4436629,False,6sAsJs7s5d
+3025317468,Absolute Poker,10.0,6,2,2,Two Pair,1521367,False,2cJsJh9d5c
+3025378016,Absolute Poker,10.0,6,1,5,Flush,4389632,False,QdTcJdThKd
+3025383082,Absolute Poker,10.0,2,1,3,Three of a Kind,2278991,False,5sAdKc9sTc
+3025384260,Absolute Poker,10.0,5,1,1,One Pair,768516,False,3hQsJh6h4c
+3025384728,Absolute Poker,10.0,6,2,2,Two Pair,1520397,False,2c6c6s4c9d
+3025385010,Absolute Poker,10.0,2,2,2,Two Pair,1519946,False,7d6s4h7c6d
+3025387690,Absolute Poker,10.0,6,3,4,Straight,3037511,False,4cTcJh9h5c
+3025388028,Absolute Poker,10.0,6,2,2,Two Pair,1520601,False,5c8d5dTh7s
+3025390228,Absolute Poker,10.0,6,1,1,One Pair,792381,False,Js8cQd4s7h
+3025391626,Absolute Poker,10.0,6,2,1,One Pair,788767,False,4hQd9cJd7s
+3025395572,Absolute Poker,10.0,2,1,2,Two Pair,1520606,False,Td5c4c5h3s
+3025398200,Absolute Poker,10.0,6,1,1,One Pair,782467,False,3hAd6cJh8s
+3025399732,Absolute Poker,10.0,6,2,1,One Pair,789234,False,Tc7cJdTs2h
+3025398534,Absolute Poker,10.0,2,2,4,Straight,3037510,False,TdAhTcJc9h
+3025401176,Absolute Poker,10.0,6,2,1,One Pair,802007,False,3sAc9h4c2c
+3025402026,Absolute Poker,10.0,6,2,2,Two Pair,1521263,False,Kd2c4c4h6s
+3025402568,Absolute Poker,10.0,5,1,2,Two Pair,1521604,False,As6sQh5d2c
+3025401778,Absolute Poker,10.0,2,2,6,Full House,4556291,False,4d4sKh4c8d
+3025402704,Absolute Poker,10.0,2,2,4,Straight,3037512,False,3cKcJhQh7c
+3025406134,Absolute Poker,10.0,2,1,6,Full House,4556322,False,6c2c6d9dAd
+3025408734,Absolute Poker,10.0,5,1,2,Two Pair,1520649,False,6c2sJd8s8d
+3025408744,Absolute Poker,10.0,2,2,1,One Pair,788736,False,7hTs8h9s3d
+3025413632,Absolute Poker,10.0,6,1,2,Two Pair,1521297,False,6hKc2cTcAh
+3025415066,Absolute Poker,10.0,6,2,1,One Pair,801995,False,7dJc2c8d5h
+3025418324,Absolute Poker,10.0,6,2,1,One Pair,802268,False,5dAhQc8hTh
+3025414234,Absolute Poker,10.0,6,2,2,Two Pair,1519886,False,2hJh7hQcKd
+3025421600,Absolute Poker,10.0,6,2,3,Three of a Kind,2280758,True,QdKhKs4h8c
+3025424730,Absolute Poker,10.0,6,1,3,Three of a Kind,2280564,False,Tc5dJcQhQc
+3025420900,Absolute Poker,10.0,2,2,5,Flush,4382386,False,3c9cKhTc6c
+3025427108,Absolute Poker,10.0,6,2,1,One Pair,771651,False,7sTh3c5cJh
+3025427438,Absolute Poker,10.0,6,1,2,Two Pair,1521279,False,3cKd5d5s8h
+3025432876,Absolute Poker,10.0,6,1,2,Two Pair,1521083,False,7h9cThQd3s
+3025440752,Absolute Poker,10.0,6,2,1,One Pair,779107,False,7dQd5c7c9h
+3025442534,Absolute Poker,10.0,6,1,2,Two Pair,1521054,False,Qd5h5sTd8d
+3025444140,Absolute Poker,10.0,6,2,1,One Pair,778622,False,7dQd3d2d4c
+3025445686,Absolute Poker,10.0,6,2,1,One Pair,798363,False,Kc3c4c6d5c
+3025447834,Absolute Poker,10.0,6,1,1,One Pair,792528,False,3c4cJs5cAs
+3025456690,Absolute Poker,10.0,6,2,1,One Pair,801786,False,8c6sTc9hAs
+3025469494,Absolute Poker,10.0,6,2,2,Two Pair,1521625,False,5dKcKdAh6d
+3025473296,Absolute Poker,10.0,6,2,2,Two Pair,1521087,False,5d7dQd3s7h
+3025462370,Absolute Poker,10.0,6,2,3,Three of a Kind,2280336,False,JsAd8s5h7d
+3025475308,Absolute Poker,10.0,6,1,6,Full House,4556291,False,4s4hKsTd4c
+3025477410,Absolute Poker,10.0,6,1,2,Two Pair,1521624,False,Kd8cKsJhAd
+3025478534,Absolute Poker,10.0,6,2,2,Two Pair,1521532,False,7d4c9c3d7s
+3025468006,Absolute Poker,10.0,5,1,1,One Pair,795996,False,6s5s8hKcAd
+3025469002,Absolute Poker,10.0,2,2,1,One Pair,798652,False,Kc2sJdTc8c
+3025484064,Absolute Poker,10.0,6,1,4,Straight,3037509,False,TdTh7sKc9h
+3025484130,Absolute Poker,10.0,6,1,2,Two Pair,1521009,False,QcJcQh2h5s
+3025493526,Absolute Poker,10.0,6,2,5,Flush,4335106,False,8h3c9c4cJc
+3025495244,Absolute Poker,10.0,6,2,2,Two Pair,1520404,False,4c6d7c7d4h
+3025496022,Absolute Poker,10.0,6,2,5,Flush,4389395,False,KdQdTd8hTc
+3025506960,Absolute Poker,10.0,6,1,6,Full House,4556351,False,8dKsKh2dQs
+3025509384,Absolute Poker,10.0,6,2,6,Full House,4556412,False,QdAcQsQc6c
+3025509572,Absolute Poker,10.0,6,2,2,Two Pair,1520349,False,3h9d2sJs3c
+3025512160,Absolute Poker,10.0,5,1,3,Three of a Kind,2279199,False,6c6h9cKc2c
+3025513484,Absolute Poker,10.0,5,2,5,Flush,4439535,False,Ah8s6sTcQs
+3025520000,Absolute Poker,10.0,5,2,2,Two Pair,1521131,False,Ks8cQsJcTc
+3025519042,Absolute Poker,10.0,3,2,2,Two Pair,1520885,False,2s7d9dJdJs
+3025527410,Absolute Poker,10.0,6,1,6,Full House,4556396,False,JcKd3s9hJh
+3025527532,Absolute Poker,10.0,5,2,5,Flush,4385265,False,JsKs7s4cQc
+3025530110,Absolute Poker,10.0,5,2,1,One Pair,795952,False,ThQc9s6c7d
+3025532596,Absolute Poker,10.0,5,2,1,One Pair,792623,False,Tc7cKs9cJs
+3025534372,Absolute Poker,10.0,4,2,1,One Pair,768935,False,4s4d2d7s9h
+3025536176,Absolute Poker,10.0,5,1,2,Two Pair,1521282,False,Ad5d5h8sKc
+3025542714,Absolute Poker,10.0,5,1,1,One Pair,795678,False,Qc5hQdKh7d
+3025537164,Absolute Poker,10.0,4,1,2,Two Pair,1521458,False,9d2hTd2s6c
+3025552278,Absolute Poker,10.0,6,2,0,High Card,646760,True,9cJsAd2h7d
+3025545550,Absolute Poker,10.0,3,1,2,Two Pair,1520367,False,9h8h9d4dTd
+3025557716,Absolute Poker,10.0,5,3,2,Two Pair,1521312,False,2sKh7h7cKs
+3025561828,Absolute Poker,10.0,5,1,2,Two Pair,1520616,False,7cTd6hTc8c
+3025563156,Absolute Poker,10.0,5,1,1,One Pair,782499,False,Jh8c6c8d2c
+3025558176,Absolute Poker,10.0,2,2,1,One Pair,795727,False,4dTh9h3cKd
+3025574988,Absolute Poker,10.0,4,2,2,Two Pair,1521357,False,Th4hTsKc5s
+3025576618,Absolute Poker,10.0,4,2,2,Two Pair,1521101,False,KhJd8d8c6c
+3025581882,Absolute Poker,10.0,5,2,1,One Pair,782468,False,Td7h3h8cJh
+3025584190,Absolute Poker,10.0,5,2,2,Two Pair,1521566,False,9cAd7d2hKd
+3025597078,Absolute Poker,10.0,3,2,1,One Pair,775734,False,6c6sTcJs3s
+3025599430,Absolute Poker,10.0,3,2,5,Flush,4331777,False,9h4hJs9cQh
+3025600996,Absolute Poker,10.0,5,1,1,One Pair,795727,False,9d3cKhQs4h
+3025626138,Absolute Poker,10.0,5,2,1,One Pair,789232,False,Th9c2c3dAs
+3025633294,Absolute Poker,10.0,6,2,2,Two Pair,1520664,False,9cJsTs2s5s
+3025636528,Absolute Poker,10.0,6,2,1,One Pair,792623,False,9s3cKcAdTc
+3025636668,Absolute Poker,10.0,6,1,1,One Pair,792623,False,AcJh2d8dJc
+3025644550,Absolute Poker,10.0,6,1,1,One Pair,795967,False,2sQh6sAs9d
+3025671722,Absolute Poker,10.0,4,2,2,Two Pair,1521611,False,KhQsQhAs7c
+3025684676,Absolute Poker,10.0,6,1,2,Two Pair,1520888,False,JhJs9sTc3c
+3025685754,Absolute Poker,10.0,5,2,1,One Pair,795968,False,3cJdTs8dAc
+3025694816,Absolute Poker,10.0,6,1,3,Three of a Kind,2280783,False,3cAh2h5sKd
+3025695768,Absolute Poker,10.0,6,1,2,Two Pair,1521146,False,3dQh9cQsJd
+3025702170,Absolute Poker,10.0,6,1,4,Straight,3037503,False,4h7h5d3cAh
+3025704472,Absolute Poker,10.0,6,1,2,Two Pair,1520182,False,8c3d7s3s9s
+3025705590,Absolute Poker,10.0,6,2,2,Two Pair,1521372,False,9hJsTsKhJc
+3025707006,Absolute Poker,10.0,6,2,2,Two Pair,1521474,False,2hJs3sAs2c
+3025711862,Absolute Poker,10.0,6,2,2,Two Pair,1521143,False,2cQsJhQcTs
+3025712106,Absolute Poker,10.0,6,1,2,Two Pair,1520591,False,9h3hTcTdKc
+3025727628,Absolute Poker,10.0,5,1,2,Two Pair,1520900,False,Jh5h7sJs4d
+3025735032,Absolute Poker,10.0,5,2,1,One Pair,802491,False,8hJs3d6sAc
+3025741980,Absolute Poker,10.0,6,2,5,Flush,4439762,False,6c4cTh9h9c
+3025749780,Absolute Poker,10.0,6,1,2,Two Pair,1521384,False,Qh6dQsKd6h
+3025750326,Absolute Poker,10.0,6,2,1,One Pair,768710,False,7d9c2d6hKs
+3025756074,Absolute Poker,10.0,6,2,1,One Pair,798652,False,9cKh4s7sJc
+3025761814,Absolute Poker,10.0,6,1,1,One Pair,788767,False,9h6s5sJhQh
+3025773620,Absolute Poker,10.0,6,1,1,One Pair,779123,False,3h8hTdAc7h
+3025775256,Absolute Poker,10.0,6,2,2,Two Pair,1521595,False,AhJcAcJd2d
+3025778172,Absolute Poker,10.0,5,2,1,One Pair,778113,False,2s5sTh4d6d
+3025780170,Absolute Poker,10.0,5,2,5,Flush,4381937,False,7h6h5d9c4h
+3025782528,Absolute Poker,10.0,6,2,1,One Pair,792347,False,2dKd3cTsJd
+3025799074,Absolute Poker,10.0,6,1,3,Three of a Kind,2278684,False,4h9c4c2c6c
+3025811928,Absolute Poker,10.0,6,2,5,Flush,4389363,False,Qh6c4dTc5c
+3025819802,Absolute Poker,10.0,2,1,2,Two Pair,1521292,False,4c6s3h6hKc
+3025819630,Absolute Poker,10.0,6,1,1,One Pair,779125,False,Kc2s7s7cAd
+3025823446,Absolute Poker,10.0,2,2,1,One Pair,778883,False,7s5hKhQs3d
+3025823424,Absolute Poker,10.0,5,2,1,One Pair,789009,False,Kc3dQdTd6s
+3025826712,Absolute Poker,10.0,5,2,4,Straight,3037511,True,Jh9dKh7hQc
+3025830428,Absolute Poker,10.0,2,2,0,High Card,643400,False,ThJs7h2d3d
+3025832166,Absolute Poker,10.0,2,2,1,One Pair,771876,False,4h8cTsQs7h
+3025834906,Absolute Poker,10.0,6,2,1,One Pair,799342,True,3cKdJc8h9s
+3025836256,Absolute Poker,10.0,6,1,0,High Card,636168,False,9c8s4s3s5s
+3025835698,Absolute Poker,10.0,2,2,2,Two Pair,1521252,False,3hKd6c3cAh
+3025839024,Absolute Poker,10.0,6,1,1,One Pair,802264,False,3dAs4cJh6s
+3025850602,Absolute Poker,10.0,6,1,8,Straight Flush,6075009,False,TcJc9c8cTh
+3025850688,Absolute Poker,10.0,2,1,5,Flush,4331313,False,JhTcTd6cQc
+3025852444,Absolute Poker,10.0,2,2,2,Two Pair,1521114,False,Jh8d8c9sQc
+3025854770,Absolute Poker,10.0,2,1,2,Two Pair,1520170,False,8sJh6dQs5h
+3025857530,Absolute Poker,10.0,2,1,2,Two Pair,1521052,False,Qs5d4dQc9s
+3025863168,Absolute Poker,10.0,2,1,2,Two Pair,1521488,False,8d4sAh7dTd
+3025877524,Absolute Poker,10.0,5,1,2,Two Pair,1520378,False,Ts2d5d5c7h
+3025874678,Absolute Poker,10.0,2,1,2,Two Pair,1521608,False,AdQdAc6h6c
+3025875668,Absolute Poker,10.0,2,2,2,Two Pair,1521231,False,7d8d2c6h2s
+3026015738,Absolute Poker,10.0,6,2,1,One Pair,785376,False,2c3s8cQdTc
+3026020194,Absolute Poker,10.0,6,3,1,One Pair,761993,False,2d4dJc2hTs
+3026038644,Absolute Poker,10.0,6,2,4,Straight,3037508,True,7h6s9s8dTc
+3026041410,Absolute Poker,10.0,6,2,5,Flush,4440015,False,9dQhTh7sAh
+3026044834,Absolute Poker,10.0,5,2,1,One Pair,795692,False,8hKc2d4d3d
+3026048662,Absolute Poker,10.0,6,1,3,Three of a Kind,2279418,False,7h3d7sKc5s
+3026060246,Absolute Poker,10.0,5,1,2,Two Pair,1520798,False,Th2dJs8dJc
+3026063202,Absolute Poker,10.0,5,1,2,Two Pair,1521042,False,4sThJd4cQs
+3026074364,Absolute Poker,10.0,6,2,4,Straight,3037511,False,2d3sKcTc9s
+3026075306,Absolute Poker,10.0,6,2,1,One Pair,792125,False,2dJs7h3hQc
+3026078436,Absolute Poker,10.0,6,2,2,Two Pair,1520577,True,3d3sTh4dTc
+3026083698,Absolute Poker,10.0,6,1,1,One Pair,761509,False,6d9h3cJs5s
+3026084064,Absolute Poker,10.0,6,1,2,Two Pair,1520900,False,Jh5h7hThJd
+3026088240,Absolute Poker,10.0,6,1,2,Two Pair,1520156,False,JcKs5c5dTc
+3026093424,Absolute Poker,10.0,6,2,5,Flush,4281105,False,2sTd4sJs9s
+3026096182,Absolute Poker,10.0,5,1,2,Two Pair,1520620,False,2h6cTs9d6h
+3026102890,Absolute Poker,10.0,6,2,5,Flush,4432546,False,3d9c5dTd7c
+3026104398,Absolute Poker,10.0,6,1,2,Two Pair,1520140,False,Qh8c2cTh8s
+3026105478,Absolute Poker,10.0,6,2,6,Full House,4556336,False,7sJdKd7h7c
+3026109776,Absolute Poker,10.0,6,1,2,Two Pair,1519677,False,6dJd9d3h6h
+3026117426,Absolute Poker,10.0,6,1,5,Flush,4382416,False,5cKsTs3s8s
+3026118090,Absolute Poker,10.0,6,1,4,Straight,3037511,False,8sKcJh9hTh
+3026124658,Absolute Poker,10.0,6,2,2,Two Pair,1520367,False,8c4d4cAs5d
+3026129400,Absolute Poker,10.0,6,1,5,Flush,4443408,False,5sTcAcQh5c
+3026131988,Absolute Poker,10.0,6,1,2,Two Pair,1520182,False,4h7h9d4d8c
+3026143302,Absolute Poker,10.0,6,1,1,One Pair,795034,False,4s6h9h3dTh
+3026150354,Absolute Poker,10.0,6,2,2,Two Pair,1521461,True,5sKsAh2h2c
+3026148970,Absolute Poker,10.0,6,2,2,Two Pair,1520349,True,9s5s3s4c3h
+3026151982,Absolute Poker,10.0,6,2,1,One Pair,802266,False,8hAhQc4s2h
+3026161546,Absolute Poker,10.0,6,2,2,Two Pair,1521147,True,5dQsJs4hJc
+3026163088,Absolute Poker,10.0,6,1,1,One Pair,782017,False,JsQs6s5c9c
+3026186170,Absolute Poker,10.0,6,2,6,Full House,4556421,False,8h8dKhJd4c
+3026202538,Absolute Poker,10.0,5,2,3,Three of a Kind,2280790,False,KhAc9hQs7h
+3026207714,Absolute Poker,10.0,6,1,6,Full House,4556292,False,As4d7sAc8c
+3026215526,Absolute Poker,10.0,5,1,0,High Card,635928,False,7s4sTd3h5d
+3026219406,Absolute Poker,10.0,5,2,1,One Pair,765383,False,5sTdKd7dQc
+3026225568,Absolute Poker,10.0,5,2,1,One Pair,785841,False,5h8s9c2sAh
+3026233276,Absolute Poker,10.0,4,2,2,Two Pair,1520337,True,2s2d9h4dAc
+3026239754,Absolute Poker,10.0,4,1,4,Straight,3037508,False,6c8h7s9d2c
+3026238646,Absolute Poker,10.0,6,2,2,Two Pair,1520574,False,3cJh4hTd3s
+3026244032,Absolute Poker,10.0,4,2,0,High Card,643401,False,8dTh6hQc3c
+3026255242,Absolute Poker,10.0,5,1,2,Two Pair,1521026,False,Jc3hTc3sQd
+3026263938,Absolute Poker,10.0,5,2,2,Two Pair,1519917,False,4d4h8sAd6d
+3026269868,Absolute Poker,10.0,5,1,3,Three of a Kind,2279343,False,8c7s4d3d5s
+3026282782,Absolute Poker,10.0,4,2,6,Full House,4556356,False,3s9h3hKh9s
+3026288304,Absolute Poker,10.0,5,2,2,Two Pair,1520111,False,Kh2s3c6h2c
+3026291018,Absolute Poker,10.0,6,2,1,One Pair,801769,False,6h2hAd8s3h
+3026295578,Absolute Poker,10.0,6,2,0,High Card,643384,False,AhJh2h6d5c
+3026301190,Absolute Poker,10.0,5,1,2,Two Pair,1521491,False,Ah3s4dTsKd
+3026331248,Absolute Poker,10.0,6,2,5,Flush,4436403,False,5dJd3c9d7d
+3026336618,Absolute Poker,10.0,5,1,1,One Pair,799338,False,4s2sKc5hAh
+3026341748,Absolute Poker,10.0,6,2,2,Two Pair,1521383,False,KcQd2dTs5h
+3026355566,Absolute Poker,10.0,6,2,2,Two Pair,1521506,False,5d5cAc7sKd
+3026376620,Absolute Poker,10.0,4,1,2,Two Pair,1520352,False,3dQh3cAd7c
+3026411498,Absolute Poker,10.0,6,2,0,High Card,643384,False,Js6s5d3c9s
+3026413390,Absolute Poker,10.0,5,1,1,One Pair,768996,False,Kd3h7d8cAh
+3026418490,Absolute Poker,10.0,5,1,2,Two Pair,1521611,False,5dQs7hAhKs
+3026425580,Absolute Poker,10.0,4,1,2,Two Pair,1521084,False,QcQhJs2h4c
+3026690962,Absolute Poker,10.0,6,2,6,Full House,4556261,False,2cKs3h2d2h
+3026694884,Absolute Poker,10.0,5,2,5,Flush,4172447,False,8d5s6s4s8h
+3026704882,Absolute Poker,10.0,6,2,1,One Pair,768260,False,7hJc9d5c4s
+3026709702,Absolute Poker,10.0,6,1,5,Flush,4435680,False,Ac5h2c4cAs
+3026717450,Absolute Poker,10.0,6,2,4,Straight,3037509,False,8cAcTd2sJs
+3026719334,Absolute Poker,10.0,5,1,6,Full House,4556392,False,Js9s8dQhJh
+3026724704,Absolute Poker,10.0,4,2,2,Two Pair,1520361,False,9d5d8s4s9c
+3026725860,Absolute Poker,10.0,2,1,4,Straight,3037507,False,7cKh6h2d5c
+3026739394,Absolute Poker,10.0,6,1,1,One Pair,791419,False,Js6d9c8s3c
+3026741174,Absolute Poker,10.0,6,2,1,One Pair,771395,False,8hTd6s3c7c
+3026747994,Absolute Poker,10.0,6,2,1,One Pair,795741,False,8cJc6s4dKd
+3026767144,Absolute Poker,10.0,6,1,1,One Pair,799294,False,2sAs8h6s3d
+3026769388,Absolute Poker,10.0,6,1,1,One Pair,782499,False,Jc7h8sKh5c
+3026773402,Absolute Poker,10.0,6,2,1,One Pair,772358,False,4s8cAh5d5c
+3026781346,Absolute Poker,10.0,6,2,2,Two Pair,1519945,False,3cTcQs6h6d
+3026785056,Absolute Poker,10.0,6,1,2,Two Pair,1521087,False,3sQd2dAsQc
+3026788498,Absolute Poker,10.0,6,2,1,One Pair,795950,False,2s6hQhQs7d
+3026800010,Absolute Poker,10.0,6,1,4,Straight,3037504,False,3hAc2h6d4d
+3026805976,Absolute Poker,10.0,6,2,1,One Pair,777917,False,2c7h3s9c4s
+3026812184,Absolute Poker,10.0,5,2,0,High Card,646986,False,9c6hQh3dKh
+3026816622,Absolute Poker,10.0,5,1,6,Full House,4556333,False,Jh7sTs2hTh
+3026820614,Absolute Poker,10.0,5,1,2,Two Pair,1521532,False,4dAs7s3s7c
+3026824526,Absolute Poker,10.0,6,2,1,One Pair,798893,True,Qc7dKc4sTd
+3026830882,Absolute Poker,10.0,6,2,2,Two Pair,1521604,False,6sAcQcQh4c
+3026834476,Absolute Poker,10.0,6,1,2,Two Pair,1521559,False,9h6sAs6c9c
+3026838304,Absolute Poker,10.0,6,1,0,High Card,642679,False,3c8h6c7d2c
+3026841458,Absolute Poker,10.0,5,2,1,One Pair,782500,True,8cKdQs8h9h
+3026848974,Absolute Poker,10.0,5,2,0,High Card,647002,False,6hAhKd9s4s
+3026864912,Absolute Poker,10.0,5,1,5,Flush,4443391,False,9s5cThAhKh
+3026885652,Absolute Poker,10.0,5,1,1,One Pair,802507,False,Ac6hAh9dQh
+3026888396,Absolute Poker,10.0,5,1,1,One Pair,802233,False,2hAd5dQh4d
+3026887858,Absolute Poker,10.0,5,1,6,Full House,4556307,False,As5cTd5s6s
+3026999320,Absolute Poker,10.0,6,2,2,Two Pair,1521265,False,4h3s4cTdQs
+3027004260,Absolute Poker,10.0,5,1,1,One Pair,795738,False,Qh3d5s4hJh
+3027020588,Absolute Poker,10.0,6,2,1,One Pair,801979,False,7cJh6h2h4d
+3027025464,Absolute Poker,10.0,5,1,2,Two Pair,1520605,False,7d5c5sQd3h
+3027024672,Absolute Poker,10.0,6,3,0,High Card,643143,False,8c4hTh2dQc
+3027030980,Absolute Poker,10.0,5,1,2,Two Pair,1521237,False,2cKd5s3d2s
+3027029100,Absolute Poker,10.0,6,2,1,One Pair,802011,False,4h9cJc8c3s
+3027031694,Absolute Poker,10.0,6,1,4,Straight,3037512,False,4sQhAcKsTd
+3027043400,Absolute Poker,10.0,6,1,5,Flush,4386015,False,KhQc8cJh2h
+3027049800,Absolute Poker,10.0,4,1,2,Two Pair,1519659,False,8c2s6s6dJs
+3027053584,Absolute Poker,10.0,6,2,1,One Pair,785615,False,2s7d6dJsKc
+3027058802,Absolute Poker,10.0,5,2,1,One Pair,802493,False,Jc2hKd7hTd
+3027067130,Absolute Poker,10.0,5,2,3,Three of a Kind,2278971,False,5c2s6c8cKh
+3027073216,Absolute Poker,10.0,6,2,1,One Pair,802489,False,Ad6cJc5s2c
+3027075292,Absolute Poker,10.0,6,2,2,Two Pair,1519909,False,4d4c3h2d7d
+3027083730,Absolute Poker,10.0,6,1,5,Flush,4277280,False,2c7hKs9h4h
+3027081782,Absolute Poker,10.0,6,2,2,Two Pair,1521566,False,TcAdAhJdKc
+3027089248,Absolute Poker,10.0,6,1,2,Two Pair,1521012,False,2sQcKd6c2c
+3027091522,Absolute Poker,10.0,6,3,4,Straight,3037504,False,2c3s9c6hAd
+3027097554,Absolute Poker,10.0,6,2,2,Two Pair,1521087,False,7sTcAs6h7c
+3027105052,Absolute Poker,10.0,6,2,2,Two Pair,1521533,False,AhTd7s7d4d
+3027106420,Absolute Poker,10.0,6,2,2,Two Pair,1521520,False,2d3h6dAd6c
+3027110868,Absolute Poker,10.0,6,2,2,Two Pair,1520607,False,ThAdTc9hJd
+3027112880,Absolute Poker,10.0,6,2,2,Two Pair,1521102,False,4d8hKs8sAh
+3027113696,Absolute Poker,10.0,6,2,5,Flush,4281153,False,5c5hTcJc3h
+3027118366,Absolute Poker,10.0,6,2,2,Two Pair,1521460,False,2s2dTd4sAd
+3027129050,Absolute Poker,10.0,6,2,1,One Pair,785631,False,5s9h8cQh2s
+3027127714,Absolute Poker,10.0,6,1,1,One Pair,795998,False,AhTh7hKdQs
+3027131482,Absolute Poker,10.0,6,2,0,High Card,639545,False,3d8dJh9s7h
+3027136392,Absolute Poker,10.0,6,2,1,One Pair,765141,False,3h8h5dJsQc
+3027138184,Absolute Poker,10.0,6,1,3,Three of a Kind,2278989,False,Jd5h9cAc5d
+3027142576,Absolute Poker,10.0,6,1,1,One Pair,781535,False,7cTd5d8s4h
+3027147356,Absolute Poker,10.0,5,2,1,One Pair,772118,False,3sTs4hKsJd

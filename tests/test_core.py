@@ -324,3 +324,107 @@ def test_exact_vs_monte_carlo():
 
     diff = abs(exact_res["equity"] - mc_res["equity"])
     assert diff <= 2.5 * mc_res["equity_se"]
+
+
+# -----------------------------------------------------------------------------
+# Prompt 9 Tests: UCI Poker Hand & PHH Real Play
+# -----------------------------------------------------------------------------
+
+
+def test_uci_loading_and_eda():
+    """Verify loading UCI dataset and EDA summary statistics."""
+    from holdem_lab.analysis import load_uci_data, uci_eda_summary
+
+    train_df = load_uci_data("train")
+    assert len(train_df) == 25010
+    assert list(train_df.columns) == [
+        "S1",
+        "C1",
+        "S2",
+        "C2",
+        "S3",
+        "C3",
+        "S4",
+        "C4",
+        "S5",
+        "C5",
+        "class",
+    ]
+
+    eda = uci_eda_summary(train_df)
+    assert eda["missing_count"] == 0
+    assert all(1 <= v <= 4 for v in eda["suit_mins"].values())
+    assert all(1 <= v <= 4 for v in eda["suit_maxs"].values())
+    assert all(1 <= v <= 13 for v in eda["rank_mins"].values())
+    assert all(1 <= v <= 13 for v in eda["rank_maxs"].values())
+    assert 6.5 < eda["rank_mean"] < 7.5
+
+
+def test_uci_evaluator_verification():
+    """Verify 100% agreement between evaluator and UCI training split labels."""
+    from holdem_lab.analysis import load_uci_data, verify_uci_evaluator
+
+    train_df = load_uci_data("train")
+    # Verify on full training split and first 10,000 of test split for speed
+    test_df = load_uci_data("test").iloc[:10000]
+
+    v_res = verify_uci_evaluator(train_df, test_df)
+    assert v_res["train_mismatches"] == 0
+    assert v_res["train_agreed"] == 25010
+    assert v_res["test_mismatches"] == 0
+    assert v_res["agreement_rate"] == 1.0
+
+
+def test_uci_goodness_of_fit_table():
+    """Verify Table 1 chi-square GOF: train rejects H0, test fails to reject H0."""
+    from holdem_lab.analysis import load_uci_data, uci_goodness_of_fit_table
+
+    train_df = load_uci_data("train")
+    test_df = load_uci_data("test")
+
+    table_df, gof_stats = uci_goodness_of_fit_table(train_df, test_df, mc_reps=500)
+    assert len(table_df) == 10
+    # Training split oversamples rare hands (5 SF, 5 RF) -> rejects H0
+    assert gof_stats["train_chi2"] > 15.0
+    assert gof_stats["train_p_val"] < 0.05
+    # Testing split follows natural multinomial probabilities -> fails to reject H0
+    assert gof_stats["test_chi2"] < 10.0
+    assert gof_stats["test_p_val"] > 0.05
+
+
+def test_phh_parser_and_pokerkit():
+    """Verify PHH hand history parsing and optional pokerkit loader."""
+    import glob
+    from holdem_lab.analysis import parse_phh_handhq, parse_phh_with_pokerkit
+
+    files = glob.glob("data/external/phh/phh-dataset/data/handhq/**/*.phhs", recursive=True)
+    assert len(files) > 0, "PHH files must be present"
+
+    # Test pokerkit parser on 1 file
+    df_pk = parse_phh_with_pokerkit(files[0], max_hands=20)
+    assert isinstance(df_pk, pd.DataFrame)
+    if len(df_pk) > 0:
+        assert "seats_dealt" in df_pk.columns
+        assert "winning_cat" in df_pk.columns
+        assert "winning_score" in df_pk.columns
+
+    # Test regex parser on 5 files
+    df_showdowns, log = parse_phh_handhq(max_files=5, use_cache=False)
+    assert len(df_showdowns) > 0
+    assert log["total_hands"] > 0
+    assert log["retained_showdowns"] == len(df_showdowns)
+    assert all(c in df_showdowns.columns for c in ["seats_dealt", "players_showdown", "winning_cat"])
+
+
+def test_phh_tightness_estimation():
+    """Verify effective opponent tightness estimation from showdown hands."""
+    from holdem_lab.analysis import estimate_effective_tightness, parse_phh_handhq
+
+    df_showdowns, _ = parse_phh_handhq(max_files=10, use_cache=True)
+    tightness = estimate_effective_tightness(df_showdowns, n_sim=600, seed=42)
+
+    assert "fitted_q" in tightness
+    assert 0.10 <= tightness["fitted_q"] <= 0.70
+    assert "tv_distance" in tightness
+    assert "chi2_stat" in tightness
+

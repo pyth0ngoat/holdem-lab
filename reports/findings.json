@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:21:03.075480+00:00"
+    "timestamp": "2026-11-14T14:37:04.108830+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:21:03.113155+00:00"
+    "timestamp": "2026-11-14T14:37:04.148531+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.426526+00:00"
+    "timestamp": "2026-11-14T15:13:23.742971+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.426995+00:00"
+    "timestamp": "2026-11-14T15:13:23.743381+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.427240+00:00"
+    "timestamp": "2026-11-14T15:13:23.743694+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 4885238.0,
+      "hands_per_second": 4953090.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,7 +113,7 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.427447+00:00"
+    "timestamp": "2026-11-14T15:13:23.743970+00:00"
   },
   "V-IDENTITY-1N": {
     "fid": "V-IDENTITY-1N",
@@ -159,7 +159,7 @@
     "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.492311+00:00"
+    "timestamp": "2026-11-14T15:13:23.810136+00:00"
   },
   "V-EQUITY-BENCH": {
     "fid": "V-EQUITY-BENCH",
@@ -196,7 +196,7 @@
     "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.662758+00:00"
+    "timestamp": "2026-11-14T15:13:23.981106+00:00"
   },
   "V-EXACT-MC": {
     "fid": "V-EXACT-MC",
@@ -214,7 +214,7 @@
     "caveats": "Tested on heads-up turn board with flush and straight draws.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.701045+00:00"
+    "timestamp": "2026-11-14T15:13:24.018662+00:00"
   },
   "V-STATS-TOOLKIT": {
     "fid": "V-STATS-TOOLKIT",
@@ -235,6 +235,151 @@
     "caveats": "All algorithms implemented in pure NumPy and standard library without external numerical packages.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:20:44.072374+00:00"
+    "timestamp": "2026-11-14T15:13:23.407684+00:00"
+  },
+  "V-UCI-EVAL": {
+    "fid": "V-UCI-EVAL",
+    "title": "Evaluator Verification on Full UCI Poker Hand Dataset",
+    "question": "Does our pure-NumPy 5-card evaluator achieve 100% agreement against all 1,025,010 labelled UCI hands?",
+    "method": "Mapped UCI suit (1-4) and rank (1-13) encoding to internal base-15 representation and evaluated every hand across both training (25,010) and testing (1,000,000) splits.",
+    "results": {
+      "train_hands": 25010,
+      "train_agreed": 25010,
+      "train_mismatches": 0,
+      "test_hands": 1000000,
+      "test_agreed": 1000000,
+      "test_mismatches": 0,
+      "total_hands": 1025010,
+      "total_agreed": 1025010,
+      "total_mismatches": 0,
+      "agreement_rate": 1.0
+    },
+    "figures": [
+      "V-UCI-EVAL_uci_frequencies.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "UCI cards are ordered (480 royal flush instances per suit); suit mapping is Hearts=1, Spades=2, Diamonds=3, Clubs=4; Ace is rank 1.",
+    "gap": "Data Ingestion & Evaluator Verification",
+    "hypothesis": "H-EVAL",
+    "timestamp": "2026-11-14T14:35:50.123176+00:00"
+  },
+  "F-UCI-GOF": {
+    "fid": "F-UCI-GOF",
+    "title": "Goodness-of-Fit Table 1: UCI Hand Class Frequencies vs Exact Multinomial Distribution",
+    "question": "Do the UCI training and testing splits follow the natural combinatorial distribution of 5-card poker hands?",
+    "method": "Chi-square goodness-of-fit test comparing observed frequencies to exact combinatorial probabilities with sparse bin pooling (min expected count >= 5.0) and Monte Carlo multinomial cross-check.",
+    "results": {
+      "train_chi2": 16.122417317476017,
+      "train_df": 7,
+      "train_p_val": 0.02402117040427909,
+      "train_mc_p_val": 0.019,
+      "test_chi2": 1.6635004848306747,
+      "test_df": 8,
+      "test_p_val": 0.9896490258178879,
+      "test_mc_p_val": 0.9905,
+      "train_verdict": "REJECT_H0",
+      "test_verdict": "FAIL_TO_REJECT_H0"
+    },
+    "figures": [
+      "V-UCI-EVAL_uci_frequencies.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "Training split was deliberately designed by UCI authors with over-sampled rare hands (5 Straight Flushes, 5 Royal Flushes), leading to chi-square rejection (p=0.024). Testing split follows natural multinomial probabilities with high precision (p=0.990).",
+    "gap": "Real-Data Goodness-of-Fit (Table 1)",
+    "hypothesis": "H-GOF1",
+    "timestamp": "2026-11-14T14:35:50.123693+00:00"
+  },
+  "F-PHH-TABLESIZES": {
+    "fid": "F-PHH-TABLESIZES",
+    "title": "Real-Play Table Size and Showdown Participant Distribution (PHH HandHQ)",
+    "question": "What is the distribution of table sizes and showdown participants in real multi-player online cash games?",
+    "method": "Extracted seats dealt and players revealing showdown cards from 2009 HandHQ games across 600NL and 1000NL stakes.",
+    "results": {
+      "total_showdowns": 5095,
+      "table_sizes": {
+        "2": 1802,
+        "3": 130,
+        "4": 360,
+        "5": 885,
+        "6": 1918
+      },
+      "showdown_participants": {
+        "1": 2349,
+        "2": 2714,
+        "3": 32
+      }
+    },
+    "figures": [
+      "F-PHH-TABLESIZES_table_distribution.png"
+    ],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Convenience sample of July 2009 mid-high stakes games (Absolute Poker, PokerStars); 6-max and Heads-up predominate.",
+    "gap": "Real-Play Multi-Player Dynamics",
+    "hypothesis": "H-PHH-SIZES",
+    "timestamp": "2026-11-14T14:35:50.801160+00:00"
+  },
+  "F-PHH-WINNING-CAT": {
+    "fid": "F-PHH-WINNING-CAT",
+    "title": "Real-Play Showdown Winning Hand Category Distribution and Selection Bias",
+    "question": "How does the distribution of winning hands in real showdowns differ from theoretical random card dealing?",
+    "method": "Calculated winning hand category frequencies from HandHQ showdowns and compared against random deal combinatorics.",
+    "results": {
+      "observed_props": [
+        0.03868828297715549,
+        0.37030213706705967,
+        0.33824613117170227,
+        0.0733235077376566,
+        0.06226971260132646,
+        0.06263817243920412,
+        0.050110537951363304,
+        0.004421518054532056,
+        0.0,
+        0.0
+      ],
+      "random_baseline": [
+        0.174,
+        0.438,
+        0.235,
+        0.048,
+        0.046,
+        0.03,
+        0.026,
+        0.002,
+        0.001,
+        0.0001
+      ],
+      "high_card_drop": "17.4% -> 3.9%",
+      "two_pair_increase": "23.5% -> 33.8%",
+      "full_house_increase": "2.6% -> 5.0%"
+    },
+    "figures": [
+      "F-PHH-WINNING-CAT_winning_categories.png"
+    ],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Selection bias is severe: players fold weak holdings across three betting streets, heavily suppressing High Card showdowns.",
+    "gap": "Real-Play Showdown Selection Bias",
+    "hypothesis": "H-PHH-WIN",
+    "timestamp": "2026-11-14T14:35:51.806777+00:00"
+  },
+  "F-PHH-TIGHTNESS-Q": {
+    "fid": "F-PHH-TIGHTNESS-Q",
+    "title": "Effective Player Tightness Estimated from Real-Play Showdowns",
+    "question": "What effective preflop tightness q best reproduces the observed winning hand distribution at showdown?",
+    "method": "Grid search over top q fraction of starting hands (q in [0.10, 1.00]) under heads-up equity ranking, minimizing Total Variation distance.",
+    "results": {
+      "fitted_q": 0.4,
+      "tv_distance": 0.044413657577990644,
+      "chi2_stat": 41.06284380128109,
+      "chi2_df": 6,
+      "chi2_p_val": 2.814284267849132e-07
+    },
+    "figures": [
+      "F-PHH-WINNING-CAT_winning_categories.png"
+    ],
+    "verdict": "INFORMATIONAL",
+    "caveats": "Fitted q reflects cumulative selection across all betting rounds, not solely initial preflop VPIP.",
+    "gap": "Opponent Modeling & Selection Bias (G4)",
+    "hypothesis": "H4",
+    "timestamp": "2026-11-14T14:35:51.807162+00:00"
   }
 }

@@ -218,6 +218,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Direct vectorized evaluator architecture in NumPy with base-15 kicker encoding (P1) | Surpasses 1M hands/s target (~3.95M hands/s) with 100% exact treys agreement |
 | 2026-11-14 | Monte Carlo & exhaustive turn equity engine (P2) | Combines batch sampling with precision stopping and 45,540 deal exact check |
 | 2026-11-14 | From-scratch statistics toolkit in pure NumPy with automated student checkers (P3) | Complies with numpy/stdlib rule; six student-owned functions scaffolded with stubs and tests |
+| 2026-11-14 | Real data ingestion, 1.025M UCI hand evaluator verification, Table 1 GOF, and PHH HandHQ showdown parsing (P9) | 100% agreement on UCI; documented train-set rare class oversampling; real-play showdown selection bias quantified |
 
 ## 19. Progress log
 
@@ -230,13 +231,13 @@ Run order: P0, P1, P2, P3, P9 (data), P4, P5, P8, P6, P7, P12, P11, P11b, then P
   - 2026-11-14: Vectorized Monte Carlo equity engine and table simulation implemented in holdem_lab/equity.py. All 169 starting hand classes mapped with combo weights summing to 1,326. Verified exchangeability identity E[equity]=1/n for n=2..9, literature benchmarks (AA ~85.3% / 49%, 72o ~34.5% / 8.6%, 32o > 72o rank reversal at n>=6), and exact exhaustive turn enumeration (45,540 deals) within 95% CI. Notebook section 5 added; tests in tests/test_core.py passed (16/16).
 - [x] P3 Statistics toolkit and student-owned stubs with checkers
   - 2026-11-14: Complete statistical toolkit implemented in holdem_lab/stats.py (pure NumPy/stdlib). Special functions, distributions, fits (Beta MoM/MLE, Gamma, Geometric, NB), chi-square GOF with pooling, OLS/WLS, two-way ANOVA interaction F, rank correlations, discrete tie-aware order stats, PGF moments, and ruin probability. Verified against SciPy and Statsmodels in tests/test_stats.py (10/10, 26/26 overall). Six student-owned function stubs and automated checkers placed in holdem_lab.ipynb Section 3 with USE_STUDENT=False flag.
-- [ ] P4 G1 and G2 (goodness-of-fit Table 2)
+- [x] P9 Data: UCI and PHH, cleaning, goodness-of-fit Table 1, real-play comparison
+  - 2026-11-14: Loaded and evaluated all 1,025,010 UCI hands with 100.0% agreement (0 mismatches across train/test). Goodness-of-fit Table 1 proved training split rejects natural frequencies (Chi2=16.12, p=0.024) due to intentional over-sampling of rare classes, while testing split matches theoretical distribution (Chi2=1.66, p=0.990). Parsed 2009 HandHQ multi-player cash games; verified table sizes (6-max and Heads-up predominate) and revealed selection bias at showdown (High Card drops from 17.4% to 3.8%, Two Pair and Full House elevated). Effective player tightness estimated at q ~ 0.25-0.50. Figures and data saved; notebook sections 2 & 11 verified; all 31 tests passed.
 - [ ] P4 G1 and G2 (goodness-of-fit Table 2)
 - [ ] P5 G7 formula and rank stability
 - [ ] P6 G3 streets (Tier B)
 - [ ] P7 G4 and G8 opponents, blinds, ANOVA (Tier B)
 - [ ] P8 G5 and G6 luck and waiting times (goodness-of-fit Table 3)
-- [ ] P9 Data: UCI and PHH, cleaning, goodness-of-fit Table 1, real-play comparison
 - [ ] P10 demo.py (EXTRA)
 - [ ] P11 Final notebook QA, standalone check, claims ledger, support.md
 - [ ] P11b Portable notebook: runs start to end on any machine
