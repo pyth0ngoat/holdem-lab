@@ -458,3 +458,64 @@ def write_findings() -> str:
         f.write(content)
 
     return content
+
+
+def export_figures_data_json(output_path: Path | str | None = None) -> dict[str, Any]:
+    """Aggregate all CSV files in figures/data/ into a unified JSON structure."""
+    data_dir = FIGURES_DATA_DIR
+    files = sorted(list(data_dir.glob("*.csv")))
+
+    manifest: list[dict[str, Any]] = []
+    payload: dict[str, Any] = {
+        "_metadata": {
+            "generated_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            "source_directory": str(data_dir.relative_to(ROOT_DIR)),
+            "total_files": len(files),
+            "manifest": manifest,
+        }
+    }
+
+    for f in files:
+        try:
+            df = pd.read_csv(f)
+            records = df.to_dict(orient="records")
+            cleaned = []
+            for r in records:
+                cleaned_row = {}
+                for k, v in r.items():
+                    if pd.isna(v):
+                        cleaned_row[k] = None
+                    else:
+                        cleaned_row[k] = v
+                cleaned.append(cleaned_row)
+
+            entry = {
+                "filename": f.name,
+                "stem": f.stem,
+                "row_count": len(df),
+                "column_count": len(df.columns),
+                "columns": list(df.columns),
+                "data": cleaned,
+            }
+            payload[f.name] = entry
+            manifest.append({
+                "filename": f.name,
+                "stem": f.stem,
+                "row_count": len(df),
+                "columns": list(df.columns),
+            })
+        except Exception:
+            pass
+
+    target_path = Path(output_path) if output_path else ROOT_DIR / "figures_data.json"
+    target_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(target_path, "w", encoding="utf-8") as fp:
+        json.dump(payload, fp, indent=2)
+
+    sub_path = data_dir / "figures_data.json"
+    if target_path.resolve() != sub_path.resolve():
+        with open(sub_path, "w", encoding="utf-8") as fp:
+            json.dump(payload, fp, indent=2)
+
+    return payload
+

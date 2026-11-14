@@ -915,6 +915,35 @@ def test_hand_examples_checker():
     assert check_answer("E1_P_max_1", 0.999) is False
 
 
+def test_export_figures_data_json():
+    """Verify aggregation of figures/data/*.csv into unified figures_data.json."""
+    from holdem_lab.findings import export_figures_data_json
+    import json
+    from pathlib import Path
+
+    payload = export_figures_data_json()
+    assert "_metadata" in payload
+    assert payload["_metadata"]["total_files"] >= 25
+    assert len(payload["_metadata"]["manifest"]) == payload["_metadata"]["total_files"]
+
+    root_json = Path("figures_data.json")
+    assert root_json.exists()
+    assert root_json.stat().st_size > 10_000
+
+    data_json = Path("figures/data/figures_data.json")
+    assert data_json.exists()
+    assert data_json.stat().st_size > 10_000
+
+    # Verify equity_table is present with required keys
+    assert "equity_table.csv" in payload
+    eq_entry = payload["equity_table.csv"]
+    assert "columns" in eq_entry
+    assert "hand_class" in eq_entry["columns"]
+    assert "data" in eq_entry
+    assert len(eq_entry["data"]) == 1352
+
+
+
 
 
 

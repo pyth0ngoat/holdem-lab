@@ -230,6 +230,7 @@ H1 iid-max misestimates the winning hand (size and direction measured). H2 equit
 | 2026-11-14 | Interactive classroom demo and G9 log analysis pipeline (P10) | Created single-file demo.py (FastAPI + WebSockets + QR + mobile UI); 5/5 selftest checks passing; dynamic table-size recomputation; added run_g9_demo_log_analysis() in holdem_lab/analysis.py and notebook Section 12; added tests/test_demo.py (8/8 passing); updated README.md with demo day checklist |
 | 2026-11-14 | Realtime WebSocket broadcast, 5-card mobile community board, and simulation aid overhaul in demo.py | Fixed mobile UI desynchronization: broadcast state to host, player, and spectator WebSockets; added 5-card board row with four-colour suits; dynamic outs, Rule of 2/4, live board equity, and instant guess lock reveal |
 | 2026-11-14 | Showdown winner detection, mobile celebration banner, and host showdown hands reveal in demo.py | Evaluated 7-card categories at showdown; added mobile victory/defeat/fold announcement banner with pot payouts; host screen highlights winner in glowing emerald with WINNER badge, mini-cards, and final hand ranks; added test_showdown_winner_announcement_and_payload |
+| 2026-11-15 | Aggregated all 30 figures/data/*.csv datasets into unified figures_data.json | Implemented export_figures_data_json() in holdem_lab/findings.py; generated figures_data.json and figures/data/figures_data.json containing full metadata manifest and tabular records; added test_export_figures_data_json |
 
 ## 19. Progress log
 

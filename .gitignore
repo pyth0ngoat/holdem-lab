@@ -9,3 +9,5 @@ __pycache__/
 .ipynb_checkpoints/
 holdem_lab_executed.ipynb
 data/demo_logs/*.jsonl
+.DS_Store
+*.DS_Store
