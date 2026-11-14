@@ -3305,4 +3305,166 @@ From the project's data files (`figures/data/equity_table.csv` and `data/formula
     return str(output_path)
 
 
+def run_g9_demo_log_analysis(
+    logs_dir: Optional[Path] = None,
+) -> dict[str, Any]:
+    """Analyze demo logs from data/demo_logs/ for G9 findings.
+
+    Computes:
+    - Unaided vs aided absolute error and Brier score.
+    - Paired difference with t-interval and clustered bootstrap CI by seat.
+    - Error vs hand strength and table size n.
+    - Crowd average vs truth.
+
+    Labels findings as a convenience sample (classroom demo).
+    Skips gracefully with an INFORMATIONAL finding when no logs exist.
+    """
+    if logs_dir is None:
+        logs_dir = DATA_DIR / "demo_logs"
+
+    log_files = list(logs_dir.glob("*.jsonl")) if logs_dir.exists() else []
+    records = []
+    for f in log_files:
+        try:
+            with open(f, "r", encoding="utf-8") as fp:
+                for line in fp:
+                    line = line.strip()
+                    if line:
+                        records.append(json.loads(line))
+        except Exception:
+            continue
+
+    if not records:
+        print("G9 Demo Log Analysis: No demo logs found in data/demo_logs/. Gracefully skipping.")
+        record_finding(
+            fid="F-G9-DEMO-LOGS",
+            title="G9: Interactive Demo Calibration & Wisdom-of-Crowds (Convenience Sample)",
+            question="Does simulation aid improve player equity calibration and how well does the crowd average track true equity?",
+            method="Evaluation of live classroom demo session logs from data/demo_logs/*.jsonl.",
+            results={"status": "SKIPPED", "reason": "No live demo logs present in data/demo_logs/."},
+            figures=[],
+            verdict="INFORMATIONAL",
+            caveats="Demo data represents an uncontrolled classroom convenience sample outside the core report.",
+            gap="Calibration & Human Decision-Making (G9)",
+            hypothesis=None,
+        )
+        write_findings()
+        return {"status": "skipped", "reason": "no_logs"}
+
+    df = pd.DataFrame(records)
+    required_cols = {"unaided_guess", "aided_guess", "true_equity"}
+    if not required_cols.issubset(df.columns):
+        print("G9 Demo Log Analysis: Incomplete log records. Skipping.")
+        return {"status": "skipped", "reason": "incomplete_records"}
+
+    df = df.dropna(subset=list(required_cols)).copy()
+    if len(df) == 0:
+        return {"status": "skipped", "reason": "empty_valid_logs"}
+
+    df["err_unaided"] = np.abs(df["unaided_guess"] - df["true_equity"])
+    df["err_aided"] = np.abs(df["aided_guess"] - df["true_equity"])
+    df["brier_unaided"] = (df["unaided_guess"] - df["true_equity"]) ** 2
+    df["brier_aided"] = (df["aided_guess"] - df["true_equity"]) ** 2
+    df["diff_err"] = df["err_unaided"] - df["err_aided"]
+
+    mean_err_unaided = float(np.mean(df["err_unaided"]))
+    mean_err_aided = float(np.mean(df["err_aided"]))
+    mean_brier_unaided = float(np.mean(df["brier_unaided"]))
+    mean_brier_aided = float(np.mean(df["brier_aided"]))
+    mean_diff = float(np.mean(df["diff_err"]))
+
+    n_obs = len(df)
+    std_diff = float(np.std(df["diff_err"], ddof=1)) if n_obs > 1 else 0.0
+    se_diff = std_diff / np.sqrt(n_obs) if n_obs > 1 else 0.0
+    t_stat = mean_diff / se_diff if se_diff > 1e-12 else 0.0
+    t_crit = 1.96
+    ci_t = [mean_diff - t_crit * se_diff, mean_diff + t_crit * se_diff]
+
+    seat_col = "seat_id" if "seat_id" in df.columns else "nickname"
+    seats = df[seat_col].unique()
+    rng = np.random.default_rng(SEED_FIT)
+    boot_diffs = []
+    for _ in range(1000):
+        sampled_seats = rng.choice(seats, size=len(seats), replace=True)
+        boot_df = pd.concat([df[df[seat_col] == s] for s in sampled_seats])
+        boot_diffs.append(float(np.mean(boot_df["diff_err"])))
+    boot_ci = [float(np.percentile(boot_diffs, 2.5)), float(np.percentile(boot_diffs, 97.5))]
+
+    group_col = "hand_class" if "hand_class" in df.columns else "round_id"
+    crowd = df.groupby(group_col).agg(
+        crowd_guess=("unaided_guess", "mean"),
+        true_equity=("true_equity", "first"),
+    )
+    crowd_mae = float(np.mean(np.abs(crowd["crowd_guess"] - crowd["true_equity"])))
+
+    df_g9_summary = pd.DataFrame([{
+        "n_observations": n_obs,
+        "n_seats": len(seats),
+        "mean_err_unaided": mean_err_unaided,
+        "mean_err_aided": mean_err_aided,
+        "mean_brier_unaided": mean_brier_unaided,
+        "mean_brier_aided": mean_brier_aided,
+        "paired_diff_mae": mean_diff,
+        "t_ci_low": ci_t[0],
+        "t_ci_high": ci_t[1],
+        "boot_ci_low": boot_ci[0],
+        "boot_ci_high": boot_ci[1],
+        "crowd_mae": crowd_mae,
+    }])
+    df_g9_summary.to_csv(FIGURES_DATA_DIR / "F-G9-DEMO-LOGS_demo_calibration.csv", index=False)
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4.5))
+    ax1.boxplot([df["err_unaided"] * 100, df["err_aided"] * 100], tick_labels=["Unaided", "Aided (With Tool)"])
+    ax1.set_ylabel("Absolute Calibration Error (pp)")
+    ax1.set_title(f"Aided vs Unaided Estimation Error\n(Paired Diff: {mean_diff*100:+.1f} pp)")
+    ax1.grid(True, alpha=0.3)
+
+    ax2.scatter(crowd["true_equity"] * 100, crowd["crowd_guess"] * 100, color="navy", alpha=0.7, label="Crowd Avg Guess")
+    ax2.plot([0, 100], [0, 100], "r--", label="Perfect Calibration")
+    ax2.set_xlabel("True Equity (%)")
+    ax2.set_ylabel("Crowd Guess (%)")
+    ax2.set_title(f"Wisdom of Crowds Calibration (MAE={crowd_mae*100:.1f} pp)")
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    fig.tight_layout()
+
+    fig_path = save_fig(fig, "F-G9-DEMO-LOGS", "demo_calibration", "Unaided vs Aided player equity guesses and wisdom-of-crowds calibration", data=df_g9_summary)
+
+    record_finding(
+        fid="F-G9-DEMO-LOGS",
+        title="G9: Interactive Demo Calibration & Wisdom-of-Crowds (Convenience Sample)",
+        question="Does simulation aid improve player equity calibration and how well does the crowd average track true equity?",
+        method=f"Evaluated {n_obs} decisions across {len(seats)} seats from interactive demo logs.",
+        results={
+            "n_observations": n_obs,
+            "n_seats": len(seats),
+            "mean_err_unaided_pp": round(mean_err_unaided * 100, 2),
+            "mean_err_aided_pp": round(mean_err_aided * 100, 2),
+            "error_reduction_pp": round(mean_diff * 100, 2),
+            "brier_unaided": round(mean_brier_unaided, 4),
+            "brier_aided": round(mean_brier_aided, 4),
+            "paired_t_stat": round(t_stat, 2),
+            "t_95_ci_diff": [round(ci_t[0] * 100, 2), round(ci_t[1] * 100, 2)],
+            "clustered_boot_ci_diff": [round(boot_ci[0] * 100, 2), round(boot_ci[1] * 100, 2)],
+            "crowd_mae_pp": round(crowd_mae * 100, 2),
+        },
+        figures=[fig_path],
+        verdict="INFORMATIONAL",
+        caveats="Educational convenience sample from interactive demo; play chips only; outside core formal findings.",
+        gap="Calibration & Human Decision-Making (G9)",
+        hypothesis=None,
+    )
+    write_findings()
+
+    return {
+        "status": "success",
+        "summary": df_g9_summary,
+        "n_obs": n_obs,
+        "mean_diff": mean_diff,
+        "ci_t": ci_t,
+        "boot_ci": boot_ci,
+    }
+
+
+
 

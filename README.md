@@ -179,3 +179,45 @@ venv/bin/python demo.py --bots 6 --port 8000
 - **Port in use:** Specify a different port with `--port 8080`.
 - **Firewall:** Ensure incoming TCP traffic on the selected port is allowed in your OS firewall settings.
 - **Client isolation:** Institutional or campus Wi-Fi frequently isolates wireless clients. Use a personal phone or laptop hotspot to connect host and player phones on the same subnet.
+
+---
+
+## Demo Day Checklist & Viva Presentation Guide
+
+Follow this 6-point checklist 30 minutes prior to your live presentation or viva demonstration:
+
+1. **Pre-Flight Selftest (30 Minutes Before):**
+   Run the automated pre-flight checklist to verify data files, networking, and in-memory engine:
+   ```bash
+   venv/bin/python demo.py --selftest
+   ```
+   *Expected Output:* `5/5 checks passed. SELFTEST STATUS: PASS`.
+
+2. **Network Setup & Hotspot Verification:**
+   Campus and conference Wi-Fi networks typically enforce wireless client isolation (preventing phones from reaching your laptop). Enable your phone or laptop mobile hotspot and connect both your laptop and player devices to that network.
+
+3. **Two-Phone Dry Run:**
+   - Start the demo with recording:
+     ```bash
+     venv/bin/python demo.py --bots 6 --record --port 8000
+     ```
+   - Connect two mobile phones via QR code scan.
+   - Confirm that hole cards are strictly private to each phone.
+   - Verify unaided guess slider -> click "Lock Guess" -> confirm formula aid and by-hand recipe reveal.
+
+4. **Session Recording (`--record`):**
+   Always include `--record` during live demos. Session logs are stored at `data/demo_logs/*.jsonl` and feed directly into notebook Section 12 to compute empirical calibration error reduction and wisdom-of-crowds accuracy.
+
+5. **10-Minute Talk Path:**
+   - **Minutes 0–2:** Project introduction; display host screen on projector with QR code; invite audience/examiners to scan and join.
+   - **Minutes 2–4 (Preflop & Intuition):** Deal preflop; audience receives private cards; players submit unaided win probability guesses; unlock the aid to demonstrate the closed-form power law $\hat{E}_n = \frac{1}{n}(2p_2)^{\beta_n}$.
+   - **Minutes 4–6 (Table Size Dynamics):** Highlight player folds; demonstrate how active $n$ drops and remaining hands' equities recompute dynamically.
+   - **Minutes 6–8 (Postflop & Martingale):** Deal Flop, Turn, and River; review outs counting and empirical breakdown of the Rule of 4.
+   - **Minutes 8–10 (Showdown & Crowds):** Showdown; review chip standings, calibration Brier score leaderboard, and audience crowd average vs exact combinatorial truth.
+
+6. **Bots-Only Fallback:**
+   If networking is completely unavailable in the presentation room, run a self-contained 9-seat bots-only demonstration with zero phones required:
+   ```bash
+   venv/bin/python demo.py --bots 9 --port 8000
+   ```
+
