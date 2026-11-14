@@ -18,7 +18,7 @@
     "caveats": "Synthetic unit test only",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T13:53:27.208512+00:00"
+    "timestamp": "2026-11-14T14:07:43.048798+00:00"
   },
   "T-BACKED-1": {
     "fid": "T-BACKED-1",
@@ -33,7 +33,7 @@
     "caveats": "None",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T13:53:27.243270+00:00"
+    "timestamp": "2026-11-14T14:07:43.085796+00:00"
   },
   "V-CARD-EVAL": {
     "fid": "V-CARD-EVAL",
@@ -51,7 +51,7 @@
     "caveats": "Comparison maps category 9 (Royal Flush) to class 1 alongside Straight Flushes per Treys specification.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:02:15.244429+00:00"
+    "timestamp": "2026-11-14T14:11:57.531246+00:00"
   },
   "V-CARD-COUNTS": {
     "fid": "V-CARD-COUNTS",
@@ -71,7 +71,7 @@
     "caveats": "Hands are unordered; royal flushes separated as category 9 from other straight flushes (category 8).",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:02:15.244716+00:00"
+    "timestamp": "2026-11-14T14:11:57.531588+00:00"
   },
   "V-BENCH-PROBS": {
     "fid": "V-BENCH-PROBS",
@@ -97,7 +97,7 @@
     "caveats": "Pocket pair set calculation assumes unseen cards are drawn without replacement from remaining 50 cards.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:02:15.244891+00:00"
+    "timestamp": "2026-11-14T14:11:57.531841+00:00"
   },
   "I-CARD-SPEED": {
     "fid": "I-CARD-SPEED",
@@ -105,7 +105,7 @@
     "question": "What is the throughput of the pure-NumPy 7-card hand evaluator?",
     "method": "Vectorized batch evaluation of 50,000 hands",
     "results": {
-      "hands_per_second": 4894144.0,
+      "hands_per_second": 4585263.0,
       "target_hands_per_second": 1000000
     },
     "figures": [],
@@ -113,6 +113,107 @@
     "caveats": "Measured on host CPU in quick mode.",
     "gap": "VERIFICATION",
     "hypothesis": null,
-    "timestamp": "2026-11-14T14:02:15.245037+00:00"
+    "timestamp": "2026-11-14T14:11:57.532054+00:00"
+  },
+  "V-IDENTITY-1N": {
+    "fid": "V-IDENTITY-1N",
+    "title": "Exchangeability Identity Check E[Equity] = 1/n",
+    "question": "Does the combo-weighted average equity share per player exactly equal 1/n across all table sizes n=2..9?",
+    "method": "Full-table simulated deals (5,000 deals per n) verifying chip and payout conservation",
+    "results": {
+      "n=2": {
+        "empirical": 0.5,
+        "expected": 0.5
+      },
+      "n=3": {
+        "empirical": 0.333333,
+        "expected": 0.333333
+      },
+      "n=4": {
+        "empirical": 0.25,
+        "expected": 0.25
+      },
+      "n=5": {
+        "empirical": 0.2,
+        "expected": 0.2
+      },
+      "n=6": {
+        "empirical": 0.166667,
+        "expected": 0.166667
+      },
+      "n=7": {
+        "empirical": 0.142857,
+        "expected": 0.142857
+      },
+      "n=8": {
+        "empirical": 0.125,
+        "expected": 0.125
+      },
+      "n=9": {
+        "empirical": 0.111111,
+        "expected": 0.111111
+      }
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "Holds exactly due to exchangeability of uniformly dealt cards across seats.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:11:57.599487+00:00"
+  },
+  "V-EQUITY-BENCH": {
+    "fid": "V-EQUITY-BENCH",
+    "title": "Starting Hand Equity Benchmarks and Rank Inversion",
+    "question": "Do AA, 72o, and 32o equities match informal literature benchmarks, and does 32o surpass 72o at multiway tables?",
+    "method": "Vectorized Monte Carlo simulation (10,000 iterations per hand/table size)",
+    "results": {
+      "AA_n2": {
+        "value": "85.17%",
+        "benchmark": "85.3%"
+      },
+      "AA_n6": {
+        "value": "49.02%",
+        "benchmark": "49.0%"
+      },
+      "72o_n2": {
+        "value": "35.23%",
+        "benchmark": "34.5%"
+      },
+      "72o_n6": {
+        "value": "8.84%",
+        "benchmark": "8.6%"
+      },
+      "32o_n6": {
+        "value": "9.27%",
+        "benchmark": "9.2%"
+      },
+      "rank_reversal_n6_verified": true
+    },
+    "figures": [
+      "figures/V-EQUITY-BENCH_equity_benchmarks.png"
+    ],
+    "verdict": "VERIFIED",
+    "caveats": "Source of initial figures is informal simulation video; our own computation is the formal reproducible evidence.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:11:57.768018+00:00"
+  },
+  "V-EXACT-MC": {
+    "fid": "V-EXACT-MC",
+    "title": "Exact River Enumeration vs Monte Carlo Agreement",
+    "question": "Does Monte Carlo estimation agree with exhaustive combinatorial enumeration on partial boards?",
+    "method": "Exhaustive enumeration of all 45,540 deals on turn board compared to Monte Carlo sampling",
+    "results": {
+      "exact_equity": 0.615338,
+      "mc_equity": 0.6138,
+      "mc_se": 0.00396,
+      "discrepancy": 0.001538
+    },
+    "figures": [],
+    "verdict": "VERIFIED",
+    "caveats": "Tested on heads-up turn board with flush and straight draws.",
+    "gap": "VERIFICATION",
+    "hypothesis": null,
+    "timestamp": "2026-11-14T14:11:57.806652+00:00"
   }
 }

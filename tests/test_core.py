@@ -39,6 +39,19 @@ from holdem_lab.cards import (
     measure_evaluator_speed,
     str_to_card,
 )
+from holdem_lab.equity import (
+    ALL_CLASSES,
+    COMBO_WEIGHTS,
+    TOTAL_COMBOS,
+    cards_to_class,
+    class_combos_count,
+    class_representative,
+    class_to_combos,
+    estimate_hand_equity,
+    exact_board_equity,
+    exact_turn_equity,
+    simulate_table_deals,
+)
 from holdem_lab.findings import (
     assert_all_claims_backed,
     clear_claims_ledger,
@@ -167,17 +180,14 @@ def test_exact_counts_and_probabilities():
 
 def test_benchmark_probabilities():
     """Verify the three required benchmark probabilities against textbook formulas."""
-    # 1. Set on the flop with a pocket pair = 1 - C(48,3)/C(50,3)
     expected_set = 1.0 - math.comb(48, 3) / math.comb(50, 3)
     assert abs(P_SET_ON_FLOP - expected_set) < 1e-12
     assert abs(1.0 / P_SET_ON_FLOP - 8.506944) < 1e-3
 
-    # 2. Flush by river from 4 suited cards on flop = 1 - C(38,2)/C(47,2) ≈ 34.97%
     expected_flush = 1.0 - math.comb(38, 2) / math.comb(47, 2)
     assert abs(P_FLUSH_BY_RIVER_FROM_FLOP_DRAW - expected_flush) < 1e-12
     assert abs(P_FLUSH_BY_RIVER_FROM_FLOP_DRAW - 0.349676) < 1e-4
 
-    # 3. Seven-card royal flush = 4,324 / 133,784,560 (1 in 30,940)
     expected_rf = 4324 / 133_784_560
     assert abs(P_7CARD_ROYAL_FLUSH - expected_rf) < 1e-12
     assert abs(1.0 / P_7CARD_ROYAL_FLUSH - 30940.0) < 0.1
@@ -185,23 +195,21 @@ def test_benchmark_probabilities():
 
 def test_evaluator_wheel_straight_and_royal_flush():
     """Test straight wheel (A-2-3-4-5) and Royal Flush classification."""
-    # Wheel straight: 5c, 4d, 3h, 2s, Ac
     wheel_cards = np.array([str_to_card("5c"), str_to_card("4d"), str_to_card("3h"), str_to_card("2s"), str_to_card("Ac")])
     scores_5, cats_5 = evaluate_5cards(wheel_cards.reshape(1, 5))
-    assert cats_5[0] == 4  # Straight
-    # Compare with 6-high straight: 6c, 5d, 4h, 3s, 2c
+    assert cats_5[0] == 4
+
     six_straight = np.array([str_to_card("6c"), str_to_card("5d"), str_to_card("4h"), str_to_card("3s"), str_to_card("2c")])
     scores_6, cats_6 = evaluate_5cards(six_straight.reshape(1, 5))
     assert cats_6[0] == 4
-    assert scores_6[0] > scores_5[0]  # 6-high strictly beats 5-high wheel
+    assert scores_6[0] > scores_5[0]
 
-    # Royal Flush in 7 cards: As Ks Qs Js Ts 2c 3d
     rf_7 = np.array([
         str_to_card("As"), str_to_card("Ks"), str_to_card("Qs"), str_to_card("Js"), str_to_card("Ts"),
         str_to_card("2c"), str_to_card("3d")
     ])
     scores_rf, cats_rf = evaluate_7cards(rf_7.reshape(1, 7))
-    assert cats_rf[0] == 9  # Royal Flush
+    assert cats_rf[0] == 9
 
 
 def test_evaluator_speed_target():
@@ -233,15 +241,86 @@ def test_evaluator_treys_agreement():
         treys_scores[i] = score
         treys_cats[i] = treys_class_to_cat[t_class]
 
-    # Map our Royal Flush (9) to 8 for comparison with Treys Straight Flush class
     mapped_our_cats = np.where(our_cats == 9, 8, our_cats)
     category_mismatches = np.sum(mapped_our_cats != treys_cats)
     assert category_mismatches == 0, f"Found {category_mismatches} category mismatches with Treys"
 
-    # Pairwise ordering comparison
     sA, sB = our_scores[0::2], our_scores[1::2]
     tA, tB = treys_scores[0::2], treys_scores[1::2]
     our_cmp = np.sign(sA - sB)
-    treys_cmp = np.sign(tB - tA)  # Treys is lower-is-better
+    treys_cmp = np.sign(tB - tA)
     order_mismatches = np.sum(our_cmp != treys_cmp)
     assert order_mismatches == 0, f"Found {order_mismatches} ordering mismatches with Treys"
+
+
+# -------------------------------------------------------------------------
+# P2: Equity Engine, Hand Classes, and 1/n Identity Tests
+# -------------------------------------------------------------------------
+def test_hand_classes_and_combo_weights():
+    """Verify that 169 classes are properly formed and combo weights sum to 1,326."""
+    assert len(ALL_CLASSES) == 169
+    assert TOTAL_COMBOS == 1326
+    assert sum(COMBO_WEIGHTS.values()) == 1326
+
+    # Verify combo counts: 13 pairs * 6 = 78, 78 suited * 4 = 312, 78 offsuit * 12 = 936
+    pair_combos = sum(COMBO_WEIGHTS[c] for c in ALL_CLASSES if len(c) == 2)
+    suited_combos = sum(COMBO_WEIGHTS[c] for c in ALL_CLASSES if c.endswith("s"))
+    offsuit_combos = sum(COMBO_WEIGHTS[c] for c in ALL_CLASSES if c.endswith("o"))
+
+    assert pair_combos == 78
+    assert suited_combos == 312
+    assert offsuit_combos == 936
+
+    # Test representative cards mapping
+    for c in ["AA", "AKs", "72o", "32s", "KK", "T9o"]:
+        rep = class_representative(c)
+        assert cards_to_class(rep[0], rep[1]) == c
+
+
+def test_seed_reproducibility():
+    """Verify that fixed seed produces identical Monte Carlo equity numbers."""
+    res1 = estimate_hand_equity("AKs", 4, n_sim=5_000, rng=np.random.default_rng(42))
+    res2 = estimate_hand_equity("AKs", 4, n_sim=5_000, rng=np.random.default_rng(42))
+    assert res1["equity"] == res2["equity"]
+    assert res1["p_win"] == res2["p_win"]
+    assert res1["p_tie"] == res2["p_tie"]
+
+
+def test_1_over_n_identity():
+    """Verify that average player payout equals 1/n for n = 2..9 within precision."""
+    for n in range(2, 10):
+        deals = simulate_table_deals(n, n_deals=5_000, rng=np.random.default_rng(n * 100))
+        mean_payout_per_seat = np.mean(deals["payouts"], axis=0)
+        overall_mean = float(np.mean(mean_payout_per_seat))
+        assert abs(overall_mean - 1.0 / n) < 1e-12
+
+
+def test_equity_benchmarks():
+    """Verify literature benchmark reproductions: AA, 72o, and 32o."""
+    res_aa_2 = estimate_hand_equity("AA", 2, n_sim=10_000, rng=np.random.default_rng(42))
+    assert abs(res_aa_2["equity"] - 0.853) < 0.01
+
+    res_aa_6 = estimate_hand_equity("AA", 6, n_sim=10_000, rng=np.random.default_rng(42))
+    assert abs(res_aa_6["equity"] - 0.490) < 0.02
+
+    res_72_2 = estimate_hand_equity("72o", 2, n_sim=10_000, rng=np.random.default_rng(42))
+    assert abs(res_72_2["equity"] - 0.345) < 0.015
+
+    res_72_6 = estimate_hand_equity("72o", 6, n_sim=10_000, rng=np.random.default_rng(42))
+    assert abs(res_72_6["equity"] - 0.086) < 0.015
+
+    res_32_6 = estimate_hand_equity("32o", 6, n_sim=10_000, rng=np.random.default_rng(42))
+    # Rank reversal: at 6 players, 32o has higher equity than 72o
+    assert res_32_6["equity"] > res_72_6["equity"]
+
+
+def test_exact_vs_monte_carlo():
+    """Verify that Monte Carlo turn equity matches exhaustive 45,540 deal enumeration within 95% CI."""
+    hero = (str_to_card("Ah"), str_to_card("Kh"))
+    turn_board = [str_to_card("Jh"), str_to_card("Th"), str_to_card("2c"), str_to_card("7s")]
+
+    exact_res = exact_turn_equity(hero, turn_board)
+    mc_res = estimate_hand_equity(hero, 2, board=turn_board, n_sim=15_000, rng=np.random.default_rng(42))
+
+    diff = abs(exact_res["equity"] - mc_res["equity"])
+    assert diff <= 2.5 * mc_res["equity_se"]
